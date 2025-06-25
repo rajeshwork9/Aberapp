@@ -5,12 +5,26 @@ import { Button, Text, Checkbox } from 'react-native-paper';
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
   const [captcha, setCaptcha] = useState('');
   const [checked, setChecked] = React.useState(false);
 
   const handleLogin = () => {
     console.log('Logging in:', email, password, captcha);
   };
+
+  const validate = () => {
+    if (!email) {
+      setError('Email is required');
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setError('Email is invalid');
+    } else {
+      setError('');
+      // submit form
+    }
+  };
+
 
   return (
     <ImageBackground
@@ -20,32 +34,35 @@ const Login: React.FC = () => {
     >
       <View style={styles.container}>
         <View style={styles.innerContainer}>
+
           <ImageBackground source={require('../../assets/images/logo.png')} style={styles.logoImage} ></ImageBackground>
           <Text variant="headlineMedium" style={styles.title}>
             Login with Account
           </Text>
+          
 
-          <View>
+          <View style={styles.formViewGroup}>
             <TextInput style={styles.formInput} placeholder="Email" placeholderTextColor="#aaa"
-              //  value={email} //  onChangeText={setEmail}
+              value={email} onChangeText={setEmail}
               keyboardType="email-address" autoCapitalize="none" />
             <ImageBackground source={require('../../assets/images/email-icon.png')} style={styles.formInputIcon} ></ImageBackground>
+             {error ? <Text style={styles.errorMessage}>{error}</Text> : null}
           </View>
 
 
-          <View>
+          <View style={styles.formViewGroup}>
             <TextInput style={styles.formInput} placeholder="Password" placeholderTextColor="#aaa"
-              //  value={password}//  onChangeText={setPassword}
+             value={password}onChangeText={setPassword}
               secureTextEntry
             />
             <ImageBackground source={require('../../assets/images/password-icon.png')} style={styles.formInputIcon} ></ImageBackground>
+           {error ? <Text style={styles.errorMessage}>{error}</Text> : null}
           </View>
 
           <Text style={styles.forgotLink}>Forgot password?</Text>
 
-          <View>
+          <View style={styles.formViewGroup}>
             <TextInput style={styles.formInput} placeholder="Enter Captcha" placeholderTextColor="#aaa"
-              //  value={password}//  onChangeText={setPassword}
               secureTextEntry
             />
             <ImageBackground source={require('../../assets/images/captcha-icon.png')} style={styles.formInputIcon} ></ImageBackground>
@@ -63,7 +80,7 @@ const Login: React.FC = () => {
              <Text style={styles.cboxlabel}>Save Password</Text>
             </View>
 
-          <Button mode="contained" style={styles.primaryBt} onPress={handleLogin}>
+          <Button mode="contained" style={styles.primaryBt} onPress={validate}>
             Login
           </Button>
         </View>
@@ -111,6 +128,10 @@ const styles = StyleSheet.create({
     color: '#fff',
     paddingLeft:10,
   },
+
+  formViewGroup:{
+    marginBottom:15,
+  },
   
   formInput: {
     height: 45,
@@ -118,7 +139,6 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     paddingRight: 20,
     paddingLeft: 45,
-    marginBottom:15,
     marginTop: 0,
     fontSize: 13,
     fontWeight: 400,
@@ -139,6 +159,11 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginBottom: 20,
     color: '#fff',
+  },
+
+  errorMessage:{
+    color:'#FFACAC',
+    marginBottom: 5,
   },
 
   cboxStyle:{
