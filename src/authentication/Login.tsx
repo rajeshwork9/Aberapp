@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ImageBackground, TextInput } from 'react-native';
+import { StyleSheet, View, ImageBackground, TextInput,Image } from 'react-native';
 import { Button, Text, Checkbox } from 'react-native-paper';
 
 const Login: React.FC = () => {
@@ -66,8 +66,10 @@ const Login: React.FC = () => {
               secureTextEntry
             />
 
-<Button style={styles.refreshBt} icon="camera" onPress={() => console.log('Pressed')}>
-   123456
+<Button style={styles.refreshBt} onPress={() => console.log('Pressed')}>
+   <Text style={{color:'#fff',position:'relative',top:-6,height:20, fontSize:12,}}>123456 
+     <Image style={{width:20, height:14,  }} source={require('../../assets/images/refresh-icon.png')} />
+   </Text>
   </Button>
              {/* <Button mode="contained" style={styles.refreshBt}>123456  <ImageBackground source={require('../../assets/images/refresh-icon.png')} style={styles.refreshIcon} ></ImageBackground></Button> */}
           
@@ -201,34 +203,21 @@ loginBottomImg:{
   },
 
   refreshBt:{
-    borderWidth:1,
+      width:105,
+      backgroundColor:'#02152D',
+     borderWidth:1,
     borderStyle:'solid',
     borderColor:'#fff',
     borderRadius:40,
-    paddingHorizontal:0,
-    paddingLeft:0,
-    paddingVertical:5,
-    color:'#fff',
-    width:100,
-height:32,
-    fontSize:10,
-    lineHeight:2,
-
+    height:33,
+lineHeight:16,
     position:'absolute',
-    right:10,
+    right:6,
     top:6,
-    backgroundColor:'#02152D',
-    fontWeight:'normal',
-
-   
-
+    display:'flex',
+    alignItems:'center',
+    justifyContent: 'space-between',
   },
-  refreshIcon:{
-        width: 13,
-       height: 13,
-       marginTop:2,
-       paddingTop:2,
-       
 
-  }
+
 });
