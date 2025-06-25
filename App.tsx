@@ -10,11 +10,11 @@ const _fontConfig = {
  default: {
     regular: {
       fontFamily: 'Poppins-Regular',
-      fontWeight: 'normal',
+      fontWeight: '400',
     },
     medium: {
       fontFamily: 'Poppins-Medium',
-      fontWeight: 'normal',
+      fontWeight: '500',
     }, 
   },
 };
@@ -27,7 +27,7 @@ const fontConfig = {
 
 const theme = {
   ...DefaultTheme,
-    // fonts: configureFonts({config: fontConfig}),
+  //  fonts: configureFonts({config: fontConfig}),
 
   colors: {
     ...DefaultTheme.colors,

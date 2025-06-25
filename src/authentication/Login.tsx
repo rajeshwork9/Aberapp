@@ -65,6 +65,13 @@ const Login: React.FC = () => {
             <TextInput style={styles.formInput} placeholder="Enter Captcha" placeholderTextColor="#aaa"
               secureTextEntry
             />
+
+<Button style={styles.refreshBt} icon="camera" onPress={() => console.log('Pressed')}>
+   123456
+  </Button>
+             {/* <Button mode="contained" style={styles.refreshBt}>123456  <ImageBackground source={require('../../assets/images/refresh-icon.png')} style={styles.refreshIcon} ></ImageBackground></Button> */}
+          
+          
             <ImageBackground source={require('../../assets/images/captcha-icon.png')} style={styles.formInputIcon} ></ImageBackground>
           </View>
 
@@ -177,6 +184,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left:40,
     top:7,
+    fontSize:13,
   },
 
 loginBottomImg:{
@@ -192,4 +200,35 @@ loginBottomImg:{
     borderRadius: 40,
   },
 
+  refreshBt:{
+    borderWidth:1,
+    borderStyle:'solid',
+    borderColor:'#fff',
+    borderRadius:40,
+    paddingHorizontal:0,
+    paddingLeft:0,
+    paddingVertical:5,
+    color:'#fff',
+    width:100,
+height:32,
+    fontSize:10,
+    lineHeight:2,
+
+    position:'absolute',
+    right:10,
+    top:6,
+    backgroundColor:'#02152D',
+    fontWeight:'normal',
+
+   
+
+  },
+  refreshIcon:{
+        width: 13,
+       height: 13,
+       marginTop:2,
+       paddingTop:2,
+       
+
+  }
 });
