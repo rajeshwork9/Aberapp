@@ -1,6 +1,25 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, ImageBackground, TextInput,Image } from 'react-native';
 import { Button, Text, Checkbox } from 'react-native-paper';
+  import { SelectCountry } from 'react-native-element-dropdown';
+
+  const local_data = [
+    {
+      value: '1',
+      lable: 'EN',
+      image: {
+        uri: 'https://www.vigcenter.com/public/all/images/default-image.jpg',
+      },
+    },
+    {
+      value: '2',
+      lable: 'AE',
+      image: {
+        uri: 'https://www.vigcenter.com/public/all/images/default-image.jpg',
+      },
+    },
+
+  ];
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -9,6 +28,7 @@ const Login: React.FC = () => {
 
   const [captcha, setCaptcha] = useState('');
   const [checked, setChecked] = React.useState(false);
+   const [country, setCountry] = useState('1');
 
   const handleLogin = () => {
     console.log('Logging in:', email, password, captcha);
@@ -33,8 +53,32 @@ const Login: React.FC = () => {
       resizeMode="cover"
     >
       <View style={styles.container}>
-        <View style={styles.innerContainer}>
+  
 
+     <SelectCountry
+        style={styles.countryDropdown}
+        selectedTextStyle={styles.selectedTextContry}
+        placeholderStyle={styles.placeholderCountry}
+        imageStyle={styles.imageCountry}
+        // inputSearchStyle={styles.inputSearchCountry}
+        iconStyle={styles.iconCountry}
+        // search
+        maxHeight={200}
+        value={country}
+        data={local_data}
+        valueField="value"
+        labelField="lable"
+        imageField="image"
+        placeholder="Select country"
+        containerStyle={styles.dropdownList}  
+        activeColor="#333333"
+        // searchPlaceholder="Search..."
+        onChange={e => {
+          setCountry(e.value);
+        }}
+      />
+
+        <View style={styles.innerContainer}>
           <ImageBackground source={require('../../assets/images/logo.png')} style={styles.logoImage} ></ImageBackground>
           <Text variant="headlineMedium" style={styles.title}>
             Login with Account
@@ -109,12 +153,14 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+
+    marginTop:30,
   },
 
   logoImage: {
     marginHorizontal: 'auto',
-    marginTop: 20,
+    marginTop: 0,
     width: 202,
     height: 44,
     justifyContent: 'space-between',
@@ -124,8 +170,10 @@ const styles = StyleSheet.create({
   innerContainer: {
     position:'relative',
     zIndex:1,
-    padding: 10,
-    paddingHorizontal: 20,
+    paddingLeft: 10,
+    paddingRight: 10,
+        paddingTop: 10,
+    paddingBottom: 20,
   },
 
   title: {
@@ -218,6 +266,61 @@ lineHeight:16,
     alignItems:'center',
     justifyContent: 'space-between',
   },
+
+
+  // Select
+
+  countryDropdown: {
+    width:90,
+      marginBottom:20,
+      marginHorizontal:20,
+      height:30,
+     backgroundColor: '#000000',
+     borderRadius:30,
+     color:'#fff',
+     paddingHorizontal:12,
+     alignSelf: 'flex-end'
+
+      
+
+    },
+    imageCountry: {
+      width:16,
+      height:16,
+        color:'#fff',
+    },
+    placeholderCountry: {
+      fontSize: 14,
+       color:'#fff',
+    },
+    selectedTextContry: {
+      fontSize: 12,
+      marginLeft: 8,
+       color:'#fff',
+       
+      
+    },
+    iconCountry: {
+      width: 13,
+      height: 13,
+      backgroundColor:'#000',
+      
+    },
+    inputSearchCountry: {
+      height: 40,
+      fontSize: 16,
+      backgroundColor:'#000',
+      
+    },
+
+    dropdownList: {
+    backgroundColor: '#000', 
+    color:'#fff',
+    borderColor:'#000',
+    borderRadius:4,
+  
+  },
+
 
 
 });
