@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+
 import { StyleSheet, View, ScrollView, ImageBackground, Image } from 'react-native';
 import { Button, Text, Badge, Avatar, Card, IconButton } from 'react-native-paper';
 import { SelectCountry } from 'react-native-element-dropdown';
+
 
 const local_data = [
     {
@@ -75,8 +77,11 @@ const Dashboard: React.FC = () => {
                         <Text style={styles.balanceLabel}>1,345.00</Text>
                         <Text style={styles.textBalance}>Available Balance (AED)</Text>
                     </Card>
-                    <Button mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}>Topup</Button>
+                    <Button mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
+                     >Topup</Button>
                 </View>
+
+                
 
                 <View style={styles.iconGrid}>
                     <View style={styles.iconItem}>
