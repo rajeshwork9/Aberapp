@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { StyleSheet, View, ScrollView, ImageBackground, Image } from 'react-native';
 import { Button, Text, Badge, Avatar, Card, IconButton } from 'react-native-paper';
 import { SelectCountry } from 'react-native-element-dropdown';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MainStackParamList } from '../../App'
+import { MainStackParamList } from '../../App';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const local_data = [
@@ -33,6 +34,15 @@ const Dashboard: React.FC = () => {
     const navigateTo = (path:  keyof MainStackParamList) =>{
         navigation.navigate(path)
     }
+
+    useEffect(() => {
+  (async () => {
+    const token = await AsyncStorage.getItem('accessToken');
+    const expiry = await AsyncStorage.getItem('tokenExpiry');
+    const refresh = await AsyncStorage.getItem('refreshToken');
+    console.log('[TOKEN CHECK]', { token, expiry, refresh });
+  })();
+}, []);
     return (
 
 

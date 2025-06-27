@@ -5,10 +5,8 @@ import { SelectCountry } from 'react-native-element-dropdown';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../App';
+import { login } from '../services/auth'
 
-// ------------------------------------------------------------------
-// Dummy country data
-// ------------------------------------------------------------------
 const local_data = [
   {
     value: '1',
@@ -36,18 +34,26 @@ const Login: React.FC = () => {
   const [checked, setChecked] = useState(false);
   const [country, setCountry] = useState('1');
 
-  const formik = useFormik({
+const formik = useFormik({
     initialValues: { email: '', password: '', captcha: '' },
     validationSchema: LoginSchema,
-    onSubmit: async values => {
+    onSubmit: async (values, { setSubmitting, setErrors }) => {
       try {
-        console.log('[LOGIN]', values);
-        // 1️⃣ Replace with real API call, validate credentials, etc.
-
-        // 2️⃣ Flag user as logged‑in. This rebuilds <App> to show MainStack → Dashboard.
+        setSubmitting(true);
+        const response = await login({
+          username: values.email,
+          password: values.password,
+          // captcha: values.captcha,
+        });
+        console.log('login response', response);
+        // if backend succeeds, mark app as logged‑in
         setLoggedIn(true);
-      } catch (e) {
+      } catch (e: any) {
         console.error('Login failed', e);
+        // Basic error surface – adapt as needed
+        setErrors({ password: 'Invalid credentials' });
+      } finally {
+        setSubmitting(false);
       }
     },
   });
