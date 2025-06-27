@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        marginHorizontal: 0,
+        marginHorizontal: 10,
         marginTop: 70,
     },
 
@@ -118,18 +118,13 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.6)',
         shadowOpacity: 0,
         elevation: 0,
-    },
+          },
     cardContentInner: {
         marginTop: 0,
         borderRadius: 50,
-
         paddingVertical: 10,
-
         flexDirection: 'row', alignItems: 'center',
         justifyContent: 'space-between',
-
-
-
     },
 
     cardWithIcon: {
@@ -145,7 +140,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0,
         elevation: 0,
         shadowColor: 'transparent',
-        marginRight: 5,
+        marginRight: 10,
         padding: 0,
     },
 
@@ -156,8 +151,7 @@ const styles = StyleSheet.create({
     },
     leftTextCard: {
         paddingRight: 10,
-
-
+        width:'55%',
     },
     textCard: {
         fontSize: 13,
@@ -184,7 +178,6 @@ const styles = StyleSheet.create({
 
     },
     rightTextCard: {
-
         justifyContent: 'flex-end',
         alignItems: 'flex-end',
     },
