@@ -2,49 +2,55 @@ import React, { useState } from 'react';
 import { StyleSheet, View, ImageBackground, TextInput, Image } from 'react-native';
 import { Button, Text, Checkbox } from 'react-native-paper';
 import { SelectCountry } from 'react-native-element-dropdown';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { useAuth } from '../../App';
 
+// ------------------------------------------------------------------
+// Dummy country data
+// ------------------------------------------------------------------
 const local_data = [
   {
     value: '1',
     lable: 'EN',
-    image: {
-      uri: 'https://www.vigcenter.com/public/all/images/default-image.jpg',
-    },
+    image: { uri: 'https://www.vigcenter.com/public/all/images/default-image.jpg' },
   },
   {
     value: '2',
     lable: 'AE',
-    image: {
-      uri: 'https://www.vigcenter.com/public/all/images/default-image.jpg',
-    },
+    image: { uri: 'https://www.vigcenter.com/public/all/images/default-image.jpg' },
   },
-
 ];
 
-const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+// ------------------------------------------------------------------
+// Validation schema
+// ------------------------------------------------------------------
+const LoginSchema = Yup.object({
+  email: Yup.string().email('Invalid email').required('Required'),
+  password: Yup.string().required('Required'),
+  captcha: Yup.string().required('Required'),
+});
 
-  const [captcha, setCaptcha] = useState('');
-  const [checked, setChecked] = React.useState(false);
+const Login: React.FC = () => {
+  const { setLoggedIn } = useAuth();
+  const [checked, setChecked] = useState(false);
   const [country, setCountry] = useState('1');
 
-  const handleLogin = () => {
-    console.log('Logging in:', email, password, captcha);
-  };
+  const formik = useFormik({
+    initialValues: { email: '', password: '', captcha: '' },
+    validationSchema: LoginSchema,
+    onSubmit: async values => {
+      try {
+        console.log('[LOGIN]', values);
+        // 1️⃣ Replace with real API call, validate credentials, etc.
 
-  const validate = () => {
-    if (!email) {
-      setError('Email is required');
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      setError('Email is invalid');
-    } else {
-      setError('');
-      // submit form
-    }
-  };
-
+        // 2️⃣ Flag user as logged‑in. This rebuilds <App> to show MainStack → Dashboard.
+        setLoggedIn(true);
+      } catch (e) {
+        console.error('Login failed', e);
+      }
+    },
+  });
 
   return (
     <ImageBackground
@@ -53,16 +59,13 @@ const Login: React.FC = () => {
       resizeMode="cover"
     >
       <View style={styles.container}>
-
-
+        {/* Country selector (outside Formik) */}
         <SelectCountry
           style={styles.countryDropdown}
           selectedTextStyle={styles.selectedTextContry}
           placeholderStyle={styles.placeholderCountry}
           imageStyle={styles.imageCountry}
-          // inputSearchStyle={styles.inputSearchCountry}
           iconStyle={styles.iconCountry}
-          // search
           maxHeight={200}
           value={country}
           data={local_data}
@@ -72,79 +75,91 @@ const Login: React.FC = () => {
           placeholder="Select country"
           containerStyle={styles.dropdownList}
           activeColor="#333333"
-          // searchPlaceholder="Search..."
-          onChange={e => {
-            setCountry(e.value);
-          }}
+          onChange={e => setCountry(e.value)}
         />
 
+        {/* Main form */}
         <View style={styles.innerContainer}>
-          <ImageBackground source={require('../../assets/images/logo.png')} style={styles.logoImage} ></ImageBackground>
-          <Text variant="headlineMedium" style={styles.title}>
-            Login with Account
-          </Text>
+          <ImageBackground source={require('../../assets/images/logo.png')} style={styles.logoImage} />
+          <Text variant="headlineMedium" style={styles.title}>Login with Account</Text>
 
-
+          {/* Email */}
           <View style={styles.formViewGroup}>
-            <TextInput style={styles.formInput} placeholder="Email" placeholderTextColor="#aaa"
-              value={email} onChangeText={setEmail}
-              keyboardType="email-address" autoCapitalize="none" />
-            <ImageBackground source={require('../../assets/images/email-icon.png')} style={styles.formInputIcon} ></ImageBackground>
-            {error ? <Text style={styles.errorMessage}>{error}</Text> : null}
+            <TextInput
+              style={styles.formInput}
+              placeholder="Email"
+              placeholderTextColor="#aaa"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              onChangeText={formik.handleChange('email')}
+              onBlur={formik.handleBlur('email')}
+              value={formik.values.email}
+            />
+            <ImageBackground source={require('../../assets/images/email-icon.png')} style={styles.formInputIcon} />
+            {formik.touched.email && formik.errors.email && <Text style={styles.errorMessage}>{formik.errors.email}</Text>}
           </View>
 
-
+          {/* Password */}
           <View style={styles.formViewGroup}>
-            <TextInput style={styles.formInput} placeholder="Password" placeholderTextColor="#aaa"
-              value={password} onChangeText={setPassword}
+            <TextInput
+              style={styles.formInput}
+              placeholder="Password"
+              placeholderTextColor="#aaa"
               secureTextEntry
+              onChangeText={formik.handleChange('password')}
+              onBlur={formik.handleBlur('password')}
+              value={formik.values.password}
             />
-            <ImageBackground source={require('../../assets/images/password-icon.png')} style={styles.formInputIcon} ></ImageBackground>
-            {error ? <Text style={styles.errorMessage}>{error}</Text> : null}
+            <ImageBackground source={require('../../assets/images/password-icon.png')} style={styles.formInputIcon} />
+            {formik.touched.password && formik.errors.password && <Text style={styles.errorMessage}>{formik.errors.password}</Text>}
           </View>
 
           <Text style={styles.forgotLink}>Forgot password?</Text>
 
+          {/* Captcha */}
           <View style={styles.formViewGroup}>
-            <TextInput style={styles.formInput} placeholder="Enter Captcha" placeholderTextColor="#aaa"
-              secureTextEntry
+            <TextInput
+              style={styles.formInput}
+              placeholder="Enter Captcha"
+              placeholderTextColor="#aaa"
+              onChangeText={formik.handleChange('captcha')}
+              onBlur={formik.handleBlur('captcha')}
+              value={formik.values.captcha}
             />
-
-            <Button style={styles.refreshBt} onPress={() => console.log('Pressed')}>
-              <Text style={{ color: '#fff', position: 'relative', top: -6, height: 20, fontSize: 12, }}>123456
-                <Image style={{ width: 20, height: 14, }} source={require('../../assets/images/refresh-icon.png')} />
+            <Button style={styles.refreshBt} onPress={() => console.log('Refresh Captcha')}>
+              <Text style={{ color: '#fff', position: 'relative', top: -6, fontSize: 12 }}>123456
+                <Image style={{ width: 20, height: 14 }} source={require('../../assets/images/refresh-icon.png')} />
               </Text>
             </Button>
-            {/* <Button mode="contained" style={styles.refreshBt}>123456  <ImageBackground source={require('../../assets/images/refresh-icon.png')} style={styles.refreshIcon} ></ImageBackground></Button> */}
-
-
-            <ImageBackground source={require('../../assets/images/captcha-icon.png')} style={styles.formInputIcon} ></ImageBackground>
+            <ImageBackground source={require('../../assets/images/captcha-icon.png')} style={styles.formInputIcon} />
+            {formik.touched.captcha && formik.errors.captcha && <Text style={styles.errorMessage}>{formik.errors.captcha}</Text>}
           </View>
 
+          {/* Save Password */}
           <View style={styles.cboxStyle}>
             <Checkbox
               color="#fff"
-              uncheckedColor="#fff" // Custom color for unchecked box
+              uncheckedColor="#fff"
               status={checked ? 'checked' : 'unchecked'}
-              onPress={() => {
-                setChecked(!checked);
-              }}
+              onPress={() => setChecked(!checked)}
             />
             <Text style={styles.cboxlabel}>Save Password</Text>
           </View>
 
-          <Button mode="contained" style={styles.primaryBt} onPress={validate}>
+          {/* Submit */}
+          <Button mode="contained" style={styles.primaryBt} onPress={()=>formik.handleSubmit()}>
             Login
           </Button>
         </View>
 
-        <ImageBackground source={require('../../assets/images/loginbottom-img.png')} style={styles.loginBottomImg} ></ImageBackground>
+        <ImageBackground source={require('../../assets/images/loginbottom-img.png')} style={styles.loginBottomImg} />
       </View>
     </ImageBackground>
   );
 };
 
 export default Login;
+
 const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,

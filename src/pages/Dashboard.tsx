@@ -3,6 +3,9 @@ import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView, ImageBackground, Image } from 'react-native';
 import { Button, Text, Badge, Avatar, Card, IconButton } from 'react-native-paper';
 import { SelectCountry } from 'react-native-element-dropdown';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { MainStackParamList } from '../../App'
 
 
 const local_data = [
@@ -25,6 +28,11 @@ const local_data = [
 
 const Dashboard: React.FC = () => {
     const [country, setCountry] = useState('1');
+    const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+
+    const navigateTo = (path:  keyof MainStackParamList) =>{
+        navigation.navigate(path)
+    }
     return (
 
 
@@ -85,21 +93,21 @@ const Dashboard: React.FC = () => {
 
                 <View style={styles.iconGrid}>
                     <View style={styles.iconItem}>
-                        <Card style={styles.imgGridItem}>
+                        <Card style={styles.imgGridItem} onPress={() =>navigateTo('Vehicles')}>
                             <Image style={styles.imgGItem} source={require('../../assets/images/vehicles-icon.png')} />
                         </Card>
                         <Text style={styles.iconLabel}>Vehicles</Text>
                     </View>
 
                     <View style={styles.iconItem}>
-                        <Card style={styles.imgGridItem}>
+                        <Card style={styles.imgGridItem} onPress={() =>navigateTo('Trips')}>
                             <Image style={styles.imgGItem} source={require('../../assets/images/trips-icon.png')} />
                         </Card>
                         <Text style={styles.iconLabel}>Trips</Text>
                     </View>
 
                     <View style={styles.iconItem}>
-                        <Card style={styles.imgGridItem}>
+                        <Card style={styles.imgGridItem} onPress={() =>navigateTo('Violations')}>
                             <Image style={styles.imgGItem} source={require('../../assets/images/violations-icon.png')} />
                         </Card>
                         <Text style={styles.iconLabel}>Violations</Text>

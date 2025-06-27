@@ -1,23 +1,14 @@
-// services/auth.ts
-
-import {API_BASE_URL } from '../utils/environment';
-import api from './api'; // Make sure this is an axios instance
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from './api';
 
+export const login = async (payload: any) => {
+  const { data } = await api.post('/login', payload);
 
-// login
-export const login = async (payload : any) => {
-  try {
-    const response : any = await api.post('/login', payload);
-     await AsyncStorage.multiSet([
-    ['accessToken', response.AccessToken],
-    ['refreshToken', response.RefreshToken],
-    ['tokenExpiry', response.Expires], // or use ExpiresInSeconds
+  await AsyncStorage.multiSet([
+    ['accessToken',  data.AccessToken],
+    ['refreshToken', data.RefreshToken],
+    ['tokenExpiry',  data.Expires],   // in UTC ISO string
   ]);
-    return response.data;
-  } catch (error) {
-    console.error('login error:', error);
-    throw error;
-  }
+
+  return data;
 };
