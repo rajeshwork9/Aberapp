@@ -41,7 +41,7 @@ const App = () => {
   return (
     <PaperProvider theme={theme}>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Topup">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
                <Stack.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false }} />
                <Stack.Screen name="Topup" component={Topup} options={{ headerShown: true, headerTransparent: true, headerTintColor: '#fff', headerTitle: 'Topup', }} />
