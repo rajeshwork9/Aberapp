@@ -5,6 +5,8 @@ import { DefaultTheme, Provider as PaperProvider, configureFonts, MD3LightTheme 
 
 
 import Login from './src/authentication/Login';
+import Dashboard from './src/pages/Dashboard';
+import Topup from './src/pages/Topup';
 
 const _fontConfig = {
  default: {
@@ -41,6 +43,8 @@ const App = () => {
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Login">
           <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+             <Stack.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false }} />
+               <Stack.Screen name="Topup" component={Topup} options={{ headerShown: true }} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
