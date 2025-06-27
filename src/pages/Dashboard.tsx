@@ -25,6 +25,7 @@ const Dashboard: React.FC = () => {
     const [country, setCountry] = useState('1');
     return (
 
+
         <ImageBackground
             source={require('../../assets/images/background.png')}
             style={styles.backgroundImage}
@@ -424,5 +425,7 @@ const styles = StyleSheet.create({
         // unpaid  color: '#FF4141',
          
     },
+
+
 
 });

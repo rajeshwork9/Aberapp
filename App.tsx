@@ -41,10 +41,10 @@ const App = () => {
   return (
     <PaperProvider theme={theme}>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName="Topup">
           <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
                <Stack.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false }} />
-               <Stack.Screen name="Topup" component={Topup} options={{ headerShown: true }} />
+               <Stack.Screen name="Topup" component={Topup} options={{ headerShown: true, headerTransparent: true, headerTintColor: '#fff', headerTitle: 'Topup', }} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
