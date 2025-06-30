@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ImageBackground, TextInput, Image } from 'react-native';
+import { StyleSheet, View, ImageBackground, TextInput, Image, TouchableOpacity } from 'react-native';
 import { Button, Text, Checkbox } from 'react-native-paper';
 import { SelectCountry } from 'react-native-element-dropdown';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../App';
 import { login } from '../services/auth'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const local_data = [
   {
@@ -57,6 +58,11 @@ const formik = useFormik({
       }
     },
   });
+
+  const [secureText, setSecureText] = useState(true);
+    const toggleSecureEntry = () => {
+    setSecureText(!secureText);
+  };
 
   return (
     <ImageBackground
@@ -117,6 +123,9 @@ const formik = useFormik({
               value={formik.values.password}
             />
             <ImageBackground source={require('../../assets/images/password-icon.png')} style={styles.formInputIcon} />
+            <TouchableOpacity onPress={toggleSecureEntry} style={styles.passwordIcon}>
+             <Icon name={secureText ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
+            </TouchableOpacity>
             {formik.touched.password && formik.errors.password && <Text style={styles.errorMessage}>{formik.errors.password}</Text>}
           </View>
 
@@ -133,7 +142,7 @@ const formik = useFormik({
               value={formik.values.captcha}
             />
             <Button style={styles.refreshBt} onPress={() => console.log('Refresh Captcha')}>
-              <Text style={{ color: '#fff', position: 'relative', top: -6, fontSize: 12 }}>123456
+              <Text style={{ color: '#fff', position: 'relative', top: -6, fontSize: 12, height:20, }}>123456
                 <Image style={{ width: 20, height: 14 }} source={require('../../assets/images/refresh-icon.png')} />
               </Text>
             </Button>
@@ -176,13 +185,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     marginTop: 30,
+    paddingHorizontal:20,
   },
 
   logoImage: {
     marginHorizontal: 'auto',
     marginTop: 0,
-    width: 202,
-    height: 44,
+    width: 250,
+    height: 54,
     justifyContent: 'space-between',
 
   },
@@ -192,12 +202,12 @@ const styles = StyleSheet.create({
     zIndex: 1,
     paddingLeft: 10,
     paddingRight: 10,
-    paddingTop: 10,
+    paddingTop:20,
     paddingBottom: 20,
   },
 
   title: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'left',
     marginTop: 30,
@@ -215,32 +225,46 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 40,
     paddingRight: 20,
-    paddingLeft: 45,
+    paddingLeft: 50,
     marginTop: 0,
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: 400,
     color: '#fff',
     backgroundColor: '#1C1C1C'
   },
 
   formInputIcon: {
-    width: 13,
-    height: 13,
+    width: 16,
+    height: 16,
     position: 'absolute',
     top: 17,
     left: 20,
   },
   forgotLink: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: 'normal',
     textAlign: 'right',
     marginBottom: 20,
     color: '#fff',
   },
 
+  passwordIcon:{  
+   position: 'absolute',
+    top:0,
+    right: 0,
+    zIndex:1,
+  
+    height:40,
+    paddingHorizontal:20,
+    paddingTop:10,
+  },
+
   errorMessage: {
     color: '#FFACAC',
+        marginTop: 2,
     marginBottom: 5,
+    fontSize:13,
+    fontWeight:400,
   },
 
   cboxStyle: {
@@ -278,7 +302,7 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     borderRadius: 40,
     height: 33,
-    lineHeight: 16,
+
     position: 'absolute',
     right: 6,
     top: 6,
@@ -293,7 +317,7 @@ const styles = StyleSheet.create({
   countryDropdown: {
     width: 90,
     marginBottom: 20,
-    marginHorizontal: 20,
+    marginHorizontal: 10,
     height: 30,
     backgroundColor: '#000000',
     borderRadius: 30,
