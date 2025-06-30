@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {getAccountName, getFullAccountDetails} from '../services/common';
 
 
 const local_data = [
@@ -29,6 +30,8 @@ const local_data = [
 
 const Dashboard: React.FC = () => {
     const [country, setCountry] = useState('1');
+    const [accountId, setAccountId] = useState<any>();
+    const [accountDetails, setAccountDetails] = useState<any>();
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
 
     const navigateTo = (path:  keyof MainStackParamList) =>{
@@ -41,8 +44,41 @@ const Dashboard: React.FC = () => {
     const expiry = await AsyncStorage.getItem('tokenExpiry');
     const refresh = await AsyncStorage.getItem('refreshToken');
     console.log('[TOKEN CHECK]', { token, expiry, refresh });
+            getAccountId();
+
   })();
 }, []);
+
+  
+        const getAccountId = async () => {
+         
+            try {
+                const data = await getAccountName();
+                console.log(data, "data");
+                const accountDetails = data[0];
+                setAccountId(accountDetails);
+                fullAccDetails(accountDetails.AccountId)
+            } catch (error) {
+                console.error('Failed to load account id:', error);
+            } finally {
+
+            }
+        };
+
+        const fullAccDetails = async (id: any) => {
+           try {
+                const data = await getFullAccountDetails(11120);
+                console.log(data, "Account details");
+                const accountDetails = data;
+                setAccountDetails(accountDetails);
+            } catch (error) {
+                console.error('Failed to load account details:', error);
+            } finally {
+
+            } 
+        }
+
+
     return (
 
 
@@ -56,7 +92,7 @@ const Dashboard: React.FC = () => {
                     <View style={styles.profileCont}>
                         <Avatar.Icon size={28} style={styles.avatarIcon} icon="account" />
                         <View style={styles.userInfo}>
-                            <Text style={styles.userName}>Mansour mohammed Saeed Alassar</Text>
+                            <Text style={styles.userName}> {accountId?.AccountName} </Text>
                         </View>
                     </View>
 
@@ -92,7 +128,7 @@ const Dashboard: React.FC = () => {
                 <View style={styles.balanceCard}>
                     <Image style={styles.imgWalletBalance} source={require('../../assets/images/wallet-icon.png')} />
                     <Card style={styles.balanceContent}>
-                        <Text style={styles.balanceLabel}>1,345.00</Text>
+                        <Text style={styles.balanceLabel}>{accountDetails?.Balance}</Text>
                         <Text style={styles.textBalance}>Available Balance (AED)</Text>
                     </Card>
                     <Button onPress={() =>navigateTo('Topup')} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
