@@ -80,7 +80,7 @@ export const MainStack = React.memo(() => (
         headerTitle: 'Trips', 
       }} 
       />
-    <MainStackNav.Screen 
+           <MainStackNav.Screen 
       name="Vehicles" 
       component={Vehicles} 
       options={{ 
