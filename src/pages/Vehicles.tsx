@@ -193,20 +193,19 @@ const Vehicles: React.FC = () => {
 export default Vehicles;
 const styles = StyleSheet.create({
 
+//--- Header
     backgroundImage: {
         flex: 1,
         width: '100%',
         height: '100%',
     },
 
-
-//--- Header
     container: {
         flex: 1,
-        marginHorizontal: 0,
+        marginHorizontal: 10,
         marginTop:20,
     },
-    
+
     headerMain: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -245,6 +244,37 @@ const styles = StyleSheet.create({
         width: 20,
         height: 20,
         tintColor: 'white'
+    },
+
+     searchBlock: {
+        marginTop:0,
+        marginHorizontal: 5,
+        marginBottom: 15,
+        height: 50,
+
+    },
+
+    searchFormInput: {
+        height: 44,
+        borderColor: '#fff',
+        borderRadius: 100,
+        paddingRight: 20,
+        paddingLeft: 25,
+        marginTop: 0,
+        fontSize: 15,
+        fontWeight: 400,
+        color: '#000',
+        backgroundColor: '#fff'
+
+
+    },
+
+    formInputIcon: {
+        width: 16,
+        height: 16,
+        position: 'absolute',
+        top: 15,
+        left: 14,
     },
 
 //--- Header End
@@ -352,36 +382,7 @@ const styles = StyleSheet.create({
 
     //--
 
-    searchBlock: {
-        marginTop:0,
-        marginHorizontal: 15,
-        marginBottom: 15,
-        height: 50,
-
-    },
-
-    searchFormInput: {
-        height: 44,
-        borderColor: '#fff',
-        borderRadius: 100,
-        paddingRight: 20,
-        paddingLeft: 25,
-        marginTop: 0,
-        fontSize: 15,
-        fontWeight: 400,
-        color: '#000',
-        backgroundColor: '#fff'
-
-
-    },
-
-    formInputIcon: {
-        width: 16,
-        height: 16,
-        position: 'absolute',
-        top: 15,
-        left: 14,
-    },
+   
 
     // --
     modalBottomContainer: {
