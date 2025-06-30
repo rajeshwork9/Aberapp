@@ -33,7 +33,7 @@ const [search, setSearch] = React.useState('');
                   
                     <Card style={styles.cardItemMain}>
                         <View style={styles.cardContentInner}>
-
+                        <View style={styles.leftCardCont}>
                             <Card style={styles.cardWithIcon}>
                                 <Image style={styles.cardIconImg} source={require('../../assets/images/trips-icon.png')} />
                             </Card>
@@ -44,6 +44,7 @@ const [search, setSearch] = React.useState('');
                                 <Text style={styles.textCard}>Transaction ID : 12345</Text>
                                 <Text style={[styles.textCard, { fontWeight: 'light' }]}>07 Mar 2025, 10:50:01</Text>
                             </View>
+                        </View>
                             <View style={styles.rightTextCard}>
                                 <Text style={styles.largeTextRCard}>3XL</Text>
                                 <Image style={{width:16, height:16, marginVertical:4, }} source={require('../../assets/images/chat-icon.png')} />
@@ -61,7 +62,7 @@ const [search, setSearch] = React.useState('');
 
                            <Card style={styles.cardItemMain}>
                         <View style={styles.cardContentInner}>
-
+                     <View style={styles.leftCardCont}>
                             <Card style={styles.cardWithIcon}>
                                 <Image style={styles.cardIconImg} source={require('../../assets/images/trips-icon.png')} />
                             </Card>
@@ -72,6 +73,7 @@ const [search, setSearch] = React.useState('');
                                 <Text style={styles.textCard}>Transaction ID : 12345</Text>
                                 <Text style={[styles.textCard, { fontWeight: 'light' }]}>07 Mar 2025, 10:50:01</Text>
                             </View>
+                        </View>
                             <View style={styles.rightTextCard}>
                                 <Text style={styles.largeTextRCard}>3XL</Text>
                                 <Image style={{width:16, height:16, marginVertical:4, }} source={require('../../assets/images/chat-icon.png')} />
@@ -187,12 +189,18 @@ const styles = StyleSheet.create({
         tintColor: 'white'
     },
     leftTextCard: {
-        paddingRight: 10,
-     
-
+        // paddingRight: 10,
     },
+
+       leftCardCont:{
+           paddingRight: 10,
+        flexDirection:'row',
+        justifyContent:'flex-start',
+         width:'71%',
+    },
+
     textCard: {
-        fontSize: 10,
+        fontSize: 12,
         color: '#fff',
         paddingBottom:2,
     },
@@ -208,7 +216,7 @@ const styles = StyleSheet.create({
   
     },
     statusTextCard: {
-        fontSize: 11,
+        fontSize: 12,
         backgroundColor: '#000000',
         paddingHorizontal: 10,
         paddingVertical: 7,

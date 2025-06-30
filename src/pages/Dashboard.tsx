@@ -14,14 +14,14 @@ const local_data = [
         value: '1',
         lable: 'EN',
         image: {
-            uri: 'https://www.vigcenter.com/public/all/images/default-image.jpg',
+            uri: 'http://rpdemos.net/clients/4xmsol/assets/images/us.png',
         },
     },
     {
         value: '2',
         lable: 'AE',
         image: {
-            uri: 'https://www.vigcenter.com/public/all/images/default-image.jpg',
+            uri: 'http://rpdemos.net/clients/4xmsol/assets/images/ar.png',
         },
     },
 
@@ -95,7 +95,7 @@ const Dashboard: React.FC = () => {
                         <Text style={styles.balanceLabel}>1,345.00</Text>
                         <Text style={styles.textBalance}>Available Balance (AED)</Text>
                     </Card>
-                    <Button mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
+                    <Button onPress={() =>navigateTo('Topup')} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
                      >Topup</Button>
                 </View>
 
@@ -157,15 +157,18 @@ const Dashboard: React.FC = () => {
                     <Card style={styles.cardItemMain}>
                         <View style={styles.cardContentInner}>
 
+                        <View style={styles.leftCardCont}>
                             <Card style={styles.cardWithIcon}>
                                 <Image style={styles.cardIconImg} source={require('../../assets/images/trips-icon.png')} />
                             </Card>
 
-                            <View style={styles.leftTextCard}>
+                          <View style={styles.leftTextCard}>
                                 <Text style={styles.textCard}>36487-AE-UQ-PRI_A</Text>
                                 <Text style={styles.textCard}>G2 Ring Road</Text>
                                 <Text style={styles.textCard}>Transaction ID : 12345</Text>
                                 <Text style={[styles.textCard, { fontWeight: 'light' }]}>07 Mar 2025, 10:50:01</Text>
+                            </View>
+
                             </View>
                             <View style={styles.rightTextCard}>
                                 <Text style={styles.largeTextRCard}>3XL</Text>
@@ -380,15 +383,10 @@ const styles = StyleSheet.create({
     },
     cardContentInner: {
         marginTop:0,
-        borderRadius: 50,
-    
-        paddingVertical: 10,
-      
+        borderRadius: 50,    
+        paddingVertical: 10,      
         flexDirection: 'row', alignItems: 'center',
         justifyContent: 'space-between',
-    
-       
-       
     },
 
     cardWithIcon: {
@@ -404,7 +402,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0,
         elevation: 0,
         shadowColor: 'transparent',
-        marginRight: 5,
+        marginRight: 10,
         padding: 0,
     },
 
@@ -413,15 +411,26 @@ const styles = StyleSheet.create({
         height: 30,
         tintColor: 'white'
     },
+
+    leftCardCont:{
+           paddingRight: 10,
+        flexDirection:'row',
+        justifyContent:'flex-start',
+    
+        width:'71%',
+    },
+
     leftTextCard: {
-        paddingRight: 10,
-     
+
 
     },
+
     textCard: {
-        fontSize: 10,
+        fontSize: 12,
         color: '#fff',
         paddingBottom:2,
+        flexDirection:'column',
+        
     },
     rightTextCard: {
     
@@ -435,7 +444,7 @@ const styles = StyleSheet.create({
   
     },
     statusTextCard: {
-        fontSize: 11,
+        fontSize: 12,
         backgroundColor: '#000000',
         paddingHorizontal: 10,
         paddingVertical: 7,

@@ -33,7 +33,7 @@ const Violations: React.FC = () => {
 
                     <Card style={styles.cardItemMain}>
                         <View style={styles.cardContentInner}>
-
+                    <View style={styles.leftCardCont}>
                             <Card style={styles.cardWithIcon}>
                                 <Image style={styles.cardIconImg} source={require('../../assets/images/vehicles-icon.png')} />
                             </Card>
@@ -46,6 +46,7 @@ const Violations: React.FC = () => {
                                     <Text style={styles.smallTextCard}>Vehicle Violation</Text>
                                
                             </View>
+                        </View>
                             <View style={styles.rightTextCard}>
 
                                 <TouchableOpacity style={styles.primaryBt}>
@@ -149,12 +150,24 @@ const styles = StyleSheet.create({
         height: 22,
         tintColor: 'white'
     },
+
+    
     leftTextCard: {
-        paddingRight: 10,
-        width:'55%',
+        // paddingRight: 10,
+        // width:'55%',
     },
+
+    
+
+        leftCardCont:{
+           paddingRight: 10,
+        flexDirection:'row',
+        justifyContent:'flex-start',
+         width:'71%',
+    },
+    
     textCard: {
-        fontSize: 13,
+        fontSize: 12,
         color: '#fff',
         paddingBottom: 2,
     },

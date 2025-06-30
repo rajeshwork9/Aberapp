@@ -33,7 +33,7 @@ const [search, setSearch] = React.useState('');
                   
                     <Card style={styles.cardItemMain}>
                         <View style={styles.cardContentInner}>
-
+                 <View style={styles.leftCardCont}>
                             <Card style={styles.cardWithIcon}>
                                 <Image style={styles.cardIconImg} source={require('../../assets/images/vehicles-icon.png')} />
                             </Card>
@@ -42,6 +42,7 @@ const [search, setSearch] = React.useState('');
                                 <Text style={styles.textCard}>36487-AE-UQ-PRI_A</Text>                              
                                 <Text style={[styles.deateCard, { fontWeight: 'light' }]}>07 Mar 2025, 10:50:01</Text>
                             </View>
+                    </View>
                             <View style={styles.rightTextCard}>
                                 <Text style={styles.largeTextRCard}>3XL</Text>
                                 <Text style={styles.statusTextCard}>
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0,
         elevation: 0,
         shadowColor: 'transparent',
-        marginRight: 5,
+        marginRight: 10,
         padding: 0,
     },
 
@@ -155,12 +156,18 @@ const styles = StyleSheet.create({
         tintColor: 'white'
     },
     leftTextCard: {
-        paddingRight: 10,
-     
-
+        // paddingRight: 10,
     },
+
+    leftCardCont:{
+           paddingRight: 10,
+        flexDirection:'row',
+        justifyContent:'flex-start',
+         width:'71%',
+    },
+
     textCard: {
-        fontSize: 13,
+        fontSize: 12,
         color: '#fff',
         paddingBottom:2,
     },
@@ -183,7 +190,7 @@ const styles = StyleSheet.create({
   
     },
     statusTextCard: {
-        fontSize: 11,
+        fontSize: 12,
         backgroundColor: '#000000',
         paddingHorizontal: 10,
         paddingVertical: 7,
