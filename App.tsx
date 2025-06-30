@@ -84,10 +84,10 @@ export const MainStack = React.memo(() => (
       name="Vehicles" 
       component={Vehicles} 
       options={{ 
-        headerShown: true, 
-        headerTransparent: true, 
-        headerTintColor: '#fff', 
-        headerTitle: 'Vehicles', 
+        headerShown: false, 
+        // headerTransparent: true, 
+        // headerTintColor: '#fff', 
+        // headerTitle: 'Vehicles', 
       }} 
       />
            <MainStackNav.Screen 

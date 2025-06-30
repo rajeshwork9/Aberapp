@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
 import { Text, Card, Modal, Portal, PaperProvider,Button } from 'react-native-paper';
@@ -10,6 +11,7 @@ const Vehicles: React.FC = () => {
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
     const containerStyle  = { backgroundColor: 'white', padding:100 };
+    const navigation = useNavigation();
     return (
 
         <ImageBackground
@@ -18,6 +20,11 @@ const Vehicles: React.FC = () => {
             resizeMode="cover">
             <PaperProvider>
                 <View style={styles.headerRightBlock}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Image source={require('../../assets/images/logo.png')} style={styles.headerIcon} />
+                    </TouchableOpacity>
+
+                    <Text style={styles.headerTitle}>Vehicles</Text>
                     <TouchableOpacity style={[styles.btHeader, { marginRight: 12, }]}>
                         <Text style={styles.btHeaderText}>Add Vehicle</Text>
                     </TouchableOpacity>
@@ -106,6 +113,9 @@ const styles = StyleSheet.create({
         zIndex:2,
         elevation: 10,
       },
+      headerIcon: { width: 24, height: 24, tintColor: '#fff', marginRight: 8 },
+  headerTitle: { flex: 1, fontSize: 20, fontWeight: 'bold', color: '#fff' },
+
 
     btHeader: {
         backgroundColor: '#ff5200',
