@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
-import { Text, Card, Modal, Portal, PaperProvider,Button } from 'react-native-paper';
+import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
+import { Text, Card, TextInput, Modal, Portal, PaperProvider, Button } from 'react-native-paper';
 
 
 const Vehicles: React.FC = () => {
@@ -10,7 +10,7 @@ const Vehicles: React.FC = () => {
 
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
-    const containerStyle  = { backgroundColor: 'white', padding:100 };
+    const containerStyle = { backgroundColor: 'white', padding: 100 };
     const navigation = useNavigation();
     return (
 
@@ -19,74 +19,173 @@ const Vehicles: React.FC = () => {
             style={styles.backgroundImage}
             resizeMode="cover">
             <PaperProvider>
-                <View style={styles.headerRightBlock}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Image source={require('../../assets/images/logo.png')} style={styles.headerIcon} />
-                    </TouchableOpacity>
 
-                    <Text style={styles.headerTitle}>Vehicles</Text>
-                    <TouchableOpacity style={[styles.btHeader, { marginRight: 12, }]}>
-                        <Text style={styles.btHeaderText}>Add Vehicle</Text>
-                    </TouchableOpacity>
-
-
-                    <TouchableOpacity style={styles.roundedIconBt} onPress={()=>showModal()}>
-                        <Image style={styles.roundedIcon} source={require('../../assets/images/filter-icon.png')} />
-                    </TouchableOpacity>
-
-                    <Portal>
-                        <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle }>
-                            <Text>Example Modal.  Click outside this area to dismiss.</Text>
-                        </Modal>
-                    </Portal>
-
-                </View>
-      
-            <ScrollView style={styles.container}>
-
-                <View>
-
-                    <View style={styles.searchBlock}>
-                        <TextInput style={styles.formInput} placeholder="Search" placeholderTextColor="#7B8994"
-                            value={search} onChangeText={setSearch}
-                            secureTextEntry
-                        />
-                        <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} ></Image>
+                <View style={styles.headerMain}>
+                    <View style={styles.headerLeftBlock} >
+                        <TouchableOpacity style={[styles.backBt, {marginRight:12,}]} onPress={() => navigation.goBack()}>
+                            <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
+                        </TouchableOpacity>
+                        <Text style={styles.headerTitle}>Vehicles</Text>
                     </View>
 
-                    <Card style={styles.cardItemMain}>
-                        <View style={styles.cardContentInner}>
-                            <View style={styles.leftCardCont}>
-                                <Card style={styles.cardWithIcon}>
-                                    <Image style={styles.cardIconImg} source={require('../../assets/images/vehicles-icon.png')} />
-                                </Card>
+                    <View style={styles.headerRightBlock}>
+                        <TouchableOpacity style={[styles.btHeader, { marginRight: 12, }]}>
+                            <Text style={styles.btHeaderText}>Add Vehicle</Text>
+                        </TouchableOpacity>
 
-                                <View style={styles.leftTextCard}>
-                                    <Text style={styles.textCard}>36487-AE-UQ-PRI_A</Text>
-                                    <Text style={[styles.deateCard, { fontWeight: 'light' }]}>07 Mar 2025, 10:50:01</Text>
+
+                        <TouchableOpacity style={styles.roundedIconBt} onPress={() => showModal()}>
+                            <Image style={styles.roundedIcon} source={require('../../assets/images/filter-icon.png')} />
+                        </TouchableOpacity>
+
+                        <Portal>
+                            <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
+
+                                <Text style={styles.sectionTitleModal}>Trip Filters</Text>
+                                <View style={styles.formGroupModal}>
+                                    <Text style={styles.labelModal}>Gantry</Text>
+                                    <TextInput
+                                        style={styles.inputModal}
+                                        placeholder="Enter Custom Value"
+                                        placeholderTextColor="#ccc"
+                                        keyboardType="numeric"
+                                        cursorColor="#fff"
+                                        textColor='#fff'
+                                        theme={{
+                                            colors: {
+                                                primary: '#FF5400',
+                                            },
+                                        }}
+
+                                    />
                                 </View>
-                            </View>
-                            <View style={styles.rightTextCard}>
-                                <Text style={styles.largeTextRCard}>3XL</Text>
-                                <Text style={styles.statusTextCard}>
-                                    <Text style={[styles.statusText, { fontWeight: 'normal' }]}>Active</Text>
 
-                                </Text>
-                                {/* <Text style={{ color: index === 0 ? 'green' : 'red' }}>
-                                    {index === 0 ? 'Paid : 300' : 'Unpaid : 300'}
-                                </Text> */}
-                            </View>
-                        </View>
-                    </Card>
+                                <View style={styles.formGroupModal}>
+                                    <Text style={styles.labelModal}>Licence Plate Number</Text>
+                                    <TextInput
+                                        mode="flat"
+                                        placeholder="Select Gantry"
+                                        style={styles.inputModal}
+                                        underlineColor="#fff"
+                                        placeholderTextColor="#707070"
+                                        textColor='#fff'
+                                        theme={{
+                                            colors: {
+                                                primary: '#FF5400',
+                                            },
+                                        }}
+                                    />
+                                </View>
+
+
+                                <View style={styles.formGroupModal}>
+                                    <Text style={styles.labelModal}>From Date</Text>
+                                    <TextInput
+                                        mode="flat"
+                                        left={<TextInput.Icon icon="calendar" />}
+                                        style={styles.inputModal}
+                                        underlineColor="#fff"
+                                        placeholderTextColor="#707070"
+                                        textColor='#fff'
+                                        theme={{
+                                            colors: {
+                                                primary: '#FF5400',
+                                            },
+                                        }}
+                                    />
+                                </View>
+
+
+                                <View style={styles.formGroupModal}>
+                                    <Text style={styles.labelModal}>To Date</Text>
+                                    <TextInput
+                                        mode="flat"
+                                        left={<TextInput.Icon icon="calendar" />}
+                                        style={styles.inputModal}
+                                        underlineColor="#fff"
+                                        placeholderTextColor="#707070"
+                                        textColor='#fff'
+                                        theme={{
+                                            colors: {
+                                                primary: '#FF5400',
+                                            },
+                                        }}
+                                    />
+                                </View>
+
+                                <View style={styles.buttonRow}>
+                                    <Button
+                                        mode="contained"
+                                        onPress={hideModal}
+                                        style={styles.closeButton}
+                                        textColor="#000"
+                                    >
+                                        Close
+                                    </Button>
+
+                                    <Button
+                                        mode="contained"
+                                        onPress={() => {
+                                            hideModal();
+                                        }}
+                                        buttonColor="#FF5A00"
+                                        style={styles.applyButton}
+                                    >
+                                        Apply
+                                    </Button>
+                                </View>
+
+                            </Modal>
+                        </Portal>
+                    </View>
                 </View>
 
 
+                <ScrollView style={styles.container}>
+
+                    <View>
+                        <View style={styles.searchBlock}>
+                            <TextInput style={styles.searchFormInput} placeholder="Search" placeholderTextColor="#7B8994"
+                                value={search} onChangeText={setSearch}
+                                mode="outlined"
+                                theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
+                            />
+                            <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} ></Image>
+                        </View>
+
+                        <Card style={styles.cardItemMain}>
+                            <View style={styles.cardContentInner}>
+                                <View style={styles.leftCardCont}>
+                                    <Card style={styles.cardWithIcon}>
+                                        <Image style={styles.cardIconImg} source={require('../../assets/images/vehicles-icon.png')} />
+                                    </Card>
+
+                                    <View style={styles.leftTextCard}>
+                                        <Text style={styles.textCard}>36487-AE-UQ-PRI_A</Text>
+                                        <Text style={[styles.deateCard, { fontWeight: 'light' }]}>07 Mar 2025, 10:50:01</Text>
+                                    </View>
+                                </View>
+                                <View style={styles.rightTextCard}>
+                                    <Text style={styles.largeTextRCard}>3XL</Text>
+                                    <Text style={styles.statusTextCard}>
+                                        <Text style={[styles.statusText, { fontWeight: 'normal' }]}>Active</Text>
+
+                                    </Text>
+                                    {/* <Text style={{ color: index === 0 ? 'green' : 'red' }}>
+                                    {index === 0 ? 'Paid : 300' : 'Unpaid : 300'}
+                                </Text> */}
+                                </View>
+                            </View>
+                        </Card>
+                    </View>
 
 
-            </ScrollView >
 
 
-      </PaperProvider>
+                </ScrollView >
+
+
+            </PaperProvider>
         </ImageBackground>
 
     );
@@ -99,37 +198,35 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
+
+
+//--- Header
     container: {
         flex: 1,
         marginHorizontal: 0,
-        marginTop: 70,
+        marginTop:20,
     },
-
-    headerRightBlock: {
-        position: 'absolute',
-        right: 15,
-        top: 13,
+    
+    headerMain: {
         flexDirection: 'row',
-        zIndex:2,
-        elevation: 10,
-      },
-      headerIcon: { width: 24, height: 24, tintColor: '#fff', marginRight: 8 },
-  headerTitle: { flex: 1, fontSize: 20, fontWeight: 'bold', color: '#fff' },
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal:15,
+        paddingVertical:6,
+        backgroundColor:'transparent',
+        marginTop:12,
+       
+    },
+    backBt:{  },
+    headerLeftBlock: {flexDirection: 'row',justifyContent: 'flex-start',},
+    headerRightBlock: { flexDirection: 'row',justifyContent: 'flex-end', },
+    headerIcon: { width:18, height:18, },
+    headerTitle: { fontSize: 15, fontWeight: 'bold', color: '#fff' },
 
 
-    btHeader: {
-        backgroundColor: '#ff5200',
-        borderRadius: 100,
-        textAlign: 'center',
-        alignSelf: 'flex-start',
-        paddingTop: 5,
-        paddingBottom: 7,
-    },
-    btHeaderText: {
-        color: '#fff',
-        fontSize: 13,
-        paddingHorizontal: 10,
-    },
+    btHeader: {backgroundColor: '#ff5200',borderRadius: 100,
+    textAlign: 'center',alignSelf: 'flex-start',paddingTop: 5,paddingBottom: 7,},
+    btHeaderText: {color: '#fff',fontSize: 13,paddingHorizontal: 10,},
 
     roundedIconBt: {
         width: 34,
@@ -149,6 +246,8 @@ const styles = StyleSheet.create({
         height: 20,
         tintColor: 'white'
     },
+
+//--- Header End
 
     //---
     sectionTitle: {
@@ -254,33 +353,99 @@ const styles = StyleSheet.create({
     //--
 
     searchBlock: {
+        marginTop:0,
         marginHorizontal: 15,
         marginBottom: 15,
+        height: 50,
 
     },
 
-    formInput: {
-        height: 40,
+    searchFormInput: {
+        height: 44,
         borderColor: '#fff',
-        borderRadius: 40,
+        borderRadius: 100,
         paddingRight: 20,
-        paddingLeft: 45,
+        paddingLeft: 25,
         marginTop: 0,
-        fontSize: 13,
+        fontSize: 15,
         fontWeight: 400,
         color: '#000',
         backgroundColor: '#fff'
+
+
     },
 
     formInputIcon: {
         width: 16,
         height: 16,
         position: 'absolute',
-        top: 13,
+        top: 15,
         left: 14,
     },
+
+    // --
     modalBottomContainer: {
+        backgroundColor: '#000',
+        paddingHorizontal: 25,
+        marginHorizontal: 0,
+        borderRadius: 20,
+        position: 'absolute',
+        bottom: -10,
+        left: 0,
+        right: 0,
+        color: '#fff',
+        paddingTop: 15,
+        paddingBottom: 65,
+    },
+
+    sectionTitleModal: {
+        marginVertical: 20,
+        fontSize: 17,
+        color: '#fff',
+        fontWeight: 'normal',
+    },
+
+    formGroupModal: { marginTop: 10, marginBottom: 15, },
+    inputModal: {
+        height: 38,
+        borderBottomColor: '#FCFCFC',
+        borderBottomWidth: 1,
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 'bold',
+        backgroundColor: 'transparent',
+    },
+
+    labelModal: { color: '#fff', fontSize: 13, marginBottom: 10, },
+
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+
+    applyButton: {
+
+        paddingTop: 0,
+        paddingBottom: 4,
+        color: '#fff',
+        borderRadius: 40,
+        alignItems: 'center',
+        marginTop: 20,
+        fontSize: 13,
+        marginHorizontal: 10,
+
 
     },
 
+    closeButton: {
+        paddingTop: 0,
+        paddingBottom: 4,
+        backgroundColor: '#FFFFFF',
+        color: '#000',
+        borderRadius: 40,
+        alignItems: 'center',
+        marginTop: 20,
+        fontSize: 13,
+        marginHorizontal: 10,
+    },
 });
