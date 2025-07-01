@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ImageBackground,ScrollView, TextInput, Image, TouchableOpacity } from 'react-native';
 import { Button, Text, Checkbox } from 'react-native-paper';
 import { SelectCountry } from 'react-native-element-dropdown';
@@ -7,6 +7,7 @@ import * as Yup from 'yup';
 import { useAuth } from '../../App';
 import { login } from '../services/auth'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const local_data = [
   {
@@ -34,9 +35,26 @@ const Login: React.FC = () => {
   const { setLoggedIn } = useAuth();
   const [checked, setChecked] = useState(false);
   const [country, setCountry] = useState('1');
+  const [savedEmail, setSavedEmail] = useState('');
+  const [savedPassword, setSavedPassword] = useState('');
+
+  useEffect(() => {
+  const loadCredentials = async () => {
+    const email = await AsyncStorage.getItem('email');
+    const password = await AsyncStorage.getItem('password');
+    if (email && password) {
+      setSavedEmail(email);
+      setSavedPassword(password);
+      formik.setValues({ email, password, captcha: '' }); // Optional
+      setChecked(true);
+    }
+  };
+  loadCredentials();
+}, []);
+
 
 const formik = useFormik({
-    initialValues: { email: '', password: '', captcha: '' },
+    initialValues: { email: savedEmail, password: savedPassword, captcha: '' },
     validationSchema: LoginSchema,
     onSubmit: async (values, { setSubmitting, setErrors }) => {
       try {
@@ -48,6 +66,15 @@ const formik = useFormik({
         });
         console.log('login response', response);
         // if backend succeeds, mark app as logged‑in
+        if (checked) {
+          await AsyncStorage.multiSet([
+            ['email', values.email],
+            ['password', values.password],
+          ]);
+        }
+        else {
+          await AsyncStorage.multiRemove(['email', 'password']);
+        }
         setLoggedIn(true);
       } catch (e: any) {
         console.error('Login failed', e);

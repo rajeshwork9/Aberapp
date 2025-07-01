@@ -3,11 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, ImageBackground, Image } from 'react-native';
 import { Button, Text, Badge, Avatar, Card, IconButton } from 'react-native-paper';
 import { SelectCountry } from 'react-native-element-dropdown';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MainStackParamList } from '../../App';
+import { AuthStackParamList, MainStackParamList } from '../../App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {getAccountName, getFullAccountDetails} from '../services/common';
+import { getAccountName, getFullAccountDetails } from '../services/common';
+import { useAuth } from '../../App';
 
 
 const local_data = [
@@ -33,51 +34,68 @@ const Dashboard: React.FC = () => {
     const [accountId, setAccountId] = useState<any>();
     const [accountDetails, setAccountDetails] = useState<any>();
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+    const navigations = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
-    const navigateTo = (path:  keyof MainStackParamList) =>{
+    const navigateTo = (path: keyof MainStackParamList) => {
         navigation.navigate(path)
     }
+    const { setLoggedIn } = useAuth();
 
     useEffect(() => {
-  (async () => {
-    const token = await AsyncStorage.getItem('accessToken');
-    const expiry = await AsyncStorage.getItem('tokenExpiry');
-    const refresh = await AsyncStorage.getItem('refreshToken');
-    console.log('[TOKEN CHECK]', { token, expiry, refresh });
+        (async () => {
+            const token = await AsyncStorage.getItem('accessToken');
+            const expiry = await AsyncStorage.getItem('tokenExpiry');
+            const refresh = await AsyncStorage.getItem('refreshToken');
+            console.log('[TOKEN CHECK]', { token, expiry, refresh });
             getAccountId();
 
-  })();
-}, []);
+        })();
+    }, []);
 
-  
-        const getAccountId = async () => {
-         
-            try {
-                const data = await getAccountName();
-                console.log(data, "data");
-                const accountDetails = data[0];
-                setAccountId(accountDetails);
-                fullAccDetails(accountDetails.AccountId)
-            } catch (error) {
-                console.error('Failed to load account id:', error);
-            } finally {
 
-            }
-        };
+    const getAccountId = async () => {
 
-        const fullAccDetails = async (id: any) => {
-           try {
-                const data = await getFullAccountDetails(11120);
-                console.log(data, "Account details");
-                const accountDetails = data;
-                setAccountDetails(accountDetails);
-            } catch (error) {
-                console.error('Failed to load account details:', error);
-            } finally {
+        try {
+            const data = await getAccountName();
+            console.log(data, "data");
+            const accountDetails = data[0];
+            setAccountId(accountDetails);
+            fullAccDetails(accountDetails.AccountId)
+        } catch (error) {
+            console.error('Failed to load account id:', error);
+        } finally {
 
-            } 
         }
+    };
 
+    const fullAccDetails = async (id: any) => {
+        try {
+            const data = await getFullAccountDetails(11120);
+            console.log(data, "Account details");
+            const accountDetails = data;
+            setAccountDetails(accountDetails);
+        } catch (error) {
+            console.error('Failed to load account details:', error);
+        } finally {
+
+        }
+    }
+    const handleLogout = async () => {
+        try {
+            const savedEmail = await AsyncStorage.getItem('email');
+            const savedPassword = await AsyncStorage.getItem('password');
+
+            if (savedEmail && savedPassword) {
+                await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
+            } else {
+                await AsyncStorage.clear();
+            }
+
+            setLoggedIn(false); // ✅ This switches stack to Login automatically
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
 
     return (
 
@@ -122,6 +140,8 @@ const Dashboard: React.FC = () => {
                     <View style={styles.notification}>
                         <Badge size={19} style={styles.badgeNotifi}>4</Badge>
                         <Image style={styles.imgNotifi} source={require('../../assets/images/notification-icon.png')} />
+                        <Button onPress={() => handleLogout()} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
+                        >Logout</Button>
                     </View>
                 </View>
 
@@ -131,29 +151,29 @@ const Dashboard: React.FC = () => {
                         <Text style={styles.balanceLabel}>{accountDetails?.Balance}</Text>
                         <Text style={styles.textBalance}>Available Balance (AED)</Text>
                     </Card>
-                    <Button onPress={() =>navigateTo('Topup')} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
-                     >Topup</Button>
+                    <Button onPress={() => navigateTo('Topup')} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
+                    >Topup</Button>
                 </View>
 
-                
+
 
                 <View style={styles.iconGrid}>
                     <View style={styles.iconItem}>
-                        <Card style={styles.imgGridItem} onPress={() =>navigateTo('Vehicles')}>
+                        <Card style={styles.imgGridItem} onPress={() => navigateTo('Vehicles')}>
                             <Image style={styles.imgGItem} source={require('../../assets/images/vehicles-icon.png')} />
                         </Card>
                         <Text style={styles.iconLabel}>Vehicles</Text>
                     </View>
 
                     <View style={styles.iconItem}>
-                        <Card style={styles.imgGridItem} onPress={() =>navigateTo('Trips')}>
+                        <Card style={styles.imgGridItem} onPress={() => navigateTo('Trips')}>
                             <Image style={styles.imgGItem} source={require('../../assets/images/trips-icon.png')} />
                         </Card>
                         <Text style={styles.iconLabel}>Trips</Text>
                     </View>
 
                     <View style={styles.iconItem}>
-                        <Card style={styles.imgGridItem} onPress={() =>navigateTo('Violations')}>
+                        <Card style={styles.imgGridItem} onPress={() => navigateTo('Violations')}>
                             <Image style={styles.imgGItem} source={require('../../assets/images/violations-icon.png')} />
                         </Card>
                         <Text style={styles.iconLabel}>Violations</Text>
@@ -193,26 +213,26 @@ const Dashboard: React.FC = () => {
                     <Card style={styles.cardItemMain}>
                         <View style={styles.cardContentInner}>
 
-                        <View style={styles.leftCardCont}>
-                            <Card style={styles.cardWithIcon}>
-                                <Image style={styles.cardIconImg} source={require('../../assets/images/trips-icon.png')} />
-                            </Card>
+                            <View style={styles.leftCardCont}>
+                                <Card style={styles.cardWithIcon}>
+                                    <Image style={styles.cardIconImg} source={require('../../assets/images/trips-icon.png')} />
+                                </Card>
 
-                          <View style={styles.leftTextCard}>
-                                <Text style={styles.textCard}>36487-AE-UQ-PRI_A</Text>
-                                <Text style={styles.textCard}>G2 Ring Road</Text>
-                                <Text style={styles.textCard}>Transaction ID : 12345</Text>
-                                <Text style={[styles.textCard, { fontWeight: 'light' }]}>07 Mar 2025, 10:50:01</Text>
-                            </View>
+                                <View style={styles.leftTextCard}>
+                                    <Text style={styles.textCard}>36487-AE-UQ-PRI_A</Text>
+                                    <Text style={styles.textCard}>G2 Ring Road</Text>
+                                    <Text style={styles.textCard}>Transaction ID : 12345</Text>
+                                    <Text style={[styles.textCard, { fontWeight: 'light' }]}>07 Mar 2025, 10:50:01</Text>
+                                </View>
 
                             </View>
                             <View style={styles.rightTextCard}>
                                 <Text style={styles.largeTextRCard}>3XL</Text>
-                                <Image style={{width:16, height:16, marginVertical:4, }} source={require('../../assets/images/chat-icon.png')} />
+                                <Image style={{ width: 16, height: 16, marginVertical: 4, }} source={require('../../assets/images/chat-icon.png')} />
 
                                 <Text style={styles.statusTextCard}>
-                                    <Text style={[styles.statusText, { fontWeight: 'normal'  }]}>Paid: </Text>
-                                     <Text style={[styles.statusText, { fontWeight: 'bold'  }]}>300</Text>
+                                    <Text style={[styles.statusText, { fontWeight: 'normal' }]}>Paid: </Text>
+                                    <Text style={[styles.statusText, { fontWeight: 'bold' }]}>300</Text>
                                 </Text>
                                 {/* <Text style={{ color: index === 0 ? 'green' : 'red' }}>
                                     {index === 0 ? 'Paid : 300' : 'Unpaid : 300'}
@@ -403,24 +423,24 @@ const styles = StyleSheet.create({
     //---
     sectionTitle: {
         margin: 15,
-        fontSize:16,
+        fontSize: 16,
         color: '#fff',
-        fontWeight:'normal',
+        fontWeight: 'normal',
     },
     cardItemMain: {
         paddingHorizontal: 10,
-        paddingVertical:5,
-        marginTop:0,
+        paddingVertical: 5,
+        marginTop: 0,
         marginHorizontal: 5,
         marginBottom: 12,
         backgroundColor: 'rgba(0, 0, 0, 0.6)',
-          shadowOpacity: 0,
+        shadowOpacity: 0,
         elevation: 0,
     },
     cardContentInner: {
-        marginTop:0,
-        borderRadius: 50,    
-        paddingVertical: 10,      
+        marginTop: 0,
+        borderRadius: 50,
+        paddingVertical: 10,
         flexDirection: 'row', alignItems: 'center',
         justifyContent: 'space-between',
     },
@@ -448,12 +468,12 @@ const styles = StyleSheet.create({
         tintColor: 'white'
     },
 
-    leftCardCont:{
-           paddingRight: 10,
-        flexDirection:'row',
-        justifyContent:'flex-start',
-    
-        width:'71%',
+    leftCardCont: {
+        paddingRight: 10,
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+
+        width: '71%',
     },
 
     leftTextCard: {
@@ -464,20 +484,20 @@ const styles = StyleSheet.create({
     textCard: {
         fontSize: 12,
         color: '#fff',
-        paddingBottom:2,
-        flexDirection:'column',
-        
+        paddingBottom: 2,
+        flexDirection: 'column',
+
     },
     rightTextCard: {
-    
-        justifyContent:'flex-end',
-        alignItems:'flex-end',
+
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end',
     },
 
     largeTextRCard: {
         color: '#fff',
         fontSize: 16,
-  
+
     },
     statusTextCard: {
         fontSize: 12,
@@ -486,12 +506,12 @@ const styles = StyleSheet.create({
         paddingVertical: 7,
         borderRadius: 30,
         color: '#06F547',
-        marginTop:5,
+        marginTop: 5,
     },
-    statusText:{
-         color: '#06F547',
+    statusText: {
+        color: '#06F547',
         // unpaid  color: '#FF4141',
-         
+
     },
 
 
