@@ -26,7 +26,7 @@ const AddVehicle: React.FC = () => {
                         <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
                             <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
                         </TouchableOpacity>
-                        <Text style={styles.headerTitle}>Add Vehicles</Text>
+                        <Text style={styles.headerTitle}>Add Vehicle</Text>
                     </View>
                 </View>
 
