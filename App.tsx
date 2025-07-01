@@ -77,7 +77,7 @@ export const MainStack = React.memo(() => (
       name="Trips" 
       component={Trips} 
       options={{ 
-        headerShown: true, 
+        headerShown: false, 
         headerTransparent: true, 
         headerTintColor: '#fff', 
         headerTitle: 'Trips', 
@@ -97,7 +97,7 @@ export const MainStack = React.memo(() => (
       name="Violations" 
       component={Violations} 
       options={{ 
-        headerShown: true, 
+        headerShown: false, 
         headerTransparent: true, 
         headerTintColor: '#fff', 
         headerTitle: 'Violations', 

@@ -14,10 +14,10 @@ const Vehicles: React.FC = () => {
     const hideModal = () => setVisible(false);
     const containerStyle = { backgroundColor: 'white', padding: 100 };
 
-        const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
-           const navigateTo = (path:  keyof MainStackParamList) =>{
-                navigation.navigate(path)
-            }
+    const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+    const navigateTo = (path: keyof MainStackParamList) => {
+        navigation.navigate(path)
+    }
 
     return (
 
@@ -29,14 +29,14 @@ const Vehicles: React.FC = () => {
 
                 <View style={styles.headerMain}>
                     <View style={styles.headerLeftBlock} >
-                        <TouchableOpacity style={[styles.backBt, {marginRight:12,}]} onPress={() => navigation.goBack()}>
+                        <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
                             <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
                         </TouchableOpacity>
                         <Text style={styles.headerTitle}>Vehicles</Text>
                     </View>
 
                     <View style={styles.headerRightBlock}>
-                        <TouchableOpacity onPress={() =>navigateTo('AddVehicle')} style={[styles.btHeader, { marginRight: 12, }]}>
+                        <TouchableOpacity onPress={() => navigateTo('AddVehicle')} style={[styles.btHeader, { marginRight: 12, }]}>
                             <Text style={styles.btHeaderText}>Add Vehicle</Text>
                         </TouchableOpacity>
 
@@ -48,31 +48,14 @@ const Vehicles: React.FC = () => {
                         <Portal>
                             <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
 
-                                <Text style={styles.sectionTitleModal}>Trip Filters</Text>
-                                <View style={styles.formGroupModal}>
-                                    <Text style={styles.labelModal}>Gantry</Text>
-                                    <TextInput
-                                        style={styles.inputModal}
-                                        placeholder="Enter Custom Value"
-                                        placeholderTextColor="#ccc"
-                                        keyboardType="numeric"
-                                        cursorColor="#fff"
-                                        textColor='#fff'
-                                        theme={{
-                                            colors: {
-                                                primary: '#FF5400',
-                                            },
-                                        }}
-
-                                    />
-                                </View>
+                                <Text style={styles.sectionTitleModal}>Vehicle Filters</Text>
 
                                 <View style={styles.formGroupModal}>
-                                    <Text style={styles.labelModal}>Licence Plate Number</Text>
+                                    <Text style={styles.labelModal}>Form Date</Text>
                                     <TextInput
                                         mode="flat"
-                                        placeholder="Select Gantry"
-                                        style={styles.inputModal}
+                                        placeholder='DD-MM-YYYY'
+                                        style={styles.calendarInputModal}
                                         underlineColor="#fff"
                                         placeholderTextColor="#707070"
                                         textColor='#fff'
@@ -82,34 +65,16 @@ const Vehicles: React.FC = () => {
                                             },
                                         }}
                                     />
+                                     <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} />
                                 </View>
-
-
-                                <View style={styles.formGroupModal}>
-                                    <Text style={styles.labelModal}>From Date</Text>
-                                    <TextInput
-                                        mode="flat"
-                                        left={<TextInput.Icon icon="calendar" />}
-                                        style={styles.inputModal}
-                                        underlineColor="#fff"
-                                        placeholderTextColor="#707070"
-                                        textColor='#fff'
-                                        theme={{
-                                            colors: {
-                                                primary: '#FF5400',
-                                            },
-                                        }}
-                                    />
-                                </View>
-
 
                                 <View style={styles.formGroupModal}>
                                     <Text style={styles.labelModal}>To Date</Text>
                                     <TextInput
                                         mode="flat"
-                                        left={<TextInput.Icon icon="calendar" />}
-                                        style={styles.inputModal}
+                                        style={styles.calendarInputModal}
                                         underlineColor="#fff"
+                                        placeholder='DD-MM-YYYY'
                                         placeholderTextColor="#707070"
                                         textColor='#fff'
                                         theme={{
@@ -118,6 +83,7 @@ const Vehicles: React.FC = () => {
                                             },
                                         }}
                                     />
+                                    <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} />
                                 </View>
 
                                 <View style={styles.buttonRow}>
@@ -200,7 +166,7 @@ const Vehicles: React.FC = () => {
 export default Vehicles;
 const styles = StyleSheet.create({
 
-//--- Header
+    //--- Header
     backgroundImage: {
         flex: 1,
         width: '100%',
@@ -210,29 +176,31 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         marginHorizontal: 10,
-        marginTop:20,
+        marginTop: 20,
     },
 
     headerMain: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal:15,
-        paddingVertical:6,
-        backgroundColor:'transparent',
-        marginTop:12,
-       
+        paddingHorizontal: 15,
+        paddingVertical: 6,
+        backgroundColor: 'transparent',
+        marginTop: 12,
+
     },
-    backBt:{  },
-    headerLeftBlock: {flexDirection: 'row',justifyContent: 'flex-start',},
-    headerRightBlock: { flexDirection: 'row',justifyContent: 'flex-end', },
-    headerIcon: { width:18, height:18, },
+    backBt: {},
+    headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', },
+    headerRightBlock: { flexDirection: 'row', justifyContent: 'flex-end', },
+    headerIcon: { width: 18, height: 18, },
     headerTitle: { fontSize: 15, fontWeight: 'bold', color: '#fff' },
 
 
-    btHeader: {backgroundColor: '#ff5200',borderRadius: 100,
-    textAlign: 'center',alignSelf: 'flex-start',paddingTop: 5,paddingBottom: 7,},
-    btHeaderText: {color: '#fff',fontSize: 13,paddingHorizontal: 10,},
+    btHeader: {
+        backgroundColor: '#ff5200', borderRadius: 100,
+        textAlign: 'center', alignSelf: 'flex-start', paddingTop: 5, paddingBottom: 7,
+    },
+    btHeaderText: { color: '#fff', fontSize: 13, paddingHorizontal: 10, },
 
     roundedIconBt: {
         width: 34,
@@ -253,8 +221,8 @@ const styles = StyleSheet.create({
         tintColor: 'white'
     },
 
-     searchBlock: {
-        marginTop:0,
+    searchBlock: {
+        marginTop: 0,
         marginHorizontal: 5,
         marginBottom: 15,
         height: 50,
@@ -284,7 +252,7 @@ const styles = StyleSheet.create({
         left: 14,
     },
 
-//--- Header End
+    //--- Header End
 
     //---
     sectionTitle: {
@@ -389,7 +357,7 @@ const styles = StyleSheet.create({
 
     //--
 
-   
+
 
     // --
     modalBottomContainer: {
@@ -431,8 +399,21 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
 
-    applyButton: {
+        calendarInputModal:{
+         paddingHorizontal:40,
+        height: 38,
+        borderBottomColor: '#FCFCFC',
+        borderBottomWidth: 1,
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 'bold',
+        backgroundColor: 'transparent',
+    },
+    calendarIcon:{position:'absolute', left:5, bottom:11, width:20, height:20,},
 
+
+    applyButton: {
+        width: 120,
         paddingTop: 0,
         paddingBottom: 4,
         color: '#fff',
@@ -446,6 +427,7 @@ const styles = StyleSheet.create({
     },
 
     closeButton: {
+        width: 120,
         paddingTop: 0,
         paddingBottom: 4,
         backgroundColor: '#FFFFFF',
