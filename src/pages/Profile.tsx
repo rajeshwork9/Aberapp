@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
 import { Text, Card, TextInput, Modal, Portal, PaperProvider, Button, Avatar } from 'react-native-paper';
-
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Profile: React.FC = () => {
     const [search, setSearch] = React.useState('');
@@ -12,6 +12,12 @@ const Profile: React.FC = () => {
     const hideModal = () => setVisible(false);
     const containerStyle = { backgroundColor: 'white', padding: 100 };
     const navigation = useNavigation();
+
+      const [secureText, setSecureText] = useState(true);
+        const toggleSecureEntry = () => {
+        setSecureText(!secureText);
+      };
+
     return (
 
         <ImageBackground
@@ -77,9 +83,122 @@ const Profile: React.FC = () => {
 
                           <Text style={[styles.sectionTitle, {borderBottomColor:'#ccc', borderBottomWidth:1, paddingBottom:8,}]}>Settings</Text>
 
-<Button icon="camera" onPress={() => console.log('Pressed')}>
-   Change Password
-  </Button>
+   <TouchableOpacity style={styles.profileBt } onPress={() => showModal()}>
+        <Image style={styles.iconProBt} source={require('../../assets/images/changepassword-icon.png')}></Image>
+         <Text style={styles.textProBt}>Change Password</Text>
+  </TouchableOpacity >
+        <Portal>
+                              <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
+  
+                                  <Text style={styles.sectionTitleModal}>Change password</Text>
+                                  <View style={styles.formGroupModal}>
+                                     
+                                      <TextInput
+                                          style={styles.inputModal}
+                                          placeholder="Enter Old Password"
+                                          placeholderTextColor="#ccc"
+                                          keyboardType="numeric"
+                                          cursorColor="#fff"
+                                          textColor='#fff'
+                                              secureTextEntry
+                                          theme={{
+                                              colors: {
+                                                  primary: '#FF5400',
+                                              },
+                                          }}  
+                                      />
+                                      <TouchableOpacity onPress={toggleSecureEntry} style={styles.passwordIcon}>
+                                                  <Icon name={secureText ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
+                                      </TouchableOpacity>
+                                  </View>
+  
+                                  <View style={styles.formGroupModal}>                                   
+                                      <TextInput
+                                          mode="flat"
+                                          placeholder="Enter New Password"
+                                          style={styles.inputModal}
+                                          underlineColor="#fff"
+                                          placeholderTextColor="#ccc"
+                                          textColor='#fff'
+                                          theme={{
+                                              colors: {
+                                                  primary: '#FF5400',
+                                              },
+                                          }}
+                                      />
+
+                                              <TouchableOpacity onPress={toggleSecureEntry} style={styles.passwordIcon}>
+                                                  <Icon name={secureText ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
+                                      </TouchableOpacity>
+
+                                  </View>
+
+                                  <View style={styles.formGroupModal}>                                   
+                                      <TextInput
+                                          mode="flat"
+                                          placeholder="Confirm New Password"
+                                          style={styles.inputModal}
+                                          underlineColor="#fff"
+                                          placeholderTextColor="#ccc"
+                                          textColor='#fff'
+                                          theme={{
+                                              colors: {
+                                                  primary: '#FF5400',
+                                              },
+                                          }}
+                                      />
+
+                                              <TouchableOpacity onPress={toggleSecureEntry} style={styles.passwordIcon}>
+                                                  <Icon name={secureText ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
+                                      </TouchableOpacity>
+                                  </View>
+  
+  
+                                  
+  
+  
+                                  
+  
+                                  <View style={styles.buttonRow}>
+                                      <Button
+                                          mode="contained"
+                                          onPress={hideModal}
+                                          style={styles.closeButton}
+                                          textColor="#000"
+                                      >
+                                          Close
+                                      </Button>
+  
+                                      <Button
+                                          mode="contained"
+                                          onPress={() => {
+                                              hideModal();
+                                          }}
+                                          buttonColor="#FF5A00"
+                                          style={styles.applyButton}
+                                      >
+                                          Apply
+                                      </Button>
+                                  </View>
+  
+                              </Modal>
+                          </Portal>
+
+
+     <TouchableOpacity style={styles.profileBt }>
+        <Image style={styles.iconProBt} source={require('../../assets/images/gethelp-icon.png')}></Image>
+         <Text style={styles.textProBt}>Get Help</Text>
+  </TouchableOpacity >
+
+     <TouchableOpacity style={styles.profileBt }>
+        <Image style={styles.iconProBt} source={require('../../assets/images/language-icon.png')}></Image>
+         <Text style={styles.textProBt}>Language</Text>
+  </TouchableOpacity >
+
+     <TouchableOpacity style={styles.profileBt }>
+        <Image style={styles.iconProBt} source={require('../../assets/images/logout-icon.png')}></Image>
+         <Text style={styles.textProBt}>Logout</Text>
+  </TouchableOpacity >
 
                     </View>
                 </ScrollView >
@@ -111,13 +230,14 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
-        marginHorizontal: 20,
+        marginHorizontal:0,
         marginTop: 10,
 
     },
 
     innerContainerPad: {
         paddingBottom: 70,
+         marginHorizontal:20,
     },
 
     headerMain: {
@@ -248,7 +368,7 @@ const styles = StyleSheet.create({
     cardContentInner: {
         marginTop: 0,
         borderRadius: 50,
-        paddingHorizontal: 10,
+        paddingHorizontal: 5,
         paddingVertical: 10,
         flexDirection: 'row', alignItems: 'center',
         justifyContent: 'space-between',
@@ -267,7 +387,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0,
         elevation: 0,
         shadowColor: 'transparent',
-        marginRight: 10,
+        marginRight: 15,
         padding: 0,
     },
 
@@ -313,4 +433,89 @@ const styles = StyleSheet.create({
         paddingBottom: 2,
     },
 
+profileBt:{flexDirection:'row', marginTop:5, marginBottom:20,},
+iconProBt:{width:20, height:20, marginRight:10,},
+textProBt:{fontSize:14, color:'#fff',},
+
+// ------
+
+// --
+    modalBottomContainer: {
+        backgroundColor: '#000',
+        paddingHorizontal: 25,
+        marginHorizontal: 0,
+        borderRadius: 20,
+        position: 'absolute',
+        bottom: -10,
+        left: 0,
+        right: 0,
+        color: '#fff',
+        paddingTop: 15,
+        paddingBottom: 65,
+    },
+
+    sectionTitleModal: {
+        marginVertical: 20,
+        fontSize: 17,
+        color: '#fff',
+        fontWeight: 'normal',
+    },
+
+    formGroupModal: { marginTop: 10, marginBottom: 15, },
+    inputModal: {
+        height: 38,
+        borderBottomColor: '#FCFCFC',
+        borderBottomWidth: 1,
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 'bold',
+        backgroundColor: 'transparent',
+    },
+
+    labelModal: { color: '#fff', fontSize: 13, marginBottom: 10, },
+
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop:30,
+    },
+
+    applyButton: {
+
+        paddingTop: 0,
+        paddingBottom: 4,
+        color: '#fff',
+        borderRadius: 40,
+        alignItems: 'center',
+        marginTop: 20,
+        fontSize: 13,
+        marginHorizontal: 10,
+        width:120,
+
+
+    },
+
+    closeButton: {
+        paddingTop: 0,
+        paddingBottom: 4,
+        backgroundColor: '#FFFFFF',
+        color: '#000',
+        borderRadius: 40,
+        alignItems: 'center',
+        marginTop: 20,
+        fontSize: 13,
+        marginHorizontal: 10,
+        width:120,
+    },
+
+      passwordIcon:{  
+   position: 'absolute',
+    top:0,
+    right: 0,
+    zIndex:1,
+  
+    height:40,
+    paddingHorizontal:20,
+    paddingTop:10,
+  },
 });
