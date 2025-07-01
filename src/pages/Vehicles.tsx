@@ -1,4 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { MainStackParamList } from '../../App';
 import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
 import { Text, Card, TextInput, Modal, Portal, PaperProvider, Button } from 'react-native-paper';
@@ -11,7 +13,12 @@ const Vehicles: React.FC = () => {
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
     const containerStyle = { backgroundColor: 'white', padding: 100 };
-    const navigation = useNavigation();
+
+        const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+           const navigateTo = (path:  keyof MainStackParamList) =>{
+                navigation.navigate(path)
+            }
+
     return (
 
         <ImageBackground
@@ -29,7 +36,7 @@ const Vehicles: React.FC = () => {
                     </View>
 
                     <View style={styles.headerRightBlock}>
-                        <TouchableOpacity style={[styles.btHeader, { marginRight: 12, }]}>
+                        <TouchableOpacity onPress={() =>navigateTo('AddVehicle')} style={[styles.btHeader, { marginRight: 12, }]}>
                             <Text style={styles.btHeaderText}>Add Vehicle</Text>
                         </TouchableOpacity>
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ImageBackground, TextInput, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ImageBackground,ScrollView, TextInput, Image, TouchableOpacity } from 'react-native';
 import { Button, Text, Checkbox } from 'react-native-paper';
 import { SelectCountry } from 'react-native-element-dropdown';
 import { useFormik } from 'formik';
@@ -70,7 +70,9 @@ const formik = useFormik({
       style={styles.backgroundImage}
       resizeMode="cover"
     >
-      <View style={styles.container}>
+              <ImageBackground source={require('../../assets/images/loginbottom-img.png')} style={styles.loginBottomImg} />
+      <ScrollView style={styles.container}>
+      
         {/* Country selector (outside Formik) */}
         <SelectCountry
           style={styles.countryDropdown}
@@ -167,8 +169,11 @@ const formik = useFormik({
           </Button>
         </View>
 
-        <ImageBackground source={require('../../assets/images/loginbottom-img.png')} style={styles.loginBottomImg} />
-      </View>
+       
+     
+     
+      </ScrollView>
+
     </ImageBackground>
   );
 };
@@ -183,7 +188,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
+    // justifyContent: 'flex-start',
     marginTop: 30,
     paddingHorizontal:20,
   },
@@ -237,7 +242,7 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     position: 'absolute',
-    top: 17,
+    top: 14,
     left: 20,
   },
   forgotLink: {

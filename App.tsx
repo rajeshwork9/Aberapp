@@ -16,6 +16,7 @@ import Topup from './src/pages/Topup';
 import Trips from './src/pages/Trips';
 import Violations from './src/pages/Violations';
 import Vehicles from './src/pages/Vehicles';
+import AddVehicle from './src/pages/AddVehicle';
 
 /* ──────────────── Auth Context ──────────────── */
 type AuthCtx = {
@@ -42,6 +43,7 @@ type MainStackParamList = {
   Trips: undefined;
   Vehicles: undefined;
   Violations: undefined;
+  AddVehicle:undefined;
 };
 
 export type { AuthStackParamList, MainStackParamList };
@@ -98,6 +100,17 @@ export const MainStack = React.memo(() => (
         headerTransparent: true, 
         headerTintColor: '#fff', 
         headerTitle: 'Violations', 
+      }} 
+      />
+
+                 <MainStackNav.Screen 
+      name="AddVehicle" 
+      component={AddVehicle} 
+      options={{ 
+        headerShown: false, 
+        headerTransparent: true, 
+        headerTintColor: '#fff', 
+        headerTitle: 'AddVehicle', 
       }} 
       />
   </MainStackNav.Navigator>
