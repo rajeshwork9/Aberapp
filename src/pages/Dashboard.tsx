@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { StyleSheet, View, ScrollView, ImageBackground, Image } from 'react-native';
+import { StyleSheet, View, ScrollView, ImageBackground, Image,TouchableOpacity } from 'react-native';
 import { Button, Text, Badge, Avatar, Card, IconButton } from 'react-native-paper';
 import { SelectCountry } from 'react-native-element-dropdown';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -107,12 +107,12 @@ const Dashboard: React.FC = () => {
 
             <ScrollView style={styles.container}>
                 <View style={styles.headerDashRow}>
-                    <View style={styles.profileCont}>
+                    <TouchableOpacity style={styles.profileCont}  onPress={() =>navigateTo('Profile')}>
                         <Avatar.Icon size={28} style={styles.avatarIcon} icon="account" />
                         <View style={styles.userInfo}>
                             <Text style={styles.userName}> {accountId?.AccountName} </Text>
                         </View>
-                    </View>
+                    </TouchableOpacity>
 
                     <SelectCountry
                         style={styles.countryDropdown}
@@ -140,8 +140,8 @@ const Dashboard: React.FC = () => {
                     <View style={styles.notification}>
                         <Badge size={19} style={styles.badgeNotifi}>4</Badge>
                         <Image style={styles.imgNotifi} source={require('../../assets/images/notification-icon.png')} />
-                        <Button onPress={() => handleLogout()} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
-                        >Logout</Button>
+                        {/* <Button onPress={() => handleLogout()} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
+                        >Logout</Button> */}
                     </View>
                 </View>
 
