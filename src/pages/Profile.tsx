@@ -3,213 +3,171 @@ import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
 import { Text, Card, TextInput, Modal, Portal, PaperProvider, Button, Avatar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useAccount } from '../context/AccountProvider';
 
 const Profile: React.FC = () => {
-    const [search, setSearch] = React.useState('');
-    const [visible, setVisible] = React.useState(false);
+  const navigation = useNavigation();
+  const [secureText, setSecureText] = useState(true);
+  const [visible, setVisible] = useState(false);
 
-    const showModal = () => setVisible(true);
-    const hideModal = () => setVisible(false);
-    const containerStyle = { backgroundColor: 'white', padding: 100 };
-    const navigation = useNavigation();
+  const { accounts, activeId, selectAccount } = useAccount();
 
-      const [secureText, setSecureText] = useState(true);
-        const toggleSecureEntry = () => {
-        setSecureText(!secureText);
-      };
+  const toggleSecureEntry = () => setSecureText(!secureText);
+  const showModal = () => setVisible(true);
+  const hideModal = () => setVisible(false);
 
-    return (
+  return (
+    <ImageBackground
+      source={require('../../assets/images/background.png')}
+      style={styles.backgroundImage}
+      resizeMode="cover"
+    >
+      <PaperProvider>
+        <View style={styles.headerMain}>
+          <View style={styles.headerLeftBlock}>
+            <TouchableOpacity
+              style={[styles.backBt, { marginRight: 12 }]}
+              onPress={() => navigation.goBack()}
+            >
+              <Image
+                style={styles.headerIcon}
+                source={require('../../assets/images/left-arrow.png')}
+              />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Profile</Text>
+          </View>
+        </View>
 
-        <ImageBackground
-            source={require('../../assets/images/background.png')}
-            style={styles.backgroundImage}
-            resizeMode="cover">
-            <PaperProvider>
+        <ScrollView style={styles.container}>
+          <View style={styles.innerContainerPad}>
+            <Avatar.Icon size={72} style={styles.avatarIcon} icon="account" />
+            <View style={styles.userInfo}>
+              <Text style={[styles.userName, { fontSize: 15, fontWeight: '500' }]}>
+                Mansour mohammed Saeed Alassar
+              </Text>
+              <Text style={[styles.userName, { fontSize: 13, fontWeight: '400' }]}>
+                mohammed@alarabigroupuae.com
+              </Text>
+            </View>
 
+            <Text style={styles.sectionTitle}>Accounts</Text>
 
-                <View style={styles.headerMain}>
-                    <View style={styles.headerLeftBlock} >
-                        <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
-                            <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
-                        </TouchableOpacity>
-                        <Text style={styles.headerTitle}>Profile</Text>
+            {accounts.map(account => {
+              const isActive = account.AccountId === activeId;
+              return (
+                <TouchableOpacity
+                  key={account.AccountId}
+                  style={isActive ? styles.activeCardItemMain : styles.cardItemMain}
+                  onPress={() => {
+                    selectAccount(account.AccountId);
+                    navigation.goBack();
+                  }}
+                >
+                  <View style={styles.cardContentInner}>
+                    <View style={styles.leftCardCont}>
+                      <Card style={styles.cardWithIcon}>
+                        <Image
+                          style={styles.cardIconImg}
+                          source={require('../../assets/images/address-icon.png')}
+                        />
+                      </Card>
+                      <View style={styles.leftTextCard}>
+                        <Text style={styles.textCard}>{account.AccountName}</Text>
+                        <Text style={styles.smallLabel}>Customer ID</Text>
+                        <Text style={styles.smallTextCard}>{account.AccountCode}</Text>
+                      </View>
                     </View>
+                    {isActive && (
+                      <Image
+                        style={styles.tickmarkPosition}
+                        source={require('../../assets/images/tickmark.png')}
+                      />
+                    )}
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+
+            <Text
+              style={[
+                styles.sectionTitle,
+                { borderBottomColor: '#ccc', borderBottomWidth: 1, paddingBottom: 8 },
+              ]}
+            >
+              Settings
+            </Text>
+
+            {/* Change Password Button */}
+            <TouchableOpacity style={styles.profileBt} onPress={showModal}>
+              <Image
+                style={styles.iconProBt}
+                source={require('../../assets/images/changepassword-icon.png')}
+              />
+              <Text style={styles.textProBt}>Change Password</Text>
+            </TouchableOpacity>
+
+            {/* Modal */}
+            <Portal>
+              <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
+                <Text style={styles.sectionTitleModal}>Change password</Text>
+
+                {['Enter Old Password', 'Enter New Password', 'Confirm New Password'].map((label, index) => (
+                  <View style={styles.formGroupModal} key={index}>
+                    <TextInput
+                      placeholder={label}
+                      style={styles.inputModal}
+                      placeholderTextColor="#ccc"
+                      textColor="#fff"
+                      secureTextEntry
+                      theme={{ colors: { primary: '#FF5400' } }}
+                    />
+                    <TouchableOpacity onPress={toggleSecureEntry} style={styles.passwordIcon}>
+                      <Icon name={secureText ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+
+                <View style={styles.buttonRow}>
+                  <Button mode="contained" onPress={hideModal} style={styles.closeButton} textColor="#000">
+                    Close
+                  </Button>
+                  <Button
+                    mode="contained"
+                    onPress={hideModal}
+                    buttonColor="#FF5A00"
+                    style={styles.applyButton}
+                  >
+                    Apply
+                  </Button>
                 </View>
+              </Modal>
+            </Portal>
 
+            {/* Static Profile Options */}
+            <TouchableOpacity style={styles.profileBt}>
+              <Image style={styles.iconProBt} source={require('../../assets/images/gethelp-icon.png')} />
+              <Text style={styles.textProBt}>Get Help</Text>
+            </TouchableOpacity>
 
-                <ScrollView style={styles.container}>
-                    <View style={styles.innerContainerPad}>
+            <TouchableOpacity style={styles.profileBt}>
+              <Image style={styles.iconProBt} source={require('../../assets/images/language-icon.png')} />
+              <Text style={styles.textProBt}>Language</Text>
+            </TouchableOpacity>
 
-                        <Avatar.Icon size={72} style={styles.avatarIcon} icon="account" />
-                        <View style={styles.userInfo}>
-                            <Text style={[styles.userName, { fontSize: 15, fontWeight: 500, }]}>Mansour mohammed Saeed Alassar</Text>
-                            <Text style={[styles.userName, { fontSize: 13, fontWeight: 400, }]}> mohammed@alarabigroupuae.com</Text>
-                        </View>
-
-                        <Text style={styles.sectionTitle}>Accounts</Text>
-
-                        <TouchableOpacity style={styles.cardItemMain}>
-                            <View style={styles.cardContentInner}>
-                                <View style={styles.leftCardCont}>
-                                    <Card style={styles.cardWithIcon}>
-                                        <Image style={styles.cardIconImg} source={require('../../assets/images/address-icon.png')} />
-                                    </Card>
-
-                                    <View style={styles.leftTextCard}>
-                                        <Text style={styles.textCard}>AL ARABI GLOBAL LOGISTICS SERVICES</Text>
-                                        <Text style={styles.smallLabel}>Customer ID</Text>
-                                        <Text style={styles.smallTextCard}>123456789</Text>
-                                    </View>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.activeCardItemMain }>
-                            <View style={styles.cardContentInner}>
-                                <View style={styles.leftCardCont}>
-                                    <Card style={styles.cardWithIcon}>
-                                        <Image style={styles.cardIconImg} source={require('../../assets/images/address-icon.png')} />
-                                    </Card>
-
-                                    <View style={styles.leftTextCard}>
-                                        <Text style={styles.textCard}>AL ARABI GLOBAL LOGISTICS SERVICES </Text>
-                                        <Text style={styles.smallLabel}>Customer ID</Text>
-                                        <Text style={styles.smallTextCard}>123456789</Text>
-                                    </View>                   
-                                </View>
-                                 <Image style={styles.tickmarkPosition} source={require('../../assets/images/tickmark.png')} />
-                            </View>
-                        </TouchableOpacity>
-
-                          <Text style={[styles.sectionTitle, {borderBottomColor:'#ccc', borderBottomWidth:1, paddingBottom:8,}]}>Settings</Text>
-
-   <TouchableOpacity style={styles.profileBt } onPress={() => showModal()}>
-        <Image style={styles.iconProBt} source={require('../../assets/images/changepassword-icon.png')}></Image>
-         <Text style={styles.textProBt}>Change Password</Text>
-  </TouchableOpacity >
-        <Portal>
-                              <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
-  
-                                  <Text style={styles.sectionTitleModal}>Change password</Text>
-                                  <View style={styles.formGroupModal}>
-                                     
-                                      <TextInput
-                                          style={styles.inputModal}
-                                          placeholder="Enter Old Password"
-                                          placeholderTextColor="#ccc"
-                                          keyboardType="numeric"
-                                          cursorColor="#fff"
-                                          textColor='#fff'
-                                              secureTextEntry
-                                          theme={{
-                                              colors: {
-                                                  primary: '#FF5400',
-                                              },
-                                          }}  
-                                      />
-                                      <TouchableOpacity onPress={toggleSecureEntry} style={styles.passwordIcon}>
-                                                  <Icon name={secureText ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
-                                      </TouchableOpacity>
-                                  </View>
-  
-                                  <View style={styles.formGroupModal}>                                   
-                                      <TextInput
-                                          mode="flat"
-                                          placeholder="Enter New Password"
-                                          style={styles.inputModal}
-                                          underlineColor="#fff"
-                                          placeholderTextColor="#ccc"
-                                          textColor='#fff'
-                                          theme={{
-                                              colors: {
-                                                  primary: '#FF5400',
-                                              },
-                                          }}
-                                      />
-
-                                              <TouchableOpacity onPress={toggleSecureEntry} style={styles.passwordIcon}>
-                                                  <Icon name={secureText ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
-                                      </TouchableOpacity>
-
-                                  </View>
-
-                                  <View style={styles.formGroupModal}>                                   
-                                      <TextInput
-                                          mode="flat"
-                                          placeholder="Confirm New Password"
-                                          style={styles.inputModal}
-                                          underlineColor="#fff"
-                                          placeholderTextColor="#ccc"
-                                          textColor='#fff'
-                                          theme={{
-                                              colors: {
-                                                  primary: '#FF5400',
-                                              },
-                                          }}
-                                      />
-
-                                              <TouchableOpacity onPress={toggleSecureEntry} style={styles.passwordIcon}>
-                                                  <Icon name={secureText ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
-                                      </TouchableOpacity>
-                                  </View>
-  
-  
-                                  
-  
-  
-                                  
-  
-                                  <View style={styles.buttonRow}>
-                                      <Button
-                                          mode="contained"
-                                          onPress={hideModal}
-                                          style={styles.closeButton}
-                                          textColor="#000"
-                                      >
-                                          Close
-                                      </Button>
-  
-                                      <Button
-                                          mode="contained"
-                                          onPress={() => {
-                                              hideModal();
-                                          }}
-                                          buttonColor="#FF5A00"
-                                          style={styles.applyButton}
-                                      >
-                                          Apply
-                                      </Button>
-                                  </View>
-  
-                              </Modal>
-                          </Portal>
-
-
-     <TouchableOpacity style={styles.profileBt }>
-        <Image style={styles.iconProBt} source={require('../../assets/images/gethelp-icon.png')}></Image>
-         <Text style={styles.textProBt}>Get Help</Text>
-  </TouchableOpacity >
-
-     <TouchableOpacity style={styles.profileBt }>
-        <Image style={styles.iconProBt} source={require('../../assets/images/language-icon.png')}></Image>
-         <Text style={styles.textProBt}>Language</Text>
-  </TouchableOpacity >
-
-     <TouchableOpacity style={styles.profileBt }>
-        <Image style={styles.iconProBt} source={require('../../assets/images/logout-icon.png')}></Image>
-         <Text style={styles.textProBt}>Logout</Text>
-  </TouchableOpacity >
-
-                    </View>
-                </ScrollView >
-
-
-            </PaperProvider>
-        </ImageBackground>
-
-    );
+            <TouchableOpacity style={styles.profileBt}>
+              <Image style={styles.iconProBt} source={require('../../assets/images/logout-icon.png')} />
+              <Text style={styles.textProBt}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </PaperProvider>
+    </ImageBackground>
+  );
 };
+
 export default Profile;
+
+
 const styles = StyleSheet.create({
     footerAbsolute: {
         position: 'absolute',

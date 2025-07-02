@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from 'react';
-
-import { StyleSheet, View, ScrollView, ImageBackground, Image,TouchableOpacity } from 'react-native';
-import { Button, Text, Badge, Avatar, Card, IconButton } from 'react-native-paper';
+import {
+    StyleSheet,
+    View,
+    ScrollView,
+    ImageBackground,
+    Image,
+    TouchableOpacity,
+} from 'react-native';
+import { Button, Text, Badge, Avatar, Card, ActivityIndicator } from 'react-native-paper';
 import { SelectCountry } from 'react-native-element-dropdown';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AuthStackParamList, MainStackParamList } from '../../App';
+import { MainStackParamList } from '../../App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getAccountName, getFullAccountDetails } from '../services/common';
 import { useAuth } from '../../App';
+import { useAccount } from '../context/AccountProvider';
+import { Animated } from 'react-native';
+import { BlurView } from '@react-native-community/blur';
 
 
 const local_data = [
@@ -26,60 +34,64 @@ const local_data = [
             uri: 'http://rpdemos.net/clients/4xmsol/assets/images/ar.png',
         },
     },
-
 ];
 
 const Dashboard: React.FC = () => {
-    const [country, setCountry] = useState('1');
-    const [accountId, setAccountId] = useState<any>();
-    const [accountDetails, setAccountDetails] = useState<any>();
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
-    const navigations = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
-
-    const navigateTo = (path: keyof MainStackParamList) => {
-        navigation.navigate(path)
-    }
     const { setLoggedIn } = useAuth();
+    const { full, loadingFull  } = useAccount();
+
+    const [country, setCountry] = useState('1');
+    const [accountDetails, setAccountDetails] = useState<any>();
+    const [fadeAnim] = useState(new Animated.Value(0));
 
     useEffect(() => {
+        setAccountDetails(full);
+    }, [full]);
+
+        useEffect(() => {
         (async () => {
             const token = await AsyncStorage.getItem('accessToken');
             const expiry = await AsyncStorage.getItem('tokenExpiry');
             const refresh = await AsyncStorage.getItem('refreshToken');
             console.log('[TOKEN CHECK]', { token, expiry, refresh });
-            getAccountId();
-
         })();
     }, []);
 
+    useEffect(() => {
+  if (loadingFull) {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  } else {
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  }
+}, [loadingFull]);
 
-    const getAccountId = async () => {
 
-        try {
-            const data = await getAccountName();
-            console.log(data, "data");
-            const accountDetails = data[0];
-            setAccountId(accountDetails);
-            fullAccDetails(accountDetails.AccountId)
-        } catch (error) {
-            console.error('Failed to load account id:', error);
-        } finally {
 
-        }
+if (!accountDetails) {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Loading account details…</Text>
+    </View>
+  );
+}
+
+    const navigateTo = (path: keyof MainStackParamList) => {
+        navigation.navigate(path);
     };
 
-    const fullAccDetails = async (id: any) => {
-        try {
-            const data = await getFullAccountDetails(11120);
-            console.log(data, "Account details");
-            const accountDetails = data;
-            setAccountDetails(accountDetails);
-        } catch (error) {
-            console.error('Failed to load account details:', error);
-        } finally {
 
-        }
-    }
+
+
+
     const handleLogout = async () => {
         try {
             const savedEmail = await AsyncStorage.getItem('email');
@@ -98,8 +110,6 @@ const Dashboard: React.FC = () => {
     };
 
     return (
-
-
         <ImageBackground
             source={require('../../assets/images/background.png')}
             style={styles.backgroundImage}
@@ -107,10 +117,10 @@ const Dashboard: React.FC = () => {
 
             <ScrollView style={styles.container}>
                 <View style={styles.headerDashRow}>
-                    <TouchableOpacity style={styles.profileCont}  onPress={() =>navigateTo('Profile')}>
+                    <TouchableOpacity style={styles.profileCont} onPress={() => navigateTo('Profile')}>
                         <Avatar.Icon size={28} style={styles.avatarIcon} icon="account" />
                         <View style={styles.userInfo}>
-                            <Text style={styles.userName}> {accountId?.AccountName} </Text>
+                            <Text style={styles.userName}> {accountDetails?.AccountName} </Text>
                         </View>
                     </TouchableOpacity>
 
@@ -245,6 +255,38 @@ const Dashboard: React.FC = () => {
 
 
             </ScrollView >
+           {loadingFull && (
+  <View
+    style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}
+    pointerEvents="auto"
+  >
+    <BlurView
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      }}
+      blurType="light" // or 'dark', 'extraLight', 'regular', 'prominent'
+      blurAmount={10}
+      reducedTransparencyFallbackColor="white"
+    />
+
+    <ActivityIndicator size="large" color="#FF5400" />
+    <Text style={{ marginTop: 10, color: '#000' }}>Switching account...</Text>
+  </View>
+)}
+
+
         </ImageBackground>
     );
 };

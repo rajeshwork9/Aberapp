@@ -18,6 +18,7 @@ import Violations from './src/pages/Violations';
 import Vehicles from './src/pages/Vehicles';
 import AddVehicle from './src/pages/AddVehicle';
 import Profile from './src/pages/Profile';
+import { AccountProvider } from './src/context/AccountProvider';
 /* ──────────────── Auth Context ──────────────── */
 type AuthCtx = {
   isLoggedIn: boolean;
@@ -182,7 +183,9 @@ const App: React.FC = () => {
     <AuthContext.Provider value={authCtx}>
       <PaperProvider theme={theme}>
         <NavigationContainer ref={navigationRef}>
-          {isLoggedIn ? <MainStack /> : <AuthStack />}
+          {isLoggedIn ?             <AccountProvider>
+              <MainStack />
+            </AccountProvider> : <AuthStack />}
         </NavigationContainer>
       </PaperProvider>
     </AuthContext.Provider>
