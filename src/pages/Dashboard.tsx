@@ -88,10 +88,6 @@ if (!accountDetails) {
         navigation.navigate(path);
     };
 
-
-
-
-
     const handleLogout = async () => {
         try {
             const savedEmail = await AsyncStorage.getItem('email');
@@ -212,7 +208,7 @@ if (!accountDetails) {
                     </View>
 
                     <View style={styles.iconItem}>
-                        <Card style={styles.imgGridItem}>
+                        <Card style={styles.imgGridItem} onPress={() => navigateTo('TransactionHistory')}>
                             <Image style={styles.imgGItem} source={require('../../assets/images/transaction-history-icon.png')} />
                         </Card>
                         <Text style={styles.iconLabel}>Transaction History</Text>

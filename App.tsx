@@ -20,6 +20,8 @@ import AddVehicle from './src/pages/AddVehicle';
 import Profile from './src/pages/Profile';
 import { AccountProvider } from './src/context/AccountProvider';
 import  Splash from './src/pages/Splash';
+import  TransactionHistory from './src/pages/TransactionHistory';
+TransactionHistory
 /* ──────────────── Auth Context ──────────────── */
 type AuthCtx = {
   isLoggedIn: boolean;
@@ -49,6 +51,7 @@ type MainStackParamList = {
   AddVehicle:undefined;
   Profile:undefined;
   Splash:undefined;
+  TransactionHistory:undefined;
 };
 
 export type { AuthStackParamList, MainStackParamList };
@@ -72,7 +75,7 @@ export const MainStack = React.memo(() => (
       name="Topup"
       component={Topup}
       options={{
-        headerShown: true,
+        headerShown: false,
         headerTransparent: true,
         headerTintColor: '#fff',
         headerTitle: 'Topup',
@@ -141,6 +144,18 @@ export const MainStack = React.memo(() => (
         headerTitle: 'Splash', 
       }} 
       />
+
+    <MainStackNav.Screen 
+      name="TransactionHistory" 
+      component={TransactionHistory} 
+      options={{ 
+        headerShown: false, 
+        headerTransparent: true, 
+        headerTintColor: '#fff', 
+        headerTitle: 'Transaction History', 
+      }} 
+      />
+      
 
   </MainStackNav.Navigator>
 ));
