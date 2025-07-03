@@ -19,6 +19,7 @@ import Vehicles from './src/pages/Vehicles';
 import AddVehicle from './src/pages/AddVehicle';
 import Profile from './src/pages/Profile';
 import { AccountProvider } from './src/context/AccountProvider';
+import  Splash from './src/pages/Splash';
 /* ──────────────── Auth Context ──────────────── */
 type AuthCtx = {
   isLoggedIn: boolean;
@@ -35,7 +36,8 @@ export const useAuth = () => {
 /* ──────────────── Navigation Stacks ──────────────── */
 // ------- Param Lists -------
 type AuthStackParamList = {
-  Login: undefined;
+Login: undefined;
+
 };
 
 type MainStackParamList = {
@@ -46,6 +48,7 @@ type MainStackParamList = {
   Violations: undefined;
   AddVehicle:undefined;
   Profile:undefined;
+  Splash:undefined;
 };
 
 export type { AuthStackParamList, MainStackParamList };
@@ -58,6 +61,7 @@ const screenOptions: NativeStackNavigationOptions = { headerShown: false };
 export const AuthStack = React.memo(() => (
   <AuthStackNav.Navigator screenOptions={screenOptions}>
     <AuthStackNav.Screen name="Login" component={Login} />
+  
   </AuthStackNav.Navigator>
 ));
 
@@ -127,6 +131,17 @@ export const MainStack = React.memo(() => (
       }} 
       />
 
+          <MainStackNav.Screen 
+      name="Splash" 
+      component={Splash} 
+      options={{ 
+        headerShown: false, 
+        headerTransparent: true, 
+        headerTintColor: '#fff', 
+        headerTitle: 'Splash', 
+      }} 
+      />
+
   </MainStackNav.Navigator>
 ));
 
@@ -173,7 +188,7 @@ const App: React.FC = () => {
   // Splash while booting
   if (booting) {
     return (
-      <View style={styles.splash}>
+      <View style={styles.splashSt}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
@@ -196,7 +211,7 @@ export default App;
 
 /* ──────────────── Styles ──────────────── */
 const styles = StyleSheet.create({
-  splash: {
+  splashSt: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
