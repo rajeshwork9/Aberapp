@@ -115,7 +115,8 @@ if (!accountDetails) {
             style={styles.backgroundImage}
             resizeMode="cover">
 
-            <ScrollView style={styles.container}>
+            <ScrollView>
+            <View style={styles.container}>
                 <View style={styles.headerDashRow}>
                     <TouchableOpacity style={styles.profileCont} onPress={() => navigateTo('Profile')}>
                         <Avatar.Icon size={28} style={styles.avatarIcon} icon="account" />
@@ -251,7 +252,7 @@ if (!accountDetails) {
                         </View>
                     </Card>
                 </View>
-
+            </View>
 
 
             </ScrollView >

@@ -12,7 +12,7 @@ const Trips: React.FC = () => {
     const [visible, setVisible] = React.useState(false);
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
-    const containerStyle = { backgroundColor: 'white', padding: 100 };
+
 
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
     const navigateTo = (path: keyof MainStackParamList) => {

@@ -1,17 +1,17 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
-import { Text, Card, TextInput, Modal, Portal, PaperProvider, Button } from 'react-native-paper';
+import { Text, Card, Icon, TextInput, Modal, Portal, PaperProvider, Button } from 'react-native-paper';
 
 
 const AddVehicle: React.FC = () => {
-    const [search, setSearch] = React.useState('');
-    const [visible, setVisible] = React.useState(false);
+    const navigation = useNavigation();
 
+    const [visible, setVisible] = React.useState(false);
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
-    const containerStyle = { backgroundColor: 'white', padding: 100 };
-    const navigation = useNavigation();
+
+
     return (
 
         <ImageBackground
@@ -31,131 +31,205 @@ const AddVehicle: React.FC = () => {
                 </View>
 
 
-                <ScrollView style={styles.container}>
-                   <View style={styles.innerContainerPad}>
-                    <Text style={styles.sectionTitle}>1. Company Details</Text>
-                    <View style={styles.formGroup}>
+                <ScrollView >
+                    <View style={styles.container}>
+                        <View style={styles.innerContainerPad}>
+                            <View style={styles.step1}>
+                                <Text style={styles.sectionTitle}>1. Company Details</Text>
+                                <View style={styles.formGroup}>
+                                    <TextInput
+                                        style={styles.formControl}
+                                        placeholder="Company Licence Name *"
+                                        placeholderTextColor="#9F9F9F"
+                                        keyboardType="numeric"
+                                        cursorColor="#fff"
+                                        textColor='#fff'
+                                        theme={{
+                                            colors: {
+                                                primary: '#FF5400',
+                                            },
+                                        }}
 
+                                    />
+                                </View>
 
-                        <TextInput
-                            style={styles.formControl}
-                            placeholder="Company Licence Name *"
-                            placeholderTextColor="#ccc"
-                            keyboardType="numeric"
-                            cursorColor="#fff"
-                            textColor='#fff'
-                            theme={{
-                                colors: {
-                                    primary: '#FF5400',
-                                },
-                            }}
+                                <View style={styles.formGroup}>
+                                    <TextInput
+                                        mode="flat"
+                                        placeholder="Enter Company Licence Number *"
+                                        style={styles.formControl}
+                                        underlineColor="#9F9F9F"
+                                        placeholderTextColor="#ccc"
+                                        textColor='#fff'
+                                        theme={{
+                                            colors: {
+                                                primary: '#FF5400',
+                                            },
+                                        }}
+                                    />
+                                </View>
 
-                        />
+                                <View style={styles.formGroup}>
+                                    <TextInput
+                                        mode="flat"
+                                        placeholder="No Of Trucks To Register  *"
+                                        style={styles.formControl}
+                                        underlineColor="#fff"
+                                        placeholderTextColor="#9F9F9F"
+                                        textColor='#fff'
+                                        theme={{
+                                            colors: {
+                                                primary: '#FF5400',
+                                            },
+                                        }}
+                                    />
+                                </View>
+
+                                <View style={styles.formGroup}>
+                                    <TextInput
+                                        mode="flat"
+                                        placeholder="Email *"
+                                        style={styles.formControl}
+                                        underlineColor="#fff"
+                                        placeholderTextColor="#9F9F9F"
+                                        textColor='#fff'
+                                        theme={{
+                                            colors: {
+                                                primary: '#FF5400',
+                                            },
+                                        }}
+                                    />
+                                </View>
+
+                                <View style={styles.formGroup}>
+                                    <TextInput
+                                        mode="flat"
+                                        placeholder="Mobile No *"
+                                        style={styles.formControl}
+                                        underlineColor="#fff"
+                                        placeholderTextColor="#9F9F9F"
+                                        textColor='#fff'
+                                        theme={{
+                                            colors: {
+                                                primary: '#FF5400',
+                                            },
+                                        }}
+                                    />
+                                </View>
+
+                                <View style={styles.formGroup}>
+                                    <TextInput
+                                        mode="flat"
+                                        placeholder="Company Details*"
+                                        style={styles.formControl}
+                                        underlineColor="#fff"
+                                        placeholderTextColor="#9F9F9F"
+                                        textColor='#fff'
+                                        theme={{
+                                            colors: {
+                                                primary: '#FF5400',
+                                            },
+                                        }}
+                                    />
+                                </View>
+                            </View>
+
+                            <View style={styles.step2}>
+                                <Text style={styles.sectionTitle}>2. Attachments</Text>
+                                <Card style={styles.cardItemMain}>
+                                    <View style={styles.bulletText}>
+                                        <Text style={styles.bulletT}>{'\u2022'}</Text>
+                                        <Text style={styles.textB}> Only .Pdf,.Jpg,.Jpeg,.Png Files Are Allowed</Text>
+                                    </View>
+
+                                    <View style={styles.bulletText}>
+                                        <Text style={styles.bulletT}>{'\u2022'}</Text>
+                                        <Text style={styles.textB}>Please Refer The Sample Documents Before
+                                            Attaching The Documents. Invalid Documents Will Be Rejected After The
+                                            Registration Process.</Text>
+                                    </View>
+
+                                    <View style={styles.bulletText}>
+                                        <Text style={styles.bulletT}>{'\u2022'}</Text>
+                                        <Text style={styles.textB}>For More Than One Truck, Please Upload All Truck License
+                                            Document In A Single PDF File As Shown In The Sample Below. Missing A
+                                            Document Will Result To Rejection Of The Registration After Payment.</Text>
+                                    </View>
+
+                                </Card>
+
+                                <Text style={styles.labelFile}>Company License Document *</Text>
+                                <Card style={styles.chooseFileCard}>
+                                    <Button mode="elevated" textColor="#000" style={styles.chooseFileBt}>Choose File</Button>
+                                    <View style={styles.uploadFileName}>
+                                        <Image style={styles.fileIcon} source={require('../../assets/images/download-icon.png')} />
+                                        <Text style={styles.fileName}>Download sample company license document</Text>
+                                    </View>
+                                </Card>
+
+                                <Text style={styles.labelFile}>Company Document *</Text>
+                                <Card style={styles.chooseFileCard}>
+                                    <Button mode="elevated" textColor="#000" style={styles.chooseFileBt}>Choose File</Button>
+                                    <View style={styles.uploadFileName}>
+                                        <Image style={styles.fileIcon} source={require('../../assets/images/download-icon.png')} />
+                                        <Text style={styles.fileName}>Download sample company license document</Text>
+                                    </View>
+                                </Card>
+
+                                <Text style={styles.labelFile}>Truck Licence Documents (PDF Only) *</Text>
+                                <Card style={styles.chooseFileCard}>
+                                    <Button mode="elevated" textColor="#000" style={styles.chooseFileBt}>Choose File</Button>
+                                    <View style={styles.uploadFileName}>
+                                        <Image style={styles.fileIcon} source={require('../../assets/images/download-icon.png')} />
+                                        <Text style={styles.fileName}>Download sample company license document</Text>
+                                    </View>
+                                </Card>
+                                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10, marginBottom: 30, }}>
+                                    <Button mode="outlined" textColor="#fff" style={styles.clearBt}>Clear Fields</Button>
+                                </View>
+                            </View>
+
+                            <View style={styles.step3}>
+                                <Text style={styles.sectionTitle}>3. Summary</Text>
+                                <Card style={styles.cardItemMain}>
+                                    <View style={styles.summaryBlock}>
+                                        <Text style={styles.summaryLabel}>Truck Count :</Text>
+                                        <Text style={styles.summaryText}>1101</Text>
+                                    </View>
+
+                                    <View style={styles.summaryBlock}>
+                                        <Text style={styles.summaryLabel}>Total Amount To Pay :</Text>
+                                        <Text style={styles.summaryText}>4440 AED</Text>
+                                    </View>
+                                </Card>
+                            </View>
+
+                        </View>
                     </View>
-
-                    <View style={styles.formGroup}>
-                        <TextInput
-                            mode="flat"
-                            placeholder="Enter Company Licence Number *"
-                            style={styles.formControl}
-                            underlineColor="#fff"
-                            placeholderTextColor="#ccc"
-                            textColor='#fff'
-                            theme={{
-                                colors: {
-                                    primary: '#FF5400',
-                                },
-                            }}
-                        />
-                    </View>
-
-                    <View style={styles.formGroup}>
-                        <TextInput
-                            mode="flat"
-                            placeholder="No Of Trucks To Register  *"
-                            style={styles.formControl}
-                            underlineColor="#fff"
-                            placeholderTextColor="#ccc"
-                            textColor='#fff'
-                            theme={{
-                                colors: {
-                                    primary: '#FF5400',
-                                },
-                            }}
-                        />
-                    </View>
-
-                    <View style={styles.formGroup}>
-                        <TextInput
-                            mode="flat"
-                            placeholder="Email *"
-                            style={styles.formControl}
-                            underlineColor="#fff"
-                            placeholderTextColor="#ccc"
-                            textColor='#fff'
-                            theme={{
-                                colors: {
-                                    primary: '#FF5400',
-                                },
-                            }}
-                        />
-                    </View>
-
-                    <View style={styles.formGroup}>
-                        <TextInput
-                            mode="flat"
-                            placeholder="Mobile No *"
-                            style={styles.formControl}
-                            underlineColor="#fff"
-                            placeholderTextColor="#ccc"
-                            textColor='#fff'
-                            theme={{
-                                colors: {
-                                    primary: '#FF5400',
-                                },
-                            }}
-                        />
-                    </View>
-
-                    <View style={styles.formGroup}>
-                        <TextInput
-                            mode="flat"
-                            placeholder="Company Details*"
-                            style={styles.formControl}
-                            underlineColor="#fff"
-                            placeholderTextColor="#ccc"
-                            textColor='#fff'
-                            theme={{
-                                colors: {
-                                    primary: '#FF5400',
-                                },
-                            }}
-                        />
-                    </View>
-                </View> 
                 </ScrollView >
 
                 <View style={styles.footerAbsolute}>
                     <View style={styles.buttonRow}>
-                        <Button
-                            mode="contained"
-                            onPress={hideModal}
-                            style={styles.closeButton}
-                            textColor="#000"
-                        >
-                            Cancel
-                        </Button>
+                        <Button mode="contained" style={styles.closeButton} textColor="#000">Cancel</Button>
+                        <Button onPress={showModal} mode="contained" buttonColor="#FF5A00" style={styles.applyButton}>Next</Button>
 
-                        <Button
-                            mode="contained"
-                            onPress={() => {
-                                hideModal();
-                            }}
-                            buttonColor="#FF5A00"
-                            style={styles.applyButton}
-                        >
-                            Next
-                        </Button>
+                        <Portal>
+                            <Modal visible={visible} 
+                            onDismiss={hideModal}
+                             contentContainerStyle={styles.confirmAlert}
+                                theme={{ colors: { backdrop: 'rgba(0, 0, 0, 0.5)' }, }}>
+                                <Text style={{fontSize:19, fontFamily:'Poppins-Medium', textAlign:'center', color:'#fff', marginBottom:20,}}>Are you sure ?</Text>
+                                <Icon source="error" size={20}  />
+                                
+                                <Text style={{fontSize:14, fontFamily:'Poppins-Regular', textAlign:'center', color:'#fff', marginBottom:20,}}>The data and attachment will be saved in the system. you wont be able to
+                                     update the transaction after saving !!</Text>
+
+                     <View style={styles.buttonRow}>
+                        <Button mode="contained" style={styles.closeButton} textColor="#000">Cancel</Button>
+                        <Button mode="contained" buttonColor="#FF5A00" style={styles.applyButton}>Next</Button>
+                    </View>
+                            </Modal>
+                        </Portal>
                     </View>
                 </View>
             </PaperProvider>
@@ -170,10 +244,10 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        padding:0,
-        backgroundColor:'rgba(0, 0, 0, 0.51)',
+        padding: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.51)',
         alignItems: 'center',
-        paddingVertical:10,
+        paddingVertical: 10,
     },
     //--- Header
     backgroundImage: {
@@ -186,11 +260,11 @@ const styles = StyleSheet.create({
         flex: 1,
         marginHorizontal: 20,
         marginTop: 10,
-       
+
     },
 
-    innerContainerPad:{
-paddingBottom:70,
+    innerContainerPad: {
+        paddingBottom: 70,
     },
 
     headerMain: {
@@ -276,12 +350,22 @@ paddingBottom:70,
         marginVertical: 20,
         fontSize: 17,
         color: '#fff',
+        fontFamily: 'Poppins-Medium',
+    },
+
+    labelFile: {
+        marginTop: 15,
+        marginBottom: 5,
+        fontSize: 14,
+        color: '#fff',
         fontWeight: 'normal',
+        fontFamily: 'Poppins-Regular',
     },
 
 
     formGroup: { marginTop: 10, marginBottom: 15, },
     formControl: {
+        paddingHorizontal: 0,
         height: 38,
         borderBottomColor: '#FCFCFC',
         borderBottomWidth: 1,
@@ -307,13 +391,13 @@ paddingBottom:70,
         marginTop: 0,
         fontSize: 13,
         marginHorizontal: 10,
-        width:130,
+        width: 130,
 
 
     },
 
     closeButton: {
-         width:130,
+        width: 130,
         paddingTop: 0,
         paddingBottom: 3,
         backgroundColor: '#FFFFFF',
@@ -324,4 +408,124 @@ paddingBottom:70,
         fontSize: 13,
         marginHorizontal: 10,
     },
+
+    step1: {
+
+    },
+
+    step2: {},
+    step3: {},
+    cardItemMain: {
+        borderWidth: 0,
+        paddingVertical: 15,
+        marginTop: 0,
+        marginHorizontal: 0,
+        marginBottom: 12,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        shadowOpacity: 0,
+        elevation: 0,
+    },
+    bulletText: {
+        paddingHorizontal: 15,
+        flexDirection: 'row',
+        paddingBottom: 10,
+    },
+    bulletT: {
+        fontSize: 23,
+        color: '#FF5400',
+        lineHeight: 22,
+    },
+    textB: {
+        fontSize: 14,
+        color: '#FF5400',
+        lineHeight: 22,
+        fontWeight: 400,
+        paddingLeft: 5,
+        paddingRight: 10,
+    },
+
+    uploadFileName: {
+        paddingLeft: 0,
+        paddingRight: 10,
+        flexDirection: 'row',
+        paddingBottom: 10,
+    },
+    fileIcon: {
+        width: 20,
+        height: 20,
+        marginRight: 10,
+    },
+    fileName: {
+        fontSize: 14,
+        color: '#FF5400',
+        lineHeight: 22,
+        fontWeight: 400,
+        paddingLeft: 5,
+        paddingRight: 10,
+        fontFamily: 'Poppins-Regular',
+    },
+    chooseFileBt: {
+        width: 150,
+        fontFamily: 'Poppins-Regular',
+
+        marginBottom: 15,
+        borderRadius: 10,
+    },
+
+    chooseFileCard: {
+        borderWidth: 0,
+        paddingVertical: 15,
+        paddingHorizontal: 15,
+        marginTop: 0,
+        marginHorizontal: 0,
+        marginBottom: 12,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        shadowOpacity: 0,
+        elevation: 0,
+    },
+
+    clearBt: {
+        borderColor: '#FF5400',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        width: 150,
+        borderRadius: 60,
+        paddingVertical: 5,
+        fontFamily: 'Poppins-Regular',
+    },
+
+    summaryBlock: {
+        paddingHorizontal: 15,
+        flexDirection: 'row',
+        marginBottom: 10,
+    },
+
+    summaryText: {
+        color: '#fff',
+        fontSize: 14,
+
+    },
+
+    summaryLabel: {
+        color: '#fff',
+        fontSize: 14,
+        width: 180,
+    },
+
+    confirmAlert: {
+        backgroundColor: '#000',
+        paddingHorizontal: 25,
+        marginHorizontal: 20,
+        borderRadius: 20,
+        color: '#fff',
+        paddingTop:30,
+        paddingBottom:40,
+    },
+
+    sectionTitleModal: {
+        marginVertical: 20,
+        fontSize: 17,
+        color: '#fff',
+        fontWeight: 'normal',
+    },
+
 });

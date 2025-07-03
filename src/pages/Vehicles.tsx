@@ -4,7 +4,7 @@ import { MainStackParamList } from '../../App';
 import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
 import { Text, Card, TextInput, Modal, Portal, PaperProvider, Button } from 'react-native-paper';
-
+import DatePicker from 'react-native-date-picker';
 
 const Vehicles: React.FC = () => {
     const [search, setSearch] = React.useState('');
@@ -19,6 +19,8 @@ const Vehicles: React.FC = () => {
         navigation.navigate(path)
     }
 
+      const [date, setDate] = useState(new Date());
+      const [open, setOpen] = useState(false);
     return (
 
         <ImageBackground
@@ -66,6 +68,8 @@ const Vehicles: React.FC = () => {
                                         }}
                                     />
                                      <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} />
+
+              
                                 </View>
 
                                 <View style={styles.formGroupModal}>

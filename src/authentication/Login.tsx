@@ -240,12 +240,13 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 16,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     textAlign: 'left',
     marginTop: 30,
     marginBottom: 15,
     color: '#fff',
     paddingLeft: 10,
+    fontFamily:'Poppins-Bold',
   },
 
   formViewGroup: {
