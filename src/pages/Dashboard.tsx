@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
     },
     topupBtn: {
         width: 98,
-        right: -85
+        right: -75
 
     },
 
