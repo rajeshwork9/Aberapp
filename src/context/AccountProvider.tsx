@@ -12,6 +12,7 @@ type Ctx = {
   loadingFull: boolean;
   selectAccount: (id: number) => void;
   getAccountId: () => Promise<void>;
+  loadFullById: (id: number) => Promise<FullAccount | null>;
 };
 
 const AccountCtx = createContext<Ctx | undefined>(undefined);
@@ -25,7 +26,9 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [accounts, setAccounts] = useState<SlimAccount[]>([]);
   const [activeId, setActiveId]  = useState<number | undefined>(undefined);
   const [full, setFull]          = useState<FullAccount>();
+  const [pendingFull, setPendingFull] = useState<FullAccount>();
   const [loadingFull, setLoadingFull] = useState(false);
+
   console.log('account provider')
 
   useEffect(() => { getAccountId(); }, []);
@@ -65,6 +68,17 @@ const loadFull = async (id: number) => {
   }
 };
 
+const loadFullById = async (id: number) => {
+  try {
+    const details = await getFullAccountDetails(id);
+    return details;
+  } catch (err) {
+    console.error('[AccountProvider] Failed to load details for id:', id, err);
+    return null;
+  }
+};
+
+
   /* run once at mount */
 
 
@@ -75,6 +89,7 @@ const loadFull = async (id: number) => {
     loadingFull,
     selectAccount: setActiveId,
     getAccountId,
+    loadFullById
   };
 
   return <AccountCtx.Provider value={ctx}>{children}</AccountCtx.Provider>;

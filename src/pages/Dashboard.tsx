@@ -18,6 +18,7 @@ import { useAccount } from '../context/AccountProvider';
 import { Animated } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 import Splash from './Splash';
+import Loader from '../components/Loader';
 
 
 const local_data = [
@@ -39,7 +40,7 @@ const local_data = [
 
 const Dashboard: React.FC = () => {
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
-    const { full, loadingFull  } = useAccount();
+    const { full, loadingFull } = useAccount();
 
     const [country, setCountry] = useState('1');
     const [accountDetails, setAccountDetails] = useState<any>();
@@ -49,7 +50,7 @@ const Dashboard: React.FC = () => {
         setAccountDetails(full);
     }, [full]);
 
-        useEffect(() => {
+    useEffect(() => {
         (async () => {
             const token = await AsyncStorage.getItem('accessToken');
             const expiry = await AsyncStorage.getItem('tokenExpiry');
@@ -59,30 +60,30 @@ const Dashboard: React.FC = () => {
     }, []);
 
     useEffect(() => {
-  if (loadingFull) {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-  } else {
-    Animated.timing(fadeAnim, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-  }
-}, [loadingFull]);
+        if (loadingFull) {
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 200,
+                useNativeDriver: true,
+            }).start();
+        } else {
+            Animated.timing(fadeAnim, {
+                toValue: 0,
+                duration: 200,
+                useNativeDriver: true,
+            }).start();
+        }
+    }, [loadingFull]);
 
 
 
-if (!accountDetails) {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Splash />
-    </View>
-  );
-}
+    // if (!accountDetails) {
+    //   return (
+    //       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' }}>
+    //           <Loader fullScreen={false} />
+    //       </View>
+    //   );
+    // }
 
     const navigateTo = (path: keyof MainStackParamList) => {
         navigation.navigate(path);
@@ -93,178 +94,188 @@ if (!accountDetails) {
             source={require('../../assets/images/background.png')}
             style={styles.backgroundImage}
             resizeMode="cover">
-
-            <ScrollView>
-            <View style={styles.container}>
-                <View style={styles.headerDashRow}>
-                    <TouchableOpacity style={styles.profileCont} onPress={() => navigateTo('Profile')}>
-                        <Avatar.Icon size={28} style={styles.avatarIcon} icon="account" />
-                        <View style={styles.userInfo}>
-                            <Text style={styles.userName}> {accountDetails?.AccountName} </Text>
-                        </View>
-                    </TouchableOpacity>
-
-                    <SelectCountry
-                        style={styles.countryDropdown}
-                        selectedTextStyle={styles.selectedTextContry}
-                        placeholderStyle={styles.placeholderCountry}
-                        imageStyle={styles.imageCountry}
-                        // inputSearchStyle={styles.inputSearchCountry}
-                        iconStyle={styles.iconCountry}
-                        // search
-                        maxHeight={200}
-                        value={country}
-                        data={local_data}
-                        valueField="value"
-                        labelField="lable"
-                        imageField="image"
-                        placeholder="Select country"
-                        containerStyle={styles.dropdownList}
-                        activeColor="#333333"
-                        // searchPlaceholder="Search..."
-                        onChange={e => {
-                            setCountry(e.value);
-                        }}
-                    />
-
-                    <View style={styles.notification}>
-                        <Badge size={19} style={styles.badgeNotifi}>4</Badge>
-                        <Image style={styles.imgNotifi} source={require('../../assets/images/notification-icon.png')} />
-                        {/* <Button onPress={() => handleLogout()} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
-                        >Logout</Button> */}
-                    </View>
+            {!accountDetails ? (
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' }}>
+                    <Loader fullScreen={false} />
                 </View>
-
-                <View style={styles.balanceCard}>
-                    <Image style={styles.imgWalletBalance} source={require('../../assets/images/wallet-icon.png')} />
-                    <Card style={styles.balanceContent}>
-                        <Text style={styles.balanceLabel}>{accountDetails?.Balance}</Text>
-                        <Text style={styles.textBalance}>Available Balance (AED)</Text>
-                    </Card>
-                    <Button onPress={() => navigateTo('Topup')} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
-                    >Topup</Button>
-                </View>
-
-
-
-                <View style={styles.iconGrid}>
-                    <View style={styles.iconItem}>
-                        <Card style={styles.imgGridItem} onPress={() => navigateTo('Vehicles')}>
-                            <Image style={styles.imgGItem} source={require('../../assets/images/vehicles-icon.png')} />
-                        </Card>
-                        <Text style={styles.iconLabel}>Vehicles</Text>
-                    </View>
-
-                    <View style={styles.iconItem}>
-                        <Card style={styles.imgGridItem} onPress={() => navigateTo('Trips')}>
-                            <Image style={styles.imgGItem} source={require('../../assets/images/trips-icon.png')} />
-                        </Card>
-                        <Text style={styles.iconLabel}>Trips</Text>
-                    </View>
-
-                    <View style={styles.iconItem}>
-                        <Card style={styles.imgGridItem} onPress={() => navigateTo('Violations')}>
-                            <Image style={styles.imgGItem} source={require('../../assets/images/violations-icon.png')} />
-                        </Card>
-                        <Text style={styles.iconLabel}>Violations</Text>
-                    </View>
-
-                    <View style={styles.iconItem}>
-                        <Card style={styles.imgGridItem}>
-                            <Image style={styles.imgGItem} source={require('../../assets/images/cases-icon.png')} />
-                        </Card>
-                        <Text style={styles.iconLabel}>Cases</Text>
-                    </View>
-
-                    <View style={styles.iconItem}>
-                        <Card style={styles.imgGridItem}>
-                            <Image style={styles.imgGItem} source={require('../../assets/images/statements-icon.png')} />
-                        </Card>
-                        <Text style={styles.iconLabel}>Statements</Text>
-                    </View>
-
-                    <View style={styles.iconItem}>
-                        <Card style={styles.imgGridItem}>
-                            <Image style={styles.imgGItem} source={require('../../assets/images/dashboard-icon.png')} />
-                        </Card>
-                        <Text style={styles.iconLabel}>Dashboard</Text>
-                    </View>
-
-                    <View style={styles.iconItem}>
-                        <Card style={styles.imgGridItem} onPress={() => navigateTo('TransactionHistory')}>
-                            <Image style={styles.imgGItem} source={require('../../assets/images/transaction-history-icon.png')} />
-                        </Card>
-                        <Text style={styles.iconLabel}>Transaction History</Text>
-                    </View>
-                </View>
-
-                <View>
-                    <Text style={styles.sectionTitle}>Today's Trips</Text>
-                    <Card style={styles.cardItemMain}>
-                        <View style={styles.cardContentInner}>
-
-                            <View style={styles.leftCardCont}>
-                                <Card style={styles.cardWithIcon}>
-                                    <Image style={styles.cardIconImg} source={require('../../assets/images/trips-icon.png')} />
-                                </Card>
-
-                                <View style={styles.leftTextCard}>
-                                    <Text style={styles.textCard}>36487-AE-UQ-PRI_A</Text>
-                                    <Text style={styles.textCard}>G2 Ring Road</Text>
-                                    <Text style={styles.textCard}>Transaction ID : 12345</Text>
-                                    <Text style={[styles.textCard, { fontWeight: 'light' }]}>07 Mar 2025, 10:50:01</Text>
-                                </View>
-
+            ) : (<ScrollView>
+                <View style={styles.container}>
+                    <View style={styles.headerDashRow}>
+                        <TouchableOpacity style={styles.profileCont} onPress={() => navigateTo('Profile')}>
+                            <Avatar.Icon size={28} style={styles.avatarIcon} icon="account" />
+                            <View style={styles.userInfo}>
+                                <Text style={styles.userName}> AL ARABI GLOBAL LOGISTICS SERVICES 
+  </Text>
                             </View>
-                            <View style={styles.rightTextCard}>
-                                <Text style={styles.largeTextRCard}>3XL</Text>
-                                <Image style={{ width: 16, height: 16, marginVertical: 4, }} source={require('../../assets/images/chat-icon.png')} />
+                        </TouchableOpacity>
 
-                                <Text style={styles.statusTextCard}>
-                                    <Text style={[styles.statusText, { fontWeight: 'normal' }]}>Paid: </Text>
-                                    <Text style={[styles.statusText, { fontWeight: 'bold' }]}>300</Text>
-                                </Text>
-                                {/* <Text style={{ color: index === 0 ? 'green' : 'red' }}>
+                        <SelectCountry
+                            style={styles.countryDropdown}
+                            selectedTextStyle={styles.selectedTextContry}
+                            placeholderStyle={styles.placeholderCountry}
+                            imageStyle={styles.imageCountry}
+                            // inputSearchStyle={styles.inputSearchCountry}
+                            iconStyle={styles.iconCountry}
+                            // search
+                            maxHeight={200}
+                            value={country}
+                            data={local_data}
+                            valueField="value"
+                            labelField="lable"
+                            imageField="image"
+                            placeholder="Select country"
+                            containerStyle={styles.dropdownList}
+                            activeColor="#333333"
+                            // searchPlaceholder="Search..."
+                            onChange={e => {
+                                setCountry(e.value);
+                            }}
+                        />
+
+                        <View style={styles.notification}>
+                            <Badge size={19} style={styles.badgeNotifi}>4</Badge>
+                            <Image style={styles.imgNotifi} source={require('../../assets/images/notification-icon.png')} />
+                            {/* <Button onPress={() => handleLogout()} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
+                        >Logout</Button> */}
+                        </View>
+                    </View>
+
+                    <View style={styles.balanceCard}>
+                        <Image style={styles.imgWalletBalance} source={require('../../assets/images/wallet-icon.png')} />
+                        <Card style={styles.balanceContent}>
+                                <Text style={styles.balanceLabel}>{accountDetails?.Balance ? new Intl.NumberFormat('en-US', {
+                                    style: 'decimal',
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                }).format(accountDetails.Balance)
+                                    : '0.00'}</Text>
+                            <Text style={styles.textBalance}>Available Balance (AED)</Text>
+                        </Card>
+                        <Button onPress={() => navigateTo('Topup')} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
+                        >Topup</Button>
+                    </View>
+
+
+
+                    <View style={styles.iconGrid}>
+                        <View style={styles.iconItem}>
+                            <Card style={styles.imgGridItem} onPress={() => navigateTo('Vehicles')}>
+                                <Image style={styles.imgGItem} source={require('../../assets/images/vehicles-icon.png')} />
+                            </Card>
+                            <Text style={styles.iconLabel}>Vehicles</Text>
+                        </View>
+
+                        <View style={styles.iconItem}>
+                            <Card style={styles.imgGridItem} onPress={() => navigateTo('Trips')}>
+                                <Image style={styles.imgGItem} source={require('../../assets/images/trips-icon.png')} />
+                            </Card>
+                            <Text style={styles.iconLabel}>Trips</Text>
+                        </View>
+
+                        <View style={styles.iconItem}>
+                            <Card style={styles.imgGridItem} onPress={() => navigateTo('Violations')}>
+                                <Image style={styles.imgGItem} source={require('../../assets/images/violations-icon.png')} />
+                            </Card>
+                            <Text style={styles.iconLabel}>Violations</Text>
+                        </View>
+
+                        <View style={styles.iconItem}>
+                            <Card style={styles.imgGridItem}>
+                                <Image style={styles.imgGItem} source={require('../../assets/images/cases-icon.png')} />
+                            </Card>
+                            <Text style={styles.iconLabel}>Cases</Text>
+                        </View>
+
+                        <View style={styles.iconItem}>
+                            <Card style={styles.imgGridItem}>
+                                <Image style={styles.imgGItem} source={require('../../assets/images/statements-icon.png')} />
+                            </Card>
+                            <Text style={styles.iconLabel}>Statements</Text>
+                        </View>
+
+                        <View style={styles.iconItem}>
+                            <Card style={styles.imgGridItem}>
+                                <Image style={styles.imgGItem} source={require('../../assets/images/dashboard-icon.png')} />
+                            </Card>
+                            <Text style={styles.iconLabel}>Dashboard</Text>
+                        </View>
+
+                        <View style={styles.iconItem}>
+                            <Card style={styles.imgGridItem} onPress={() => navigateTo('TransactionHistory')}>
+                                <Image style={styles.imgGItem} source={require('../../assets/images/transaction-history-icon.png')} />
+                            </Card>
+                            <Text style={styles.iconLabel}>Transaction History</Text>
+                        </View>
+                    </View>
+
+                    <View>
+                        <Text style={styles.sectionTitle}>Today's Trips</Text>
+                        <Card style={styles.cardItemMain}>
+                            <View style={styles.cardContentInner}>
+
+                                <View style={styles.leftCardCont}>
+                                    <Card style={styles.cardWithIcon}>
+                                        <Image style={styles.cardIconImg} source={require('../../assets/images/trips-icon.png')} />
+                                    </Card>
+
+                                    <View style={styles.leftTextCard}>
+                                        <Text style={styles.textCard}>36487-AE-UQ-PRI_A</Text>
+                                        <Text style={styles.textCard}>G2 Ring Road</Text>
+                                        <Text style={styles.textCard}>Transaction ID : 12345</Text>
+                                        <Text style={[styles.textCard, { fontWeight: 'light' }]}>07 Mar 2025, 10:50:01</Text>
+                                    </View>
+
+                                </View>
+                                <View style={styles.rightTextCard}>
+                                    <Text style={styles.largeTextRCard}>3XL</Text>
+                                    <Image style={{ width: 16, height: 16, marginVertical: 4, }} source={require('../../assets/images/chat-icon.png')} />
+
+                                    <Text style={styles.statusTextCard}>
+                                        <Text style={[styles.statusText, { fontWeight: 'normal' }]}>Paid: </Text>
+                                        <Text style={[styles.statusText, { fontWeight: 'bold' }]}>300</Text>
+                                    </Text>
+                                    {/* <Text style={{ color: index === 0 ? 'green' : 'red' }}>
                                     {index === 0 ? 'Paid : 300' : 'Unpaid : 300'}
                                 </Text> */}
+                                </View>
                             </View>
-                        </View>
-                    </Card>
+                        </Card>
+                    </View>
                 </View>
-            </View>
 
 
-            </ScrollView >
-           {loadingFull && (
-  <View
-    style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}
-    pointerEvents="auto"
-  >
-    <BlurView
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-      }}
-      blurType="light" // or 'dark', 'extraLight', 'regular', 'prominent'
-      blurAmount={10}
-      reducedTransparencyFallbackColor="white"
-    />
+            </ScrollView >)}
 
-    <ActivityIndicator size="large" color="#FF5400" />
-    <Text style={{ marginTop: 10, color: '#000' }}>Switching account...</Text>
-  </View>
-)}
+            {loadingFull && accountDetails && (
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                    pointerEvents="auto"
+                >
+                    <BlurView
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                        }}
+                        blurType="light" // or 'dark', 'extraLight', 'regular', 'prominent'
+                        blurAmount={10}
+                        reducedTransparencyFallbackColor="white"
+                    />
+
+                    <ActivityIndicator size="large" color="#FF5400" />
+                    <Text style={{ marginTop: 10, color: '#000' }}>Switching account...</Text>
+                </View>
+            )}
 
 
         </ImageBackground>
@@ -281,6 +292,7 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         color: '#fff',
         paddingHorizontal: 6,
+        right: -1
     },
     imageCountry: {
         width: 14,
@@ -357,32 +369,34 @@ const styles = StyleSheet.create({
         borderColor: '#fff',
         borderRadius: 30,
         flexDirection: 'row', alignItems: 'center',
-        paddingVertical: 4,
-        paddingHorizontal: 4,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
+        width: 260,
     },
     avatarIcon: {
         marginTop: 2,
         backgroundColor: '#0FA9A6',
     },
-    userInfo: { marginLeft: 7, width: 130, },
-    userName: { fontSize: 10, color: '#fff', paddingVertical: 1, flexWrap: 'wrap', },
+    userInfo: { marginLeft: 9, width: 190, lineHeight:24 },
+    userName: { fontSize: 10, color: '#fff', paddingVertical: 1, lineHeight:15, flexWrap: 'wrap', },
     badge: { position: 'absolute', right: 0, top: 0 },
 
     balanceCard: {
-        marginTop: 16,
+        marginTop: 19,
         backgroundColor: '#fff',
         borderRadius: 50,
         marginHorizontal: 5,
         elevation: 3,
         paddingHorizontal: 15,
-        paddingVertical: 10,
+        paddingVertical: 13,
         flexDirection: 'row', alignItems: 'center',
-        justifyContent: 'space-between',
+        // justifyContent: 'space-between',
     },
 
     balanceContent: {
         backgroundColor: '#fff',
-        marginHorizontal: 10,
+        marginHorizontal: 7,
+         paddingHorizontal: 5,
         borderWidth: 0,
         shadowOpacity: 0,
         elevation: 0,
@@ -392,10 +406,11 @@ const styles = StyleSheet.create({
         marginTop: 4, fontSize: 22, fontWeight: 'bold', textAlign: 'left', color: '#000',
     },
     textBalance: {
-        fontSize: 8,
+        fontSize: 10,
     },
     topupBtn: {
         width: 98,
+        right: -85
 
     },
 

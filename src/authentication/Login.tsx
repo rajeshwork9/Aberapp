@@ -8,6 +8,9 @@ import { useAuth } from '../../App';
 import { login } from '../services/auth'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ToastService } from '../utils/ToastService';
+import Loader from '../components/Loader';
+
 
 const local_data = [
   {
@@ -37,6 +40,10 @@ const Login: React.FC = () => {
   const [country, setCountry] = useState('1');
   const [savedEmail, setSavedEmail] = useState('');
   const [savedPassword, setSavedPassword] = useState('');
+  const [captcha, setCaptcha] = useState('');
+  const [secureText, setSecureText] = useState(true);
+  const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
   const loadCredentials = async () => {
@@ -50,14 +57,24 @@ const Login: React.FC = () => {
     }
   };
   loadCredentials();
-}, []);
+  }, []);
+
+  useEffect(()=>{
+    generateCaptcha();
+  },[]);
 
 
 const formik = useFormik({
     initialValues: { email: savedEmail, password: savedPassword, captcha: '' },
     validationSchema: LoginSchema,
-    onSubmit: async (values, { setSubmitting, setErrors }) => {
+    onSubmit: async (values, { setSubmitting, setErrors, setFieldError }) => {
+      setLoading(true);
       try {
+        if(captcha != values.captcha){
+          setFieldError('captcha', 'Captcha does not match');
+          generateCaptcha();
+          return;
+        }
         setSubmitting(true);
         const response = await login({
           username: values.email,
@@ -65,6 +82,7 @@ const formik = useFormik({
           // captcha: values.captcha,
         });
         console.log('login response', response);
+
         // if backend succeeds, mark app as logged‑in
         if (checked) {
           await AsyncStorage.multiSet([
@@ -74,22 +92,32 @@ const formik = useFormik({
         }
         else {
           await AsyncStorage.multiRemove(['email', 'password']);
+          
         }
         setLoggedIn(true);
       } catch (e: any) {
         console.error('Login failed', e);
         // Basic error surface – adapt as needed
+        ToastService.error('Invalid credentials', 'Please try again');
         setErrors({ password: 'Invalid credentials' });
       } finally {
         setSubmitting(false);
+        setLoading(false);
+
       }
     },
   });
 
-  const [secureText, setSecureText] = useState(true);
-    const toggleSecureEntry = () => {
+  const toggleSecureEntry = () => {
     setSecureText(!secureText);
   };
+
+  const generateCaptcha = () => {
+    const newCaptcha = Math.floor(100000 + Math.random() * 900000).toString();
+    setCaptcha(newCaptcha);
+  };
+
+  // if (loading) return <Loader />;
 
   return (
     <ImageBackground
@@ -97,8 +125,8 @@ const formik = useFormik({
       style={styles.backgroundImage}
       resizeMode="cover"
     >
-              <ImageBackground source={require('../../assets/images/loginbottom-img.png')} style={styles.loginBottomImg} />
-      <ScrollView style={styles.container}>
+        <ImageBackground source={require('../../assets/images/loginbottom-img.png')} style={styles.loginBottomImg} />
+      {!loading ? (      <ScrollView style={styles.container}>
       
         {/* Country selector (outside Formik) */}
         <SelectCountry
@@ -146,7 +174,7 @@ const formik = useFormik({
               style={styles.formInput}
               placeholder="Password"
               placeholderTextColor="#aaa"
-              secureTextEntry
+              secureTextEntry={secureText}
               onChangeText={formik.handleChange('password')}
               onBlur={formik.handleBlur('password')}
               value={formik.values.password}
@@ -170,10 +198,12 @@ const formik = useFormik({
               onBlur={formik.handleBlur('captcha')}
               value={formik.values.captcha}
             />
-            <Button style={styles.refreshBt} onPress={() => console.log('Refresh Captcha')}>
-              <Text style={{ color: '#fff', position: 'relative', top: -6, fontSize: 12, height:20, }}>123456
-                <Image style={{ width: 20, height: 14 }} source={require('../../assets/images/refresh-icon.png')} />
-              </Text>
+            <Button style={styles.refreshBt} onPress={() => generateCaptcha()}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={{ color: '#fff', position: 'relative', top: -2, fontSize: 12, height: 20, }}> {captcha}
+                  <Image style={{ width: 20, height: 14, marginLeft: 6 }} source={require('../../assets/images/refresh-icon.png')} />
+                </Text>
+              </View>
             </Button>
             <ImageBackground source={require('../../assets/images/captcha-icon.png')} style={styles.formInputIcon} />
             {formik.touched.captcha && formik.errors.captcha && <Text style={styles.errorMessage}>{formik.errors.captcha}</Text>}
@@ -199,7 +229,9 @@ const formik = useFormik({
        
      
      
-      </ScrollView>
+      </ScrollView>) : (<Loader />) }
+
+
 
     </ImageBackground>
   );

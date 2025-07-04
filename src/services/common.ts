@@ -27,3 +27,22 @@ export const getVehiclesList = async (body: any) => {
     throw error;
   }
 };
+
+export const getCustomerTypes = async () => {
+  try {
+    const response = await api.get('masterTables/CustomerTypes');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getUserInfo = async () => {
+  try {
+    const response = await api.get('users/info');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+

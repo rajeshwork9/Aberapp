@@ -21,6 +21,7 @@ import Profile from './src/pages/Profile';
 import { AccountProvider } from './src/context/AccountProvider';
 import  Splash from './src/pages/Splash';
 import  TransactionHistory from './src/pages/TransactionHistory';
+import Toast from 'react-native-toast-message';
 TransactionHistory
 /* ──────────────── Auth Context ──────────────── */
 type AuthCtx = {
@@ -218,7 +219,9 @@ const App: React.FC = () => {
             </AccountProvider> : <AuthStack />}
         </NavigationContainer>
       </PaperProvider>
+        <Toast />
     </AuthContext.Provider>
+    
   );
 };
 

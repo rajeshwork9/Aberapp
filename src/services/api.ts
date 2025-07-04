@@ -1,9 +1,31 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
+import RNFS from 'react-native-fs';
 
 import { API_BASE_URL } from '../utils/environment';
-import { resetToLogin } from '../navigation/RootNavigation';
+import { ENABLE_API_LOGGING } from '../utils/environment';
+
+const downloadApiLog = async (msg: string) => {
+  if (!ENABLE_API_LOGGING) return;
+  try {
+    const timestamp = new Date().toISOString();
+    const logText = `${timestamp}  ${msg}\n`;
+
+    const fileName = `aber-api-log-${dayjs().format('YYYY-MM-DD')}.txt`;
+    const filePath = RNFS.DownloadDirectoryPath + '/' +fileName;
+    const exists = await RNFS.exists(filePath);
+     if (!exists) {
+      await RNFS.writeFile(filePath, logText, 'utf8');
+     }
+      else {
+      await RNFS.appendFile(filePath, logText, 'utf8');
+    }
+    console.log('Log written to:', filePath);
+  } catch (e) {
+    console.warn('Failed to download log:', e);
+  }
+};
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -36,6 +58,7 @@ const refreshToken = async () => {
 
 /* -------- 2. Request interceptor -------- */
 api.interceptors.request.use(async config => {
+  (config as any).metadata = { start: Date.now() };
   let accessToken = await AsyncStorage.getItem('accessToken');
   const expiry     = await AsyncStorage.getItem('tokenExpiry');
 
@@ -53,15 +76,23 @@ api.interceptors.request.use(async config => {
 
 /* -------- 3. Response interceptor -------- */
 api.interceptors.response.use(
-  resp => resp,
-  async error => {
-    /* 401 could still happen if refresh token also died */
-    if (error.response?.status === 401) {
-      await AsyncStorage.clear();
-      resetToLogin();                       // 🔙 go to Login screen
-    }
-    return Promise.reject(error);
+  async response => {
+    const { config } = response;
+    const ms = Date.now() - (config as any).metadata.start;
+    const msg = `[OK] ${config.method?.toUpperCase()} ${config.url} ${response.status} ${ms}ms`;
+
+    downloadApiLog(msg); // 👈 auto-download to Downloads
+    return response;
   },
+  async error => {
+    const { config } = error;
+    const ms = Date.now() - (config as any).metadata?.start;
+    const status = error.response?.status ?? 'ERR';
+    const msg = `[FAIL] ${config?.method?.toUpperCase()} ${config?.url} ${status} ${ms}ms`;
+
+    downloadApiLog(msg); // 👈 still download even if it fails
+    return Promise.reject(error);
+  }
 );
 
 export default api;
