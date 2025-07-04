@@ -4,9 +4,12 @@ import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image 
 import { Text, Card, TextInput, Modal, Portal, PaperProvider, Button, Avatar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAccount } from '../context/AccountProvider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../../App';
 
 const Profile: React.FC = () => {
   const navigation = useNavigation();
+  const { setLoggedIn } = useAuth();
   const [secureText, setSecureText] = useState(true);
   const [visible, setVisible] = useState(false);
 
@@ -15,6 +18,23 @@ const Profile: React.FC = () => {
   const toggleSecureEntry = () => setSecureText(!secureText);
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
+
+  const handleLogout = async () => {
+    try {
+      const savedEmail = await AsyncStorage.getItem('email');
+      const savedPassword = await AsyncStorage.getItem('password');
+
+      if (savedEmail && savedPassword) {
+        await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
+      } else {
+        await AsyncStorage.clear();
+      }
+
+      setLoggedIn(false); // ✅ This switches stack to Login automatically
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <ImageBackground
@@ -154,7 +174,7 @@ const Profile: React.FC = () => {
               <Text style={styles.textProBt}>Language</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.profileBt}>
+            <TouchableOpacity style={styles.profileBt} onPress={handleLogout}>
               <Image style={styles.iconProBt} source={require('../../assets/images/logout-icon.png')} />
               <Text style={styles.textProBt}>Logout</Text>
             </TouchableOpacity>

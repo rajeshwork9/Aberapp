@@ -17,6 +17,7 @@ import { useAuth } from '../../App';
 import { useAccount } from '../context/AccountProvider';
 import { Animated } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
+import Splash from './Splash';
 
 
 const local_data = [
@@ -38,7 +39,6 @@ const local_data = [
 
 const Dashboard: React.FC = () => {
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
-    const { setLoggedIn } = useAuth();
     const { full, loadingFull  } = useAccount();
 
     const [country, setCountry] = useState('1');
@@ -79,30 +79,13 @@ const Dashboard: React.FC = () => {
 if (!accountDetails) {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Loading account details…</Text>
+      <Splash />
     </View>
   );
 }
 
     const navigateTo = (path: keyof MainStackParamList) => {
         navigation.navigate(path);
-    };
-
-    const handleLogout = async () => {
-        try {
-            const savedEmail = await AsyncStorage.getItem('email');
-            const savedPassword = await AsyncStorage.getItem('password');
-
-            if (savedEmail && savedPassword) {
-                await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
-            } else {
-                await AsyncStorage.clear();
-            }
-
-            setLoggedIn(false); // ✅ This switches stack to Login automatically
-        } catch (error) {
-            console.error('Logout error:', error);
-        }
     };
 
     return (

@@ -18,3 +18,12 @@ export const getFullAccountDetails = async (id: any) => {
     throw error;
   }
 };
+
+export const getVehiclesList = async (body: any) => {
+  try {
+    const response = await api.post('assets/page/details', body);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
