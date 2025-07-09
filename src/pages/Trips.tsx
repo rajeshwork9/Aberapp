@@ -150,13 +150,19 @@ const Trips: React.FC = () => {
               </TouchableOpacity>
               <Text style={styles.headerTitle}>Trips</Text>
             </View>
+
             <View style={styles.headerRightBlock}>
               <TouchableOpacity style={styles.roundedIconBt} onPress={showModal}>
                 <Image style={styles.roundedIcon} source={require('../../assets/images/filter-icon.png')} />
               </TouchableOpacity>
-              {filterEnabled && <Button  onPress={handleClearFilter} style={styles.closeButton} textColor="#000">
-                  Clear Filter
-              </Button>}
+              <View style={styles.btHeader}>
+                {filterEnabled && (
+                  <Button onPress={handleClearFilter} labelStyle={styles.filterText}>
+                    Clear Filter
+                  </Button>
+                )}
+              </View>
+              
             </View>
 
           </View>
@@ -321,9 +327,17 @@ const styles = StyleSheet.create({
 
 
     btHeader: {
-        backgroundColor: '#ff5200', borderRadius: 100,
-        textAlign: 'center', alignSelf: 'flex-start', paddingTop: 5, paddingBottom: 7,
+        marginLeft:0, 
     },
+    filterText: {
+    color: '#000',
+    fontSize: 13,
+    backgroundColor:'#fff',
+     borderRadius: 40,
+     paddingHorizontal:13,
+     paddingVertical:6,
+      marginTop:0
+  },
     btHeaderText: { color: '#fff', fontSize: 13, paddingHorizontal: 10, },
 
     roundedIconBt: {
