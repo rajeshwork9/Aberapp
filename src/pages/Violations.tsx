@@ -153,7 +153,7 @@ const statusdata = [
                             <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} ></Image>
                         </View>
 
-                        <Card style={styles.cardItemMain}>
+                        <Card style={styles.cardItemMain} onPress={() => navigation.navigate('ViolationsDetails')}>
                             <View style={styles.cardContentInner}>
                                 <View style={styles.leftCardCont}>
                                     <Card style={styles.cardWithIcon}>

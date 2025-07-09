@@ -16,6 +16,7 @@ import Topup from './src/pages/Topup';
 import Trips from './src/pages/Trips';
 import TripsDetails from './src/pages/TripsDetails';
 import Violations from './src/pages/Violations';
+import ViolationsDetails from './src/pages/ViolationsDetails';
 import Cases from './src/pages/Cases';
 import Vehicles from './src/pages/Vehicles';
 import VehicleDetails from './src/pages/VehicleDetails';
@@ -55,6 +56,7 @@ type MainStackParamList = {
   Vehicles: undefined;
   VehicleDetails: undefined;
   Violations: undefined;
+  ViolationsDetails: undefined;
   AddVehicle:undefined;
   AddCases:undefined;
   Cases:undefined;
@@ -153,9 +155,17 @@ export const MainStack = React.memo(() => (
       component={Violations} 
       options={{ 
         headerShown: false, 
+      }} 
+      />
+
+       <MainStackNav.Screen 
+      name="ViolationsDetails" 
+      component={ViolationsDetails} 
+      options={{ 
+        headerShown: false, 
         headerTransparent: true, 
         headerTintColor: '#fff', 
-        headerTitle: 'Violations', 
+        headerTitle: 'ViolationsDetails', 
       }} 
       />
 

@@ -182,20 +182,6 @@ const styles = StyleSheet.create({
         textAlign: 'center', alignSelf: 'flex-start', paddingTop: 5, paddingBottom: 7,
     },
     btHeaderText: { color: '#fff', fontSize: 13, paddingHorizontal: 10, },
-    // orangeButton: {
-    //     width: '100%',
-    //     color: '#fff',
-    //     borderRadius: 40,
-    //     alignItems: 'center',
-    //     marginTop: 20,
-    //     fontSize: 13,
-    //     marginHorizontal: 0,
-    //     backgroundColor: '#FF5A00',
-    //     flexDirection: 'row', 
-    //     justifyContent: 'center',
-    //     height:50
-
-    // },
 
    
 });
