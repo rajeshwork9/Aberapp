@@ -99,6 +99,7 @@ const formik = useFormik({
         console.error('Login failed', e);
         // Basic error surface – adapt as needed
         ToastService.error('Invalid credentials', 'Please try again');
+        generateCaptcha();
         setErrors({ password: 'Invalid credentials' });
       } finally {
         setSubmitting(false);

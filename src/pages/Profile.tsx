@@ -55,6 +55,7 @@ const Profile: React.FC = () => {
   };
 
   const handleSetPrimary = () => {
+    console.log('oending', pendingId)
     if (pendingId !== undefined && pendingId !== activeId) {
       selectAccount(pendingId);   //  switch account
     }

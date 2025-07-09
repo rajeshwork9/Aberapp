@@ -12,7 +12,7 @@ export const getAccountName = async () => {
 
 export const getFullAccountDetails = async (id: any) => {
   try {
-    const response = await api.get(`/accounts/${id}`);
+    const response = await api.get(`accounts/${id}`);
     return response.data;
   } catch (error) {
     throw error;
@@ -41,6 +41,15 @@ export const getUserInfo = async () => {
   try {
     const response = await api.get('users/info');
     return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getTodaysTrips = async (body: any) => {
+  try {
+    const response = await api.post('accounts/page/transactions', body);
+    return response.data.TransactionsList;
   } catch (error) {
     throw error;
   }
