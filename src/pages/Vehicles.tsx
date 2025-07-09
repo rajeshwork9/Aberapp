@@ -175,7 +175,7 @@ const Vehicles: React.FC = () => {
             </View>
           }
           renderItem={({ item }) => (
-            <Card style={styles.cardItemMain}>
+            <Card style={styles.cardItemMain} onPress={() => navigation.navigate('VehicleDetails')}>
               <View style={styles.cardContentInner}>
                 <View style={styles.leftCardCont}>
                   <Card style={styles.cardWithIcon}>

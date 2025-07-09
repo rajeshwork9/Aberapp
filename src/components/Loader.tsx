@@ -1,28 +1,36 @@
-import React from 'react';
-import { View, ActivityIndicator, StyleSheet, ViewStyle } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Image, Animated } from 'react-native';
 
-interface LoaderProps {
-  size?: number | 'small' | 'large';
-  color?: string;
-  fullScreen?: boolean;
-  style?: ViewStyle;
-}
+const Loader: React.FC<{ fullScreen?: boolean }> = ({ fullScreen = true }) => {
+  const rotateAnim = useRef(new Animated.Value(0)).current;
 
-const Loader: React.FC<LoaderProps> = ({
-  size = 'large',
-  color = '#FF5400',
-  fullScreen = true,
-  style,
-}) => {
-  if (fullScreen) {
-    return (
-      <View style={styles.fullScreen}>
-        <ActivityIndicator size={size} color={color} />
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 5,
+        duration: 1200,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, []);
+
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 2],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  return (
+    <View style={fullScreen ? styles.fullScreen : styles.inline}>
+      <View style={styles.wrapper}>
+        <Animated.View style={[styles.ring, { transform: [{ rotate: spin }] }]} />
+        <Image
+          source={require('../../assets/images/icon.png')}
+          style={styles.image}
+          resizeMode="contain"
+        />
       </View>
-    );
-  }
-
-  return <ActivityIndicator size={size} color={color} style={style} />;
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -31,6 +39,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',
+  },
+  inline: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  wrapper: {
+    width: 100,
+    height: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ring: {
+    position: 'absolute',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 4,
+    borderStyle: 'dotted',
+    borderColor: '#FF5400',
+  },
+  image: {
+    width: 40,
+    height: 40,
   },
 });
 

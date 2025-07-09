@@ -18,6 +18,7 @@ import TripsDetails from './src/pages/TripsDetails';
 import Violations from './src/pages/Violations';
 import Cases from './src/pages/Cases';
 import Vehicles from './src/pages/Vehicles';
+import VehicleDetails from './src/pages/VehicleDetails';
 import AddVehicle from './src/pages/AddVehicle';
 import Profile from './src/pages/Profile';
 import { AccountProvider } from './src/context/AccountProvider';
@@ -52,6 +53,7 @@ type MainStackParamList = {
   Trips: undefined;
   TripsDetails: undefined;
   Vehicles: undefined;
+  VehicleDetails: undefined;
   Violations: undefined;
   AddVehicle:undefined;
   AddCases:undefined;
@@ -108,6 +110,16 @@ export const MainStack = React.memo(() => (
            <MainStackNav.Screen 
       name="Vehicles" 
       component={Vehicles} 
+      options={{ 
+        headerShown: false, 
+        // headerTransparent: true, 
+        // headerTintColor: '#fff', 
+        // headerTitle: 'Vehicles', 
+      }} 
+      />
+      <MainStackNav.Screen 
+      name="VehicleDetails" 
+      component={VehicleDetails} 
       options={{ 
         headerShown: false, 
         // headerTransparent: true, 

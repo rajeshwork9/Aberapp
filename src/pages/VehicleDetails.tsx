@@ -1,16 +1,16 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
-import { Text, Card, Icon, TextInput, Modal, Portal, PaperProvider, Button, IconButton  } from 'react-native-paper';
+import { Text, Card, Icon, TextInput, Modal, PaperProvider, Button, IconButton  } from 'react-native-paper';
 import { Animated} from 'react-native';
 
-const TripsDetails: React.FC = () => {
+const VehicleDetails: React.FC = () => {
     const navigation = useNavigation();
 
-    // modal popup useset
-   const [visible, setVisible] = React.useState(false);
-       const showModal = () => setVisible(true);
-       const hideModal = () => setVisible(false);
+//     // modal popup useset
+//    const [visible, setVisible] = React.useState(false);
+//        const showModal = () => setVisible(true);
+//        const hideModal = () => setVisible(false);
 
 
     return (
@@ -25,7 +25,7 @@ const TripsDetails: React.FC = () => {
                         <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
                             <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
                         </TouchableOpacity>
-                        <Text style={styles.headerTitle}>Trip Details</Text>
+                        <Text style={styles.headerTitle}>Vehicle Details</Text>
                     </View>
                 </View>
                 <View style={styles.containerInner}>
@@ -87,56 +87,20 @@ const TripsDetails: React.FC = () => {
                         
                     </View>
                    
-                    <Button mode="contained" style={styles.orangeButton} onPress={() => showModal()}>
-                    <Image style={{ width: 16, height: 16, }}  source={require('../../assets/images/chat-icon.png')}/> Dispute Trip
-                    </Button>
-
-                    
-
-<Portal>
-  <Modal
-    visible={visible}
-    onDismiss={hideModal}
-    contentContainerStyle={styles.modalBottomContainer}
-  >
-    {/* Close Icon */}
-    <IconButton
-      icon="close"
-      size={24}
-      onPress={hideModal}
-      style={styles.modalCloseIcon}
-      iconColor="#fff"
-    />
-
-    <Text style={styles.sectionTitleModal}>Dispute Trip</Text>
-
-    
-
-    
-
-    {/* Buttons */}
-    <View style={styles.buttonRow}>
-      <Button mode="contained" style={styles.closeButton} textColor="#000">
-        Close
-      </Button>
-      <Button
-        mode="contained"
-        buttonColor="#FF5A00"
-        style={styles.applyButton}>
-        Submit
-      </Button>
-    </View>
-  </Modal>
-</Portal>
-
+                   
    
                 </View>
+                <View style={styles.container}>
+                    <Button mode="contained" style={styles.orangeButton}>
+                    <Image style={{ width: 16, height: 16, }}  source={require('../../assets/images/chat-icon.png')}/> Dispute Vehicle
+                    </Button>
+                 </View>
             </View>
         </ImageBackground>
 
     );
 };
-export default TripsDetails;
+export default VehicleDetails;
 
 const styles = StyleSheet.create({
    //--- Header
@@ -177,11 +141,11 @@ const styles = StyleSheet.create({
     },
      containerInner: {
         marginHorizontal: 15,
-        marginTop: 30,
-        // backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        // borderRadius: 20,
-        // paddingHorizontal: 15,
-        // paddingVertical: 15,
+        marginTop: 20,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        borderRadius: 20,
+        paddingHorizontal: 15,
+        paddingVertical: 15,
     },
      headerMain: {
         flexDirection: 'row',
@@ -237,132 +201,5 @@ const styles = StyleSheet.create({
 
     },
 
-    // modal popup css
-    modalBottomContainer: {
-        backgroundColor: '#000',
-        paddingHorizontal: 25,
-        marginHorizontal: 0,
-        borderRadius: 20,
-        position: 'absolute',
-        bottom: -10,
-        left: 0,
-        right: 0,
-        color: '#fff',
-        paddingTop: 15,
-        paddingBottom: 65,
-    },
-
-    sectionTitleModal: {
-        marginVertical: 20,
-        fontSize: 17,
-        color: '#fff',
-        fontWeight: 'normal',
-    },
-
-    formGroupModal: { marginTop: 10, marginBottom: 15, },
-    inputModal: {
-        paddingHorizontal:0,
-        height: 38,
-        borderBottomColor: '#FCFCFC',
-        borderBottomWidth: 1,
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: 'bold',
-        backgroundColor: 'transparent',
-    },
-
-    labelModal: { color: '#fff', fontSize: 13, marginBottom: 10, },
-
-        calendarInputModal:{
-         paddingHorizontal:40,
-        height: 38,
-        borderBottomColor: '#FCFCFC',
-        borderBottomWidth: 1,
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: 'bold',
-        backgroundColor: 'transparent',
-    },
-    calendarIcon:{position:'absolute', left:5, bottom:11, width:20, height:20,},
-
-    
-     selectDropdown: {
-        width: '100%',
-        marginHorizontal: 0,
-        height:40,
-        backgroundColor: '#000000',
-        borderRadius: 0,
-        color: '#fff',
-        paddingHorizontal:0,
-        paddingVertical:0,
-        borderWidth:1,
-        borderBottomColor:'#fff',
-    },
-
-    placeholderSelect: {
-        fontSize: 13,
-        color: '#BDBDBD',
-    },
-    selectedTextStyle: {
-        fontSize: 14,
-        marginLeft: 6,
-        color: '#fff',
-    },
-
-    dropdownList : {       
-       backgroundColor:'#222',
-        borderColor: '#222',
-        borderRadius: 4,
-         paddingVertical:6,
-
-        
-        
-    },
-
-    listSelectGroup:{backgroundColor:'#222', 
-        paddingVertical:10,
-        paddingHorizontal:15,
-    },
-    itemTextSelect:{
-        backgroundColor:'transparent',
-        color: '#fff',
-    },
-
-    buttonRow: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-    },
-
-    applyButton: {
-        width: 120,
-        paddingTop: 0,
-        paddingBottom: 4,
-        color: '#fff',
-        borderRadius: 40,
-        alignItems: 'center',
-        marginTop: 20,
-        fontSize: 13,
-        marginHorizontal: 10,
-
-
-    },
-
-    closeButton: {
-        width: 120,
-        paddingTop: 0,
-        paddingBottom: 4,
-        backgroundColor: '#FFFFFF',
-        color: '#000',
-        borderRadius: 40,
-        alignItems: 'center',
-        marginTop: 20,
-        fontSize: 13,
-        marginHorizontal: 10,
-    },
-    modalCloseIcon: {
-  position: 'absolute',
-  top: 8,
-  right: 8,
-  zIndex: 10,
-},
+   
 });
