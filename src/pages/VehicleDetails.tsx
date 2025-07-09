@@ -90,11 +90,7 @@ const VehicleDetails: React.FC = () => {
                    
    
                 </View>
-                <View style={styles.container}>
-                    <Button mode="contained" style={styles.orangeButton}>
-                    <Image style={{ width: 16, height: 16, }}  source={require('../../assets/images/chat-icon.png')}/> Dispute Vehicle
-                    </Button>
-                 </View>
+                
             </View>
         </ImageBackground>
 
@@ -186,20 +182,20 @@ const styles = StyleSheet.create({
         textAlign: 'center', alignSelf: 'flex-start', paddingTop: 5, paddingBottom: 7,
     },
     btHeaderText: { color: '#fff', fontSize: 13, paddingHorizontal: 10, },
-    orangeButton: {
-        width: '100%',
-        color: '#fff',
-        borderRadius: 40,
-        alignItems: 'center',
-        marginTop: 20,
-        fontSize: 13,
-        marginHorizontal: 0,
-        backgroundColor: '#FF5A00',
-        flexDirection: 'row', 
-        justifyContent: 'center',
-        height:50
+    // orangeButton: {
+    //     width: '100%',
+    //     color: '#fff',
+    //     borderRadius: 40,
+    //     alignItems: 'center',
+    //     marginTop: 20,
+    //     fontSize: 13,
+    //     marginHorizontal: 0,
+    //     backgroundColor: '#FF5A00',
+    //     flexDirection: 'row', 
+    //     justifyContent: 'center',
+    //     height:50
 
-    },
+    // },
 
    
 });
