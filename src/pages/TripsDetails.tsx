@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
-        marginHorizontal: 10,
+        marginHorizontal: 5,
         marginTop: 10,
 
     },

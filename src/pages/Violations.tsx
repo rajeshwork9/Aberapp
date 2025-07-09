@@ -196,18 +196,19 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
-        marginHorizontal: 10,
-        marginTop:20,
+        marginHorizontal: 5,
+        marginTop:10,
     },
 
     headerMain: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal:15,
-        paddingVertical:6,
-        backgroundColor:'transparent',
-        marginTop:12,
+        paddingHorizontal: 15,
+        paddingVertical: 6,
+        backgroundColor: 'transparent',
+        marginTop: 2,
+        marginBottom:8
        
     },
     backBt:{  },

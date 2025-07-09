@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
-        marginHorizontal: 10,
+        marginHorizontal: 5,
         marginTop: 10,
 
     },
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 6,
         backgroundColor: 'transparent',
-        marginTop: 12,
+        marginTop: 5,
     },
     Box: {
     flexDirection: 'row',

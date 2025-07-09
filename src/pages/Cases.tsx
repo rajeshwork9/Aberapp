@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   },
     container: {
         // flex: 1,
-        marginHorizontal: 10,
+        marginHorizontal: 5,
         marginTop: 20,
         paddingBottom: 40,
     },
@@ -166,9 +166,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 15,
-        paddingVertical: 6,
+        paddingVertical: 0,
         backgroundColor: 'transparent',
-        marginTop: 12,
+        marginTop: 0,
         
 
     },
