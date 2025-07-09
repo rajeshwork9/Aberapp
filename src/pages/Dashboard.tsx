@@ -47,6 +47,7 @@ const Dashboard: React.FC = () => {
     const [country, setCountry] = useState('1');
     const [accountDetails, setAccountDetails] = useState<any>();
     const [fadeAnim] = useState(new Animated.Value(0));
+    const [todaysTripsData, setTodaysTripsData] = useState<any>();
 
     useEffect(() => {
         setAccountDetails(full);
@@ -88,33 +89,34 @@ const Dashboard: React.FC = () => {
     };
 
     const todaysTrips = async (accountId: number) => {
-        try{
+        try {
             const DAYS_BACK = 7; // or any number of days you want
             const fromDatetime = dayjs().startOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
             const toDatetime = dayjs().endOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
             let payload =
             {
-                "accountId": 7,
+                "accountId": accountDetails.AccountId,
                 "AccountUnitId": 0,
                 "GantryId": 0,
-                "fromDate": '12-05-2021',
-                "toDate": '08-07-2025',
+                "fromDate": fromDatetime,
+                "toDate": toDatetime,
                 "PageNumber": 1,
                 "PageSize": 5
             }
-            console.log(payload,'fegrq');
-           
+            console.log(payload, 'fegrq');
+
             const response = await getTodaysTrips(payload);
             console.log('Todays Trips Response', response);
+            setTodaysTripsData(response);
         }
-        catch(e) {
+        catch (e) {
             console.log(e);
         }
-        finally{
+        finally {
             console.log('Api call completed');
         }
     };
-    
+
     return (
         <ImageBackground
             source={require('../../assets/images/background.png')}
@@ -130,8 +132,8 @@ const Dashboard: React.FC = () => {
                         <TouchableOpacity style={styles.profileCont} onPress={() => navigateTo('Profile')}>
                             <Avatar.Icon size={28} style={styles.avatarIcon} icon="account" />
                             <View style={styles.userInfo}>
-                                <Text style={styles.userName}> AL ARABI GLOBAL LOGISTICS SERVICES 
-  </Text>
+                                <Text style={styles.userName}> AL ARABI GLOBAL LOGISTICS SERVICES
+                                </Text>
                             </View>
                         </TouchableOpacity>
 
@@ -167,22 +169,22 @@ const Dashboard: React.FC = () => {
                     </View>
 
                     <View style={styles.balanceCard}>
-                       <View style={styles.leftDiv}>
-                         <Image style={styles.imgWalletBalance} source={require('../../assets/images/wallet-icon.png')} />
-                        <Card style={styles.balanceContent}>
+                        <View style={styles.leftDiv}>
+                            <Image style={styles.imgWalletBalance} source={require('../../assets/images/wallet-icon.png')} />
+                            <Card style={styles.balanceContent}>
                                 <Text style={styles.balanceLabel}>{accountDetails?.Balance ? new Intl.NumberFormat('en-US', {
                                     style: 'decimal',
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2,
                                 }).format(accountDetails.Balance)
                                     : '0.00'}</Text>
-                            <Text style={styles.textBalance}>Available Balance (AED)</Text>
-                        </Card>
-                       </View>
-                       <View style={styles.rightDiv}>
-                         <Button onPress={() => navigateTo('Topup')} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
-                        >Topup</Button>
-                       </View>
+                                <Text style={styles.textBalance}>Available Balance (AED)</Text>
+                            </Card>
+                        </View>
+                        <View style={styles.rightDiv}>
+                            <Button onPress={() => navigateTo('Topup')} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
+                            >Topup</Button>
+                        </View>
                     </View>
 
 
@@ -240,36 +242,48 @@ const Dashboard: React.FC = () => {
 
                     <View>
                         <Text style={styles.sectionTitle}>Today's Trips</Text>
-                        <Card style={styles.cardItemMain}>
-                            <View style={styles.cardContentInner}>
+                        {todaysTripsData && todaysTripsData.length > 0 ? (
+                            todaysTripsData.map((data: any, index: number) => (
+                                <Card key={index} style={styles.cardItemMain}>
+                                    <View style={styles.cardContentInner}>
 
-                                <View style={styles.leftCardCont}>
-                                    <Card style={styles.cardWithIcon}>
-                                        <Image style={styles.cardIconImg} source={require('../../assets/images/trips-icon.png')} />
-                                    </Card>
+                                        <View style={styles.leftCardCont}>
+                                            <Card style={styles.cardWithIcon}>
+                                                <Image style={styles.cardIconImg} source={require('../../assets/images/trips-icon.png')} />
+                                            </Card>
 
-                                    <View style={styles.leftTextCard}>
-                                        <Text style={styles.textCard}>36487-AE-UQ-PRI_A</Text>
-                                        <Text style={styles.textCard}>G2 Ring Road</Text>
-                                        <Text style={styles.textCard}>Transaction ID : 12345</Text>
-                                        <Text style={[styles.textCard, { fontWeight: 'light' }]}>07 Mar 2025, 10:50:01</Text>
+                                            <View style={styles.leftTextCard}>
+                                                <Text style={styles.textCard}>{data.VRM}</Text>
+                                                <Text style={styles.textCard}>{data.LocationName}</Text>
+                                                <Text style={styles.textCard}>Transaction ID : {data.TransactionId}</Text>
+                                                <Text style={[styles.textCard, { fontWeight: 'light' }]}>{data.TransactionDate}</Text>
+                                            </View>
+
+                                        </View>
+                                        <View style={styles.rightTextCard}>
+                                            <Text style={styles.largeTextRCard}>3XL</Text>
+                                            <Image style={{ width: 16, height: 16, marginVertical: 4, }} source={require('../../assets/images/chat-icon.png')} />
+
+                                            <Text style={styles.statusTextCard}>
+                                                <Text style={[styles.statusText, { fontWeight: 'normal' }]}>Paid: </Text>
+                                                <Text style={[styles.statusText, { fontWeight: 'bold' }]}>{data.AmountFinal}</Text>
+                                            </Text>
+                                            {/* <Text style={{ color: index === 0 ? 'green' : 'red' }}>
+                                                {index === 0 ? 'Paid : 300' : 'Unpaid : 300'}
+                                                </Text> */
+                                            }
+                                        </View>
                                     </View>
+                                </Card>
+                            ))
 
-                                </View>
-                                <View style={styles.rightTextCard}>
-                                    <Text style={styles.largeTextRCard}>3XL</Text>
-                                    <Image style={{ width: 16, height: 16, marginVertical: 4, }} source={require('../../assets/images/chat-icon.png')} />
-
-                                    <Text style={styles.statusTextCard}>
-                                        <Text style={[styles.statusText, { fontWeight: 'normal' }]}>Paid: </Text>
-                                        <Text style={[styles.statusText, { fontWeight: 'bold' }]}>300</Text>
-                                    </Text>
-                                    {/* <Text style={{ color: index === 0 ? 'green' : 'red' }}>
-                                    {index === 0 ? 'Paid : 300' : 'Unpaid : 300'}
-                                </Text> */}
-                                </View>
-                            </View>
-                        </Card>
+                        ) : 
+                        (
+                                <Card style={styles.cardItemMain}>
+                                    <Text style={styles.noTripsText}>No Trips Found</Text>
+                                    <View style={styles.cardContentInner}></View>
+                                </Card>
+                        )}
                     </View>
                 </View>
 
@@ -289,7 +303,7 @@ const Dashboard: React.FC = () => {
                     }}
                     pointerEvents="auto"
                 >
-                    <BlurView
+                    {/* <BlurView
                         style={{
                             position: 'absolute',
                             top: 0,
@@ -300,7 +314,7 @@ const Dashboard: React.FC = () => {
                         blurType="light" // or 'dark', 'extraLight', 'regular', 'prominent'
                         blurAmount={10}
                         reducedTransparencyFallbackColor="white"
-                    />
+                    /> */}
 
                     <ActivityIndicator size="large" color="#FF5400" />
                     <Text style={{ marginTop: 10, color: '#000' }}>Switching account...</Text>
@@ -407,8 +421,8 @@ const styles = StyleSheet.create({
         marginTop: 2,
         backgroundColor: '#0FA9A6',
     },
-    userInfo: { marginLeft: 9, width: 190, lineHeight:24 },
-    userName: { fontSize: 10, color: '#fff', paddingVertical: 1, lineHeight:15, flexWrap: 'wrap', },
+    userInfo: { marginLeft: 9, width: 190, lineHeight: 24 },
+    userName: { fontSize: 10, color: '#fff', paddingVertical: 1, lineHeight: 15, flexWrap: 'wrap', },
     badge: { position: 'absolute', right: 0, top: 0 },
 
     balanceCard: {
@@ -422,10 +436,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row', alignItems: 'center',
         justifyContent: 'space-between',
     },
-    leftDiv:{
-    flexDirection: 'row', alignItems: 'center',
+    leftDiv: {
+        flexDirection: 'row', alignItems: 'center',
     },
-    rightDiv:{
+    rightDiv: {
 
     },
     balanceContent: {
@@ -583,6 +597,12 @@ const styles = StyleSheet.create({
         // unpaid  color: '#FF4141',
 
     },
+    noTripsText: {
+        textAlign: 'center',
+        marginTop: 20,
+        fontSize: 16,
+        color: 'gray',
+    }
 
 
 
