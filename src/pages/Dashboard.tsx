@@ -95,7 +95,7 @@ const Dashboard: React.FC = () => {
             const toDatetime = dayjs().endOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
             let payload =
             {
-                "accountId": accountDetails.AccountId,
+                "accountId": accountId,
                 "AccountUnitId": 0,
                 "GantryId": 0,
                 "fromDate": fromDatetime,

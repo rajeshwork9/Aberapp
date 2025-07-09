@@ -87,7 +87,7 @@ const Vehicles: React.FC = () => {
       style={styles.backgroundImage}
       resizeMode="cover"
     >
-        <View style={styles.container}>
+        <View style={{flex: 1}}>
             <View style={styles.headerMain}>
           <View style={styles.headerLeftBlock}>
             <TouchableOpacity style={[styles.backBt, { marginRight: 12 }]} onPress={() => navigation.goBack()}>
@@ -243,7 +243,6 @@ const styles = StyleSheet.create({
     },
 
     container: {
-        flex: 1,
         marginHorizontal: 10,
         marginTop: 20,
         paddingBottom: 40,
