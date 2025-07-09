@@ -55,3 +55,12 @@ export const getTodaysTrips = async (body: any) => {
   }
 };
 
+export const getLicenceNumber = async (body: any) => {
+  try {
+    const response = await api.post('assets/details', body);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+

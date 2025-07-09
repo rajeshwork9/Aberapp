@@ -7,8 +7,9 @@ import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image,
 import { Button, TextInput, Modal, Portal, Text, Card, PaperProvider } from 'react-native-paper';
 import { Dropdown } from 'react-native-element-dropdown';
 import dayjs from 'dayjs';
-import { getTodaysTrips } from '../services/common';
+import { getLicenceNumber, getTodaysTrips } from '../services/common';
 import { useAccount } from '../context/AccountProvider';
+
 
 interface Trip {
   AssetId: string;
@@ -17,6 +18,12 @@ interface Trip {
   TransactionId: string;
   TransactionDate: string;
   AmountFinal: string;
+}
+
+interface LPN {
+  label: string;
+  value: string;
+  AssetIdentifier: string;
 }
 
 const Trips: React.FC = () => {
@@ -31,9 +38,11 @@ const Trips: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
+  const [lpnData, setLpnData] = useState<LPN[]>([]);
 
   const [gantryValue, setGantryValue] = useState(null);
   const [lpnValue, setLpnValue] = useState(null);
+  const [filterEnabled, setFilterEnabled] = useState(false);
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
@@ -44,11 +53,12 @@ const Trips: React.FC = () => {
 
   useEffect(() => {
     if (accountDetails) {
-      todaysTrips(accountDetails.AccountId, 1, true);
+      todaysTrips(accountDetails.AccountId, 1, true, 0);
+      licenceNumber(accountDetails.AccountId);
     }
   }, [accountDetails]);
 
-  const todaysTrips = async (accountId: number, pageNumber: number, isRefresh = false) => {
+  const todaysTrips = async (accountId: number, pageNumber: number, isRefresh = false, lpnValue: any) => {
     try {
       isRefresh ? setRefreshing(true) : setLoading(true);
 
@@ -64,15 +74,18 @@ const Trips: React.FC = () => {
     //   };
     {
     "accountId": 7,
-    "AccountUnitId":0,
+    "AccountUnitId": lpnValue ? lpnValue : 0,
     "GantryId":0,
     "fromDate": "2021-05-12",
     "toDate": "2025-06-17",
     "PageNumber":1,
     "PageSize":5
     }
+    console.log(payload,"payload");
+    
 
       const response = await getTodaysTrips(payload);
+      console.log(response,"rsponse");
       
       const newList = response || [];
 
@@ -88,16 +101,41 @@ const Trips: React.FC = () => {
     }
   };
 
+  const licenceNumber = async (accountId : any) =>{
+    try{
+      let payload = {
+        accountId : accountId,
+        assetTypeId: 2 //static
+      }
+      const response = await getLicenceNumber(payload);
+       const formatted = response.map((item: any) => ({
+      ...item,
+      label: item.AssetIdentifier,
+      value: item.AccountUnitId
+    }));
+
+      setLpnData(formatted);
+    }
+    catch (error) {
+      console.error('License fetch failed:', error);
+    }
+    finally {
+
+    }
+  }
+
+  const handleClearFilter = () => {
+    setFilterEnabled(false);
+    todaysTrips(accountDetails.AccountId, 1, true, 0);
+    setLpnValue(null);
+    setGantryValue(null);
+
+  }
+
   const gantrydata = [
     { label: 'Select gantry', value: 'Select gantry', disabled: true },
     { label: 'Gantry 1 2', value: '1' },
     { label: 'Gantry 2', value: '2' },
-  ];
-
-  const lpndata = [
-    { label: 'Select LPN', value: 'Select LPN', disabled: true },
-    { label: 'LPN 0023', value: '1' },
-    { label: 'LPN 0032', value: '2' },
   ];
 
   return (
@@ -107,7 +145,7 @@ const Trips: React.FC = () => {
           {/* Header */}
           <View style={styles.headerMain}>
             <View style={styles.headerLeftBlock}>
-              <TouchableOpacity style={styles.backBt} onPress={() => navigation.goBack()}>
+              <TouchableOpacity style={[styles.backBt, { marginRight: 12 }]} onPress={() => navigation.goBack()}>
                 <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
               </TouchableOpacity>
               <Text style={styles.headerTitle}>Trips</Text>
@@ -116,7 +154,11 @@ const Trips: React.FC = () => {
               <TouchableOpacity style={styles.roundedIconBt} onPress={showModal}>
                 <Image style={styles.roundedIcon} source={require('../../assets/images/filter-icon.png')} />
               </TouchableOpacity>
+              {filterEnabled && <Button  onPress={handleClearFilter} style={styles.closeButton} textColor="#000">
+                  Clear Filter
+              </Button>}
             </View>
+
           </View>
 
           {/* Filter Modal */}
@@ -144,7 +186,7 @@ const Trips: React.FC = () => {
                   style={styles.selectDropdown}
                   placeholderStyle={styles.placeholderSelect}
                   selectedTextStyle={styles.selectedTextStyle}
-                  data={lpndata}
+                  data={lpnData}
                   labelField="label"
                   valueField="value"
                   value={lpnValue}
@@ -160,10 +202,16 @@ const Trips: React.FC = () => {
                   mode="contained"
                   onPress={() => {
                     hideModal();
+                    if (accountDetails?.AccountId) {
+                      todaysTrips(accountDetails.AccountId, 1, true, lpnValue);
+                      setFilterEnabled(true);
+                    }
                     // Apply filter logic here
                   }}
                   buttonColor="#FF5A00"
-                  style={styles.applyButton}>
+                  style={[styles.applyButton,!lpnValue && !gantryValue && { backgroundColor: '#999' }]}
+                  disabled={!lpnValue && !gantryValue}
+                  >
                   Apply
                 </Button>
               </View>
@@ -215,12 +263,12 @@ const Trips: React.FC = () => {
             )}
             onEndReached={() => {
               if (!loading && tripsData.length < totalRows) {
-                todaysTrips(accountDetails.AccountId, page + 1);
+                todaysTrips(accountDetails.AccountId, page + 1,false,0);
               }
             }}
             onEndReachedThreshold={0.3}
             refreshing={refreshing}
-            onRefresh={() => todaysTrips(accountDetails.AccountId, 1, true)}
+            onRefresh={() => todaysTrips(accountDetails.AccountId, 1, true,0)}
             ListFooterComponent={
               loading && !refreshing ? (
                 <View style={{ paddingVertical: 20 }}>
