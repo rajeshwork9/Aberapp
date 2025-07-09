@@ -19,6 +19,8 @@ import { Animated } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 import Splash from './Splash';
 import Loader from '../components/Loader';
+import { getTodaysTrips } from '../services/common';
+import dayjs from 'dayjs';
 
 
 const local_data = [
@@ -75,20 +77,44 @@ const Dashboard: React.FC = () => {
         }
     }, [loadingFull]);
 
-
-
-    // if (!accountDetails) {
-    //   return (
-    //       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' }}>
-    //           <Loader fullScreen={false} />
-    //       </View>
-    //   );
-    // }
+    useEffect(() => {
+        if (accountDetails) {
+            todaysTrips(accountDetails.AccountId);
+        }
+    }, [accountDetails]);
 
     const navigateTo = (path: keyof MainStackParamList) => {
         navigation.navigate(path);
     };
 
+    const todaysTrips = async (accountId: number) => {
+        try{
+            const DAYS_BACK = 7; // or any number of days you want
+            const fromDatetime = dayjs().startOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
+            const toDatetime = dayjs().endOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
+            let payload =
+            {
+                "accountId": 7,
+                "AccountUnitId": 0,
+                "GantryId": 0,
+                "fromDate": '12-05-2021',
+                "toDate": '08-07-2025',
+                "PageNumber": 1,
+                "PageSize": 5
+            }
+            console.log(payload,'fegrq');
+           
+            const response = await getTodaysTrips(payload);
+            console.log('Todays Trips Response', response);
+        }
+        catch(e) {
+            console.log(e);
+        }
+        finally{
+            console.log('Api call completed');
+        }
+    };
+    
     return (
         <ImageBackground
             source={require('../../assets/images/background.png')}
@@ -141,7 +167,8 @@ const Dashboard: React.FC = () => {
                     </View>
 
                     <View style={styles.balanceCard}>
-                        <Image style={styles.imgWalletBalance} source={require('../../assets/images/wallet-icon.png')} />
+                       <View style={styles.leftDiv}>
+                         <Image style={styles.imgWalletBalance} source={require('../../assets/images/wallet-icon.png')} />
                         <Card style={styles.balanceContent}>
                                 <Text style={styles.balanceLabel}>{accountDetails?.Balance ? new Intl.NumberFormat('en-US', {
                                     style: 'decimal',
@@ -151,8 +178,11 @@ const Dashboard: React.FC = () => {
                                     : '0.00'}</Text>
                             <Text style={styles.textBalance}>Available Balance (AED)</Text>
                         </Card>
-                        <Button onPress={() => navigateTo('Topup')} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
+                       </View>
+                       <View style={styles.rightDiv}>
+                         <Button onPress={() => navigateTo('Topup')} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
                         >Topup</Button>
+                       </View>
                     </View>
 
 
@@ -180,7 +210,7 @@ const Dashboard: React.FC = () => {
                         </View>
 
                         <View style={styles.iconItem}>
-                            <Card style={styles.imgGridItem}>
+                            <Card style={styles.imgGridItem} onPress={() => navigateTo('Cases')}>
                                 <Image style={styles.imgGItem} source={require('../../assets/images/cases-icon.png')} />
                             </Card>
                             <Text style={styles.iconLabel}>Cases</Text>
@@ -382,7 +412,7 @@ const styles = StyleSheet.create({
     badge: { position: 'absolute', right: 0, top: 0 },
 
     balanceCard: {
-        marginTop: 19,
+        marginTop: 20,
         backgroundColor: '#fff',
         borderRadius: 50,
         marginHorizontal: 5,
@@ -390,13 +420,18 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 13,
         flexDirection: 'row', alignItems: 'center',
-        // justifyContent: 'space-between',
+        justifyContent: 'space-between',
     },
+    leftDiv:{
+    flexDirection: 'row', alignItems: 'center',
+    },
+    rightDiv:{
 
+    },
     balanceContent: {
         backgroundColor: '#fff',
         marginHorizontal: 7,
-         paddingHorizontal: 5,
+        paddingHorizontal: 5,
         borderWidth: 0,
         shadowOpacity: 0,
         elevation: 0,
@@ -410,14 +445,12 @@ const styles = StyleSheet.create({
     },
     topupBtn: {
         width: 98,
-        right: -75
-
+        // right: '-21%'
     },
 
     imgWalletBalance: {
         width: 30,
         height: 30,
-
     },
 
 

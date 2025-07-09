@@ -33,11 +33,12 @@ const statusdata = [
             source={require('../../assets/images/background.png')}
             style={styles.backgroundImage}
             resizeMode="cover">
-        <PaperProvider>
-    
-        <View style={styles.headerMain}>
+            <View style={styles.container}>
+             <PaperProvider>
+
+                <View style={styles.headerMain}>
                     <View style={styles.headerLeftBlock} >
-                        <TouchableOpacity style={[styles.backBt, {marginRight:12,}]} onPress={() => navigation.goBack()}>
+                        <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
                             <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
                         </TouchableOpacity>
                         <Text style={styles.headerTitle}>Violations</Text>
@@ -52,34 +53,34 @@ const statusdata = [
                             <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
 
                                 <Text style={styles.sectionTitleModal}>Violation Filters</Text>
-                             
-                    <View style={styles.formGroupModal}>     
-                        <Dropdown
-                            style={styles.selectDropdown}
-                            placeholderStyle={styles.placeholderSelect}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            data={statusdata}
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Select item"
-                            containerStyle={styles.dropdownList}
-                            activeColor="#000000"
-                            value={null}
-                            onChange={item => setValue(item.value)}
-                            renderItem={item => (
-                            <View style={styles.listSelectGroup}>
-                                <Text style={styles.itemTextSelect}>{item.label}</Text>
-                            </View>
-                            )}
-                        />
-                    </View>   
 
-                            <View style={styles.formGroupModal}>
+                                <View style={styles.formGroupModal}>
+                                    <Dropdown
+                                        style={styles.selectDropdown}
+                                        placeholderStyle={styles.placeholderSelect}
+                                        selectedTextStyle={styles.selectedTextStyle}
+                                        data={statusdata}
+                                        labelField="label"
+                                        valueField="value"
+                                        placeholder="Select item"
+                                        containerStyle={styles.dropdownList}
+                                        activeColor="#000000"
+                                        value={null}
+                                        onChange={item => setValue(item.value)}
+                                        renderItem={item => (
+                                            <View style={styles.listSelectGroup}>
+                                                <Text style={styles.itemTextSelect}>{item.label}</Text>
+                                            </View>
+                                        )}
+                                    />
+                                </View>
+
+                                <View style={styles.formGroupModal}>
                                     <Text style={styles.labelModal}>Form Date</Text>
                                     <TextInput
                                         mode="flat"
                                         placeholder='DD-MM-YYYY'
-                                       style={styles.calendarInputModal}
+                                        style={styles.calendarInputModal}
                                         underlineColor="#fff"
                                         placeholderTextColor="#707070"
                                         textColor='#fff'
@@ -89,14 +90,14 @@ const statusdata = [
                                             },
                                         }}
                                     />
-                                     <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} />
+                                    <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} />
                                 </View>
 
                                 <View style={styles.formGroupModal}>
                                     <Text style={styles.labelModal}>To Date</Text>
-                                   <TextInput
+                                    <TextInput
                                         mode="flat"
-                                       style={styles.calendarInputModal}
+                                        style={styles.calendarInputModal}
                                         underlineColor="#fff"
                                         placeholder='DD-MM-YYYY'
                                         placeholderTextColor="#707070"
@@ -107,12 +108,12 @@ const statusdata = [
                                             },
                                         }}
                                     />
-                                     <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} />
+                                    <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} />
                                 </View>
 
-                                
 
-    
+
+
 
                                 <View style={styles.buttonRow}>
                                     <Button
@@ -140,13 +141,8 @@ const statusdata = [
                         </Portal>
                     </View>
                 </View>
-
-
-            <ScrollView style={styles.container}>
-
-
-
-                <View>
+                <ScrollView style={styles.container}>
+                    <View>
 
                         <View style={styles.searchBlock}>
                             <TextInput style={styles.searchFormInput} placeholder="Search" placeholderTextColor="#7B8994"
@@ -157,37 +153,34 @@ const statusdata = [
                             <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} ></Image>
                         </View>
 
-                    <Card style={styles.cardItemMain}>
-                        <View style={styles.cardContentInner}>
-                    <View style={styles.leftCardCont}>
-                            <Card style={styles.cardWithIcon}>
-                                <Image style={styles.cardIconImg} source={require('../../assets/images/vehicles-icon.png')} />
-                            </Card>
+                        <Card style={styles.cardItemMain}>
+                            <View style={styles.cardContentInner}>
+                                <View style={styles.leftCardCont}>
+                                    <Card style={styles.cardWithIcon}>
+                                        <Image style={styles.cardIconImg} source={require('../../assets/images/vehicles-icon.png')} />
+                                    </Card>
 
-                            <View style={styles.leftTextCard}>
-                                <Text style={styles.textCard}>VVRAQ0000016</Text>
-                                 <Text style={[styles.deateCard, { fontWeight: 'light' }]}>07 Mar 2025, 10:50:01</Text>
+                                    <View style={styles.leftTextCard}>
+                                        <Text style={styles.textCard}>VVRAQ0000016</Text>
+                                        <Text style={[styles.deateCard, { fontWeight: 'light' }]}>07 Mar 2025, 10:50:01</Text>
 
-                                <Text style={styles.smallLabel}>Violation Type</Text>
-                                    <Text style={styles.smallTextCard}>Vehicle Violation</Text>
-                               
+                                        <Text style={styles.smallLabel}>Violation Type</Text>
+                                        <Text style={styles.smallTextCard}>Vehicle Violation</Text>
+
+                                    </View>
+                                </View>
+                                <View style={styles.rightTextCard}>
+
+                                    <TouchableOpacity style={styles.primaryBt}>
+                                        <Text style={styles.textPrimaryBt}>Open</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        </View>
-                            <View style={styles.rightTextCard}>
-
-                                <TouchableOpacity style={styles.primaryBt}>
-                                    <Text style={styles.textPrimaryBt}>Open</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </Card>
-                </View>
-
-
-
-
-            </ScrollView >
-        </PaperProvider>
+                        </Card>
+                    </View>
+                </ScrollView >
+            </PaperProvider>
+           </View>
         </ImageBackground>
     );
 };

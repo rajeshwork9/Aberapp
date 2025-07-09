@@ -6,15 +6,19 @@ import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image,
 import { Button, TextInput, Modal, Portal, Text, Badge, Avatar, Card, IconButton, PaperProvider } from 'react-native-paper';
 import { Dropdown } from 'react-native-element-dropdown';
 
+
 const Trips: React.FC = () => {
     const [search, setSearch] = React.useState('');
+
+   const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+   
 
     const [visible, setVisible] = React.useState(false);
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
 
 
-    const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+    
     const navigateTo = (path: keyof MainStackParamList) => {
         navigation.navigate(path)
     }
@@ -22,7 +26,7 @@ const Trips: React.FC = () => {
 
     const gantrydata = [
       { label: 'Select gantry', value: 'Select gantry', disabled: true },
-      { label: 'Gantry 1', statusvalue: '1' },
+      { label: 'Gantry 1 2', statusvalue: '1' },
       { label: 'Gantry 2', statusvalue: '2' },
     ];
 
@@ -186,7 +190,7 @@ const Trips: React.FC = () => {
                             <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} ></Image>
                         </View>
 
-                        <Card style={styles.cardItemMain}>
+                        <Card style={styles.cardItemMain} onPress={() => navigation.navigate('TripsDetails')}>
                             <View style={styles.cardContentInner}>
                                 <View style={styles.leftCardCont}>
                                     <Card style={styles.cardWithIcon}>

@@ -14,7 +14,9 @@ import Login from './src/authentication/Login';
 import Dashboard from './src/pages/Dashboard';
 import Topup from './src/pages/Topup';
 import Trips from './src/pages/Trips';
+import TripsDetails from './src/pages/TripsDetails';
 import Violations from './src/pages/Violations';
+import Cases from './src/pages/Cases';
 import Vehicles from './src/pages/Vehicles';
 import AddVehicle from './src/pages/AddVehicle';
 import Profile from './src/pages/Profile';
@@ -22,6 +24,7 @@ import { AccountProvider } from './src/context/AccountProvider';
 import  Splash from './src/pages/Splash';
 import  TransactionHistory from './src/pages/TransactionHistory';
 import Toast from 'react-native-toast-message';
+import AddCases from './src/pages/AddCases';
 TransactionHistory
 /* ──────────────── Auth Context ──────────────── */
 type AuthCtx = {
@@ -47,9 +50,12 @@ type MainStackParamList = {
   Dashboard: undefined;
   Topup: undefined;
   Trips: undefined;
+  TripsDetails: undefined;
   Vehicles: undefined;
   Violations: undefined;
   AddVehicle:undefined;
+  AddCases:undefined;
+  Cases:undefined;
   Profile:undefined;
   Splash:undefined;
   TransactionHistory:undefined;
@@ -92,6 +98,13 @@ export const MainStack = React.memo(() => (
         headerTitle: 'Trips', 
       }} 
       />
+     <MainStackNav.Screen 
+      name="TripsDetails" 
+      component={TripsDetails} 
+      options={{ 
+        headerShown: false, 
+      }} 
+      />
            <MainStackNav.Screen 
       name="Vehicles" 
       component={Vehicles} 
@@ -102,6 +115,27 @@ export const MainStack = React.memo(() => (
         // headerTitle: 'Vehicles', 
       }} 
       />
+      <MainStackNav.Screen 
+      name="Cases" 
+      component={Cases} 
+      options={{ 
+        headerShown: false, 
+        // headerTransparent: true, 
+        // headerTintColor: '#fff', 
+        // headerTitle: 'Cases', 
+      }} 
+      />
+       <MainStackNav.Screen 
+      name="AddCases" 
+      component={AddCases} 
+      options={{ 
+        headerShown: false, 
+        // headerTransparent: true, 
+        // headerTintColor: '#fff', 
+        // headerTitle: 'Cases', 
+      }} 
+      />
+     
            <MainStackNav.Screen 
       name="Violations" 
       component={Violations} 
@@ -123,6 +157,8 @@ export const MainStack = React.memo(() => (
         headerTitle: 'AddVehicle', 
       }} 
       />
+      
+        
 
     <MainStackNav.Screen 
       name="Profile" 
