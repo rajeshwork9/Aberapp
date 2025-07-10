@@ -93,41 +93,72 @@ const TripsDetails: React.FC = () => {
 
                     
 
-<Portal>
-  <Modal
-    visible={visible}
-    onDismiss={hideModal}
-    contentContainerStyle={styles.modalBottomContainer}
-  >
-    {/* Close Icon */}
-    <IconButton
-      icon="close"
-      size={24}
-      onPress={hideModal}
-      style={styles.modalCloseIcon}
-      iconColor="#fff"
-    />
+                    <Portal>
+                        <Modal
+                            visible={visible}
+                            onDismiss={hideModal}
+                            contentContainerStyle={styles.modalBottomContainer}
+                        >
+                            {/* Close Icon */}
+                            <IconButton
+                                icon="close"
+                                size={24}
+                                onPress={hideModal}
+                                style={styles.modalCloseIcon}
+                                iconColor="#fff"
+                            />
 
-    <Text style={styles.sectionTitleModal}>Dispute Trip</Text>
+                            <Text style={styles.sectionTitleModal}>Dispute Trip</Text>
+                            <View style={styles.cardContentInner}>
+                                <View style={styles.leftCardCont}>
+                                    <View style={styles.leftTextCard}>
+                                        <Text style={styles.textCard}>
+                                            36487-AE-UQ-PRI_A{"\n"}
+                                            G2 Ring Road{"\n"}
+                                            07 Mar 2025, 10:50:01
+                                        </Text>
+                                    </View>
+                                </View>
+                                <View style={styles.rightTextCard}>
+                                    <Text style={[styles.textCard, { fontWeight: 'bold' }]}>3X</Text>
+                                    <Text style={styles.GreenText}> Paid <Text style={[styles.GreenText, { fontWeight: 'bold' }]}>300</Text></Text>
+                                    <Image style={{ width: 16, height: 16, marginVertical: 4 }} source={require('../../assets/images/chat-icon.png')} />
+                                </View>
+                            </View>
+                             <View style={styles.formGroup}>
+                                <View style={styles.inputWrapper}>
+                                    <TextInput
+                                        style={styles.formControl}
+                                        placeholder="Enter Reason For Dispute"
+                                        placeholderTextColor="#9F9F9F"
+                                        // keyboardType="numeric"
+                                        cursorColor="#fff"
+                                        textColor="#fff"
+                                        theme={{
+                                            colors: {
+                                                primary: '#FF5400',
+                                            },
+                                        }}
+                                    />
+                                    <Text style={styles.minText}>Min 240 Characters</Text>
+                                </View>
 
-    
+                                                            </View>
 
-    
-
-    {/* Buttons */}
-    <View style={styles.buttonRow}>
-      <Button mode="contained" style={styles.closeButton} textColor="#000">
-        Close
-      </Button>
-      <Button
-        mode="contained"
-        buttonColor="#FF5A00"
-        style={styles.applyButton}>
-        Submit
-      </Button>
-    </View>
-  </Modal>
-</Portal>
+                            {/* Buttons */}
+                            <View style={styles.buttonRow}>
+                                <Button mode="contained" style={styles.closeButton} textColor="#000">
+                                    Close
+                                </Button>
+                                <Button
+                                    mode="contained"
+                                    buttonColor="#FF5A00"
+                                    style={styles.applyButton}>
+                                    Submit
+                                </Button>
+                            </View>
+                        </Modal>
+                    </Portal>
 
    
                 </View>
@@ -236,6 +267,71 @@ const styles = StyleSheet.create({
         height:50
 
     },
+
+     cardContentInner: {
+        marginTop: 0,
+        borderRadius: 50,
+        paddingVertical: 10,
+        flexDirection: 'row', alignItems: 'flex-start',
+        justifyContent: 'space-between',
+    },
+     leftCardCont: {
+        paddingRight: 10,
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        width: '71%',
+    },
+     textCard: {
+        fontSize: 13,
+        color: '#fff',
+        paddingBottom: 2,
+        lineHeight:20
+    },
+    GreenText: {
+ color: '#06F547',
+ fontSize: 12,
+    },
+
+    deateCard: {
+        fontSize: 11,
+        color: '#fff',
+        paddingTop: 6,
+
+    },
+    rightTextCard: {
+
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end',
+        flexDirection: 'column',
+    },
+
+    largeTextRCard: {
+        color: '#fff',
+        fontSize: 16,
+
+    },
+   formGroup: { marginTop: 10, marginBottom: 15, },
+    formControl: {
+        paddingHorizontal: 0,
+        height: 38,
+        borderBottomColor: '#FCFCFC',
+        borderBottomWidth: 1,
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 'bold',
+        backgroundColor: 'transparent',
+    },
+    inputWrapper: {
+    position: 'relative',
+    marginBottom: 24,
+  },
+  minText: {
+    position: 'absolute',
+    bottom: -22,        // push below input
+    right: 0,           // align to right
+    fontSize: 12,
+    color: '#9F9F9F',
+  },
 
     // modal popup css
     modalBottomContainer: {

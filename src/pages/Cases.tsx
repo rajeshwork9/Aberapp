@@ -260,9 +260,6 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         flexDirection: 'row', alignItems: 'flex-start',
         justifyContent: 'space-between',
-
-
-
     },
 
     cardWithIcon: {

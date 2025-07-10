@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     formControl: {
         paddingHorizontal: 0,
         height: 38,
-        borderBottomColor: '#FCFCFC',
+        borderBottomColor: '#FCFCFC', 
         borderBottomWidth: 1,
         color: '#fff',
         fontSize: 14,
