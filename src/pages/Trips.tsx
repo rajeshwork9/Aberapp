@@ -53,22 +53,24 @@ const Trips: React.FC = () => {
 
   useEffect(() => {
     if (accountDetails) {
-      todaysTrips(accountDetails.AccountId, 1, true, 0);
+      getTrips(accountDetails.AccountId, 1, true, 0);
       licenceNumber(accountDetails.AccountId);
     }
   }, [accountDetails]);
 
-  const todaysTrips = async (accountId: number, pageNumber: number, isRefresh = false, lpnValue: any) => {
+  const getTrips  = async (accountId: number, pageNumber: number, isRefresh = false, lpnValue: any) => {
     try {
       isRefresh ? setRefreshing(true) : setLoading(true);
-
+      const DAYS_BACK = 7; // or any number of days you want
+      const fromDatetime = dayjs().startOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
+      const toDatetime = dayjs().endOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
       const payload = 
     //   {
     //     accountId,
     //     AccountUnitId: 0,
     //     GantryId: 0,
-    //     fromDate: dayjs().startOf('day').format('YYYY-MM-DDTHH:mm:ss'),
-    //     toDate: dayjs().endOf('day').format('YYYY-MM-DDTHH:mm:ss'),
+    //     fromDate: fromDatetime,
+    //     toDate: toDatetime,
     //     PageNumber: pageNumber,
     //     PageSize: 5
     //   };
@@ -126,7 +128,7 @@ const Trips: React.FC = () => {
 
   const handleClearFilter = () => {
     setFilterEnabled(false);
-    todaysTrips(accountDetails.AccountId, 1, true, 0);
+    getTrips(accountDetails.AccountId, 1, true, 0);
     setLpnValue(null);
     setGantryValue(null);
 
@@ -209,7 +211,7 @@ const Trips: React.FC = () => {
                   onPress={() => {
                     hideModal();
                     if (accountDetails?.AccountId) {
-                      todaysTrips(accountDetails.AccountId, 1, true, lpnValue);
+                      getTrips(accountDetails.AccountId, 1, true, lpnValue);
                       setFilterEnabled(true);
                     }
                     // Apply filter logic here
@@ -269,12 +271,12 @@ const Trips: React.FC = () => {
             )}
             onEndReached={() => {
               if (!loading && tripsData.length < totalRows) {
-                todaysTrips(accountDetails.AccountId, page + 1,false,0);
+                getTrips(accountDetails.AccountId, page + 1,false,0);
               }
             }}
             onEndReachedThreshold={0.3}
             refreshing={refreshing}
-            onRefresh={() => todaysTrips(accountDetails.AccountId, 1, true,0)}
+            onRefresh={() => getTrips(accountDetails.AccountId, 1, true,0)}
             ListFooterComponent={
               loading && !refreshing ? (
                 <View style={{ paddingVertical: 20 }}>

@@ -64,3 +64,12 @@ export const getLicenceNumber = async (body: any) => {
   }
 };
 
+export const getViolations = async (body: any) => {
+  try {
+    const response = await api.post('accounts/page/violations', body);
+    return response.data.TransactionsList;
+  } catch (error) {
+    throw error;
+  }
+};
+
