@@ -9,7 +9,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import dayjs from 'dayjs';
 import { getLicenceNumber, getTodaysTrips } from '../services/common';
 import { useAccount } from '../context/AccountProvider';
-
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 interface Trip {
   AssetId: string;
@@ -43,6 +43,10 @@ const Trips: React.FC = () => {
   const [gantryValue, setGantryValue] = useState(null);
   const [lpnValue, setLpnValue] = useState(null);
   const [filterEnabled, setFilterEnabled] = useState(false);
+  const [fromDate, setFromDate] = useState(dayjs().subtract(7, 'day').toDate());
+  const [toDate, setToDate] = useState(new Date());
+  const [showFromPicker, setShowFromPicker] = useState(false);
+  const [showToPicker, setShowToPicker] = useState(false);
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
@@ -58,37 +62,41 @@ const Trips: React.FC = () => {
     }
   }, [accountDetails]);
 
-  const getTrips  = async (accountId: number, pageNumber: number, isRefresh = false, lpnValue: any) => {
+  const getTrips = async (accountId: number, pageNumber: number, isRefresh = false, lpnValue: any, fromDateParam?: Date,
+    toDateParam?: Date) => {
     try {
       isRefresh ? setRefreshing(true) : setLoading(true);
       const DAYS_BACK = 7; // or any number of days you want
-      const fromDatetime = dayjs().startOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
-      const toDatetime = dayjs().endOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
-      const payload = 
-    //   {
-    //     accountId,
-    //     AccountUnitId: 0,
-    //     GantryId: 0,
-    //     fromDate: fromDatetime,
-    //     toDate: toDatetime,
-    //     PageNumber: pageNumber,
-    //     PageSize: 5
-    //   };
-    {
-    "accountId": 7,
-    "AccountUnitId": lpnValue ? lpnValue : 0,
-    "GantryId":0,
-    "fromDate": "2021-05-12",
-    "toDate": "2025-06-17",
-    "PageNumber":1,
-    "PageSize":5
-    }
-    console.log(payload,"payload");
-    
+      const fromDatetime = dayjs(fromDateParam || dayjs().subtract(7, 'day').toDate())
+        .startOf('day')
+        .format('YYYY-MM-DDTHH:mm:ss[Z]');
+      const toDatetime = dayjs(toDateParam || new Date())
+        .endOf('day')
+        .format('YYYY-MM-DDTHH:mm:ss[Z]');
+      const payload =
+      //   {
+      // accountId,
+      // AccountUnitId: lpnValue || 0,
+      // GantryId: 0,
+      // fromDate: fromDatetime,
+      // toDate: toDatetime,
+      // PageNumber: pageNumber,
+      // PageSize: 5
+      {
+        "accountId": 7,
+        "AccountUnitId": lpnValue ? lpnValue : 0,
+        "GantryId": 0,
+        "fromDate": "2021-05-12",
+        "toDate": "2025-06-17",
+        "PageNumber": 1,
+        "PageSize": 5
+      }
+      console.log(payload, "payload");
+
 
       const response = await getTodaysTrips(payload);
-      console.log(response,"rsponse");
-      
+      console.log(response, "rsponse");
+
       const newList = response || [];
 
       setTotalRows(response.TotalRows || 0);
@@ -103,18 +111,18 @@ const Trips: React.FC = () => {
     }
   };
 
-  const licenceNumber = async (accountId : any) =>{
-    try{
+  const licenceNumber = async (accountId: any) => {
+    try {
       let payload = {
-        accountId : accountId,
+        accountId: accountId,
         assetTypeId: 2 //static
       }
       const response = await getLicenceNumber(payload);
-       const formatted = response.map((item: any) => ({
-      ...item,
-      label: item.AssetIdentifier,
-      value: item.AccountUnitId
-    }));
+      const formatted = response.map((item: any) => ({
+        ...item,
+        label: item.AssetIdentifier,
+        value: item.AccountUnitId
+      }));
 
       setLpnData(formatted);
     }
@@ -128,10 +136,8 @@ const Trips: React.FC = () => {
 
   const handleClearFilter = () => {
     setFilterEnabled(false);
-    getTrips(accountDetails.AccountId, 1, true, 0);
     setLpnValue(null);
-    setGantryValue(null);
-
+    getTrips(accountDetails.AccountId, 1, true, null, dayjs().subtract(7, 'day').toDate(), new Date());
   }
 
   const gantrydata = [
@@ -164,7 +170,7 @@ const Trips: React.FC = () => {
                   </Button>
                 )}
               </View>
-              
+
             </View>
 
           </View>
@@ -175,18 +181,43 @@ const Trips: React.FC = () => {
               <Text style={styles.sectionTitleModal}>Trip Filters</Text>
 
               <View style={styles.formGroupModal}>
-                <Text style={styles.labelModal}>Gantry</Text>
-                <Dropdown
-                  style={styles.selectDropdown}
-                  placeholderStyle={styles.placeholderSelect}
-                  selectedTextStyle={styles.selectedTextStyle}
-                  data={gantrydata}
-                  labelField="label"
-                  valueField="value"
-                  value={gantryValue}
-                  onChange={item => setGantryValue(item.value)}
-                />
+                <Text style={styles.labelModal}>From Date</Text>
+                <TouchableOpacity onPress={() => setShowFromPicker(true)} style={styles.selectDropdown}>
+                  <Text style={styles.selectedTextStyle}>{dayjs(fromDate).format('YYYY-MM-DD')}</Text>
+                </TouchableOpacity>
               </View>
+
+              <DateTimePickerModal
+                isVisible={showFromPicker}
+                mode="date"
+                date={fromDate}
+                maximumDate={new Date()}
+                onConfirm={(date) => {
+                  setShowFromPicker(false);
+                  setFromDate(date);
+                }}
+                onCancel={() => setShowFromPicker(false)}
+              />
+
+              {/* To Date Picker */}
+              <View style={styles.formGroupModal}>
+                <Text style={styles.labelModal}>To Date</Text>
+                <TouchableOpacity onPress={() => setShowToPicker(true)} style={styles.selectDropdown}>
+                  <Text style={styles.selectedTextStyle}>{dayjs(toDate).format('YYYY-MM-DD')}</Text>
+                </TouchableOpacity>
+              </View>
+
+              <DateTimePickerModal
+                isVisible={showToPicker}
+                mode="date"
+                date={toDate}
+                maximumDate={new Date()}
+                onConfirm={(date) => {
+                  setShowToPicker(false);
+                  setToDate(date);
+                }}
+                onCancel={() => setShowToPicker(false)}
+              />
 
               <View style={styles.formGroupModal}>
                 <Text style={styles.labelModal}>Licence Plate Number</Text>
@@ -203,7 +234,11 @@ const Trips: React.FC = () => {
               </View>
 
               <View style={styles.buttonRow}>
-                <Button mode="contained" onPress={hideModal} style={styles.closeButton} textColor="#000">
+                <Button mode="contained" onPress={()=> {
+                  hideModal();
+                  setLpnValue(null);
+                }} 
+                style={styles.closeButton} textColor="#000">
                   Close
                 </Button>
                 <Button
@@ -211,15 +246,15 @@ const Trips: React.FC = () => {
                   onPress={() => {
                     hideModal();
                     if (accountDetails?.AccountId) {
-                      getTrips(accountDetails.AccountId, 1, true, lpnValue);
+                      getTrips(accountDetails.AccountId, 1, true, lpnValue, fromDate, toDate);
                       setFilterEnabled(true);
                     }
                     // Apply filter logic here
                   }}
                   buttonColor="#FF5A00"
-                  style={[styles.applyButton,!lpnValue && !gantryValue && { backgroundColor: '#999' }]}
-                  disabled={!lpnValue && !gantryValue}
-                  >
+                  style={[styles.applyButton]}
+                >
+                {/* disabled={!lpnValue && !gantryValue} */}
                   Apply
                 </Button>
               </View>
@@ -271,12 +306,12 @@ const Trips: React.FC = () => {
             )}
             onEndReached={() => {
               if (!loading && tripsData.length < totalRows) {
-                getTrips(accountDetails.AccountId, page + 1,false,0);
+                getTrips(accountDetails.AccountId, page + 1, false,fromDate, toDate);
               }
             }}
             onEndReachedThreshold={0.3}
             refreshing={refreshing}
-            onRefresh={() => getTrips(accountDetails.AccountId, 1, true,0)}
+            onRefresh={() => getTrips(accountDetails.AccountId, 1, true,fromDate, toDate)}
             ListFooterComponent={
               loading && !refreshing ? (
                 <View style={{ paddingVertical: 20 }}>
@@ -299,318 +334,318 @@ export default Trips;
 
 const styles = StyleSheet.create({
 
-    //--- Header
-    backgroundImage: {
-        flex: 1,
-        width: '100%',
-        height: '100%',
-    },
+  //--- Header
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
 
-    container: {
-        marginHorizontal: 10,
-        marginTop: 20,
-    },
+  container: {
+    marginHorizontal: 10,
+    marginTop: 20,
+  },
 
-    headerMain: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 15,
-        paddingVertical: 6,
-        backgroundColor: 'transparent',
-        marginTop: 12,
+  headerMain: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 6,
+    backgroundColor: 'transparent',
+    marginTop: 12,
 
-    },
-    backBt: {},
-    headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', },
-    headerRightBlock: { flexDirection: 'row', justifyContent: 'flex-end', },
-    headerIcon: { width: 18, height: 18, },
-    headerTitle: { fontSize: 15, fontWeight: 'bold', color: '#fff' },
+  },
+  backBt: {},
+  headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', },
+  headerRightBlock: { flexDirection: 'row', justifyContent: 'flex-end', },
+  headerIcon: { width: 18, height: 18, },
+  headerTitle: { fontSize: 15, fontWeight: 'bold', color: '#fff' },
 
 
-    btHeader: {
-        marginLeft:0, 
-    },
-    filterText: {
+  btHeader: {
+    marginLeft: 0,
+  },
+  filterText: {
     color: '#000',
     fontSize: 13,
-    backgroundColor:'#fff',
-     borderRadius: 40,
-     paddingHorizontal:13,
-     paddingVertical:6,
-      marginTop:0
+    backgroundColor: '#fff',
+    borderRadius: 40,
+    paddingHorizontal: 13,
+    paddingVertical: 6,
+    marginTop: 0
   },
-    btHeaderText: { color: '#fff', fontSize: 13, paddingHorizontal: 10, },
+  btHeaderText: { color: '#fff', fontSize: 13, paddingHorizontal: 10, },
 
-    roundedIconBt: {
-        width: 34,
-        height: 34,
-        backgroundColor: '#ff5200',
-        borderRadius: 100,
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
-        paddingHorizontal: 0,
-    },
-    roundedIcon: {
-        width: 20,
-        height: 20,
-        tintColor: 'white'
-    },
+  roundedIconBt: {
+    width: 34,
+    height: 34,
+    backgroundColor: '#ff5200',
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    paddingHorizontal: 0,
+  },
+  roundedIcon: {
+    width: 20,
+    height: 20,
+    tintColor: 'white'
+  },
 
-    searchBlock: {
-        marginTop: 0,
-        marginHorizontal: 5,
-        marginBottom: 15,
-        height: 50,
+  searchBlock: {
+    marginTop: 0,
+    marginHorizontal: 5,
+    marginBottom: 15,
+    height: 50,
 
-    },
+  },
 
-    searchFormInput: {
-        height: 44,
-        borderColor: '#fff',
-        borderRadius: 100,
-        paddingRight: 20,
-        paddingLeft: 25,
-        marginTop: 0,
-        fontSize: 15,
-        fontWeight: 400,
-        color: '#000',
-        backgroundColor: '#fff'
-
-
-    },
-
-    formInputIcon: {
-        width: 16,
-        height: 16,
-        position: 'absolute',
-        top: 15,
-        left: 14,
-    },
-
-    //--- Header End
-
-    //---
-    sectionTitle: {
-        margin: 15,
-        fontSize: 16,
-        color: '#fff',
-        fontWeight: 'normal',
-    },
-    cardItemMain: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        marginTop: 0,
-        marginHorizontal: 5,
-        marginBottom: 12,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        shadowOpacity: 0,
-        elevation: 0,
-    },
-    cardContentInner: {
-        marginTop: 0,
-        borderRadius: 50,
-
-        paddingVertical: 10,
-
-        flexDirection: 'row', alignItems: 'center',
-        justifyContent: 'space-between',
+  searchFormInput: {
+    height: 44,
+    borderColor: '#fff',
+    borderRadius: 100,
+    paddingRight: 20,
+    paddingLeft: 25,
+    marginTop: 0,
+    fontSize: 15,
+    fontWeight: 400,
+    color: '#000',
+    backgroundColor: '#fff'
 
 
+  },
 
-    },
+  formInputIcon: {
+    width: 16,
+    height: 16,
+    position: 'absolute',
+    top: 15,
+    left: 14,
+  },
 
-    cardWithIcon: {
-        width: 54,
-        height: 54,
-        backgroundColor: '#C03F00',
-        borderRadius: 100,
-        borderWidth: 8,
-        borderColor: '#2C2C2C',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        shadowOpacity: 0,
-        elevation: 0,
-        shadowColor: 'transparent',
-        marginRight: 5,
-        padding: 0,
-    },
+  //--- Header End
 
-    cardIconImg: {
-        width: 30,
-        height: 30,
-        tintColor: 'white'
-    },
-    leftTextCard: {
-        // paddingRight: 10,
-    },
+  //---
+  sectionTitle: {
+    margin: 15,
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'normal',
+  },
+  cardItemMain: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginTop: 0,
+    marginHorizontal: 5,
+    marginBottom: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  cardContentInner: {
+    marginTop: 0,
+    borderRadius: 50,
 
-    leftCardCont: {
-        paddingRight: 10,
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        width: '71%',
-    },
+    paddingVertical: 10,
 
-    textCard: {
-        fontSize: 12,
-        color: '#fff',
-        paddingBottom: 2,
-    },
-    rightTextCard: {
-
-        justifyContent: 'flex-end',
-        alignItems: 'flex-end',
-    },
-
-    largeTextRCard: {
-        color: '#fff',
-        fontSize: 16,
-
-    },
-    statusTextCard: {
-        fontSize: 12,
-        backgroundColor: '#000000',
-        paddingHorizontal: 10,
-        paddingVertical: 7,
-        borderRadius: 30,
-        color: '#06F547',
-        marginTop: 5,
-    },
-    statusText: {
-        color: '#06F547',
-        // unpaid  color: '#FF4141',
-
-    },
-
-    //--
+    flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'space-between',
 
 
-    // --
-    modalBottomContainer: {
-        backgroundColor: '#000',
-        paddingHorizontal: 25,
-        marginHorizontal: 0,
-        borderRadius: 20,
-        position: 'absolute',
-        bottom: -10,
-        left: 0,
-        right: 0,
-        color: '#fff',
-        paddingTop: 15,
-        paddingBottom: 65,
-    },
 
-    sectionTitleModal: {
-        marginVertical: 20,
-        fontSize: 17,
-        color: '#fff',
-        fontWeight: 'normal',
-    },
+  },
 
-    formGroupModal: { marginTop: 10, marginBottom: 15, },
-    inputModal: {
-        paddingHorizontal: 0,
-        height: 38,
-        borderBottomColor: '#FCFCFC',
-        borderBottomWidth: 1,
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: 'bold',
-        backgroundColor: 'transparent',
-    },
+  cardWithIcon: {
+    width: 54,
+    height: 54,
+    backgroundColor: '#C03F00',
+    borderRadius: 100,
+    borderWidth: 8,
+    borderColor: '#2C2C2C',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOpacity: 0,
+    elevation: 0,
+    shadowColor: 'transparent',
+    marginRight: 5,
+    padding: 0,
+  },
 
-    labelModal: { color: '#fff', fontSize: 13, marginBottom: 10, },
+  cardIconImg: {
+    width: 30,
+    height: 30,
+    tintColor: 'white'
+  },
+  leftTextCard: {
+    // paddingRight: 10,
+  },
 
-    calendarInputModal: {
-        paddingHorizontal: 40,
-        height: 38,
-        borderBottomColor: '#FCFCFC',
-        borderBottomWidth: 1,
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: 'bold',
-        backgroundColor: 'transparent',
-    },
-    calendarIcon: { position: 'absolute', left: 5, bottom: 11, width: 20, height: 20, },
+  leftCardCont: {
+    paddingRight: 10,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    width: '71%',
+  },
 
+  textCard: {
+    fontSize: 12,
+    color: '#fff',
+    paddingBottom: 2,
+  },
+  rightTextCard: {
 
-    selectDropdown: {
-        width: '100%',
-        marginHorizontal: 0,
-        height: 40,
-        backgroundColor: '#000000',
-        borderRadius: 0,
-        color: '#fff',
-        paddingHorizontal: 0,
-        paddingVertical: 0,
-        borderWidth: 1,
-        borderBottomColor: '#fff',
-    },
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+  },
 
-    placeholderSelect: {
-        fontSize: 13,
-        color: '#BDBDBD',
-    },
-    selectedTextStyle: {
-        fontSize: 14,
-        marginLeft: 6,
-        color: '#fff',
-    },
+  largeTextRCard: {
+    color: '#fff',
+    fontSize: 16,
 
-    dropdownList: {
-        backgroundColor: '#222',
-        borderColor: '#222',
-        borderRadius: 4,
-        paddingVertical: 6,
-    },
+  },
+  statusTextCard: {
+    fontSize: 12,
+    backgroundColor: '#000000',
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 30,
+    color: '#06F547',
+    marginTop: 5,
+  },
+  statusText: {
+    color: '#06F547',
+    // unpaid  color: '#FF4141',
 
-    listSelectGroup: {
-        backgroundColor: '#222',
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-    },
-    itemTextSelect: {
-        backgroundColor: 'transparent',
-        color: '#fff',
-    },
+  },
 
-    buttonRow: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-    },
-
-    applyButton: {
-        width: 120,
-        paddingTop: 0,
-        paddingBottom: 4,
-        color: '#fff',
-        borderRadius: 40,
-        alignItems: 'center',
-        marginTop: 20,
-        fontSize: 13,
-        marginHorizontal: 10,
+  //--
 
 
-    },
+  // --
+  modalBottomContainer: {
+    backgroundColor: '#000',
+    paddingHorizontal: 25,
+    marginHorizontal: 0,
+    borderRadius: 20,
+    position: 'absolute',
+    bottom: -10,
+    left: 0,
+    right: 0,
+    color: '#fff',
+    paddingTop: 15,
+    paddingBottom: 65,
+  },
 
-    closeButton: {
-        width: 120,
-        paddingTop: 0,
-        paddingBottom: 4,
-        backgroundColor: '#FFFFFF',
-        color: '#000',
-        borderRadius: 40,
-        alignItems: 'center',
-        marginTop: 20,
-        fontSize: 13,
-        marginHorizontal: 10,
-    },
+  sectionTitleModal: {
+    marginVertical: 20,
+    fontSize: 17,
+    color: '#fff',
+    fontWeight: 'normal',
+  },
+
+  formGroupModal: { marginTop: 10, marginBottom: 15, },
+  inputModal: {
+    paddingHorizontal: 0,
+    height: 38,
+    borderBottomColor: '#FCFCFC',
+    borderBottomWidth: 1,
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+    backgroundColor: 'transparent',
+  },
+
+  labelModal: { color: '#fff', fontSize: 13, marginBottom: 10, },
+
+  calendarInputModal: {
+    paddingHorizontal: 40,
+    height: 38,
+    borderBottomColor: '#FCFCFC',
+    borderBottomWidth: 1,
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+    backgroundColor: 'transparent',
+  },
+  calendarIcon: { position: 'absolute', left: 5, bottom: 11, width: 20, height: 20, },
+
+
+  selectDropdown: {
+    width: '100%',
+    marginHorizontal: 0,
+    height: 40,
+    backgroundColor: '#000000',
+    borderRadius: 0,
+    color: '#fff',
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    borderWidth: 1,
+    borderBottomColor: '#fff',
+  },
+
+  placeholderSelect: {
+    fontSize: 13,
+    color: '#BDBDBD',
+  },
+  selectedTextStyle: {
+    fontSize: 14,
+    marginLeft: 6,
+    color: '#fff',
+  },
+
+  dropdownList: {
+    backgroundColor: '#222',
+    borderColor: '#222',
+    borderRadius: 4,
+    paddingVertical: 6,
+  },
+
+  listSelectGroup: {
+    backgroundColor: '#222',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+  },
+  itemTextSelect: {
+    backgroundColor: 'transparent',
+    color: '#fff',
+  },
+
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+
+  applyButton: {
+    width: 120,
+    paddingTop: 0,
+    paddingBottom: 4,
+    color: '#fff',
+    borderRadius: 40,
+    alignItems: 'center',
+    marginTop: 20,
+    fontSize: 13,
+    marginHorizontal: 10,
+
+
+  },
+
+  closeButton: {
+    width: 120,
+    paddingTop: 0,
+    paddingBottom: 4,
+    backgroundColor: '#FFFFFF',
+    color: '#000',
+    borderRadius: 40,
+    alignItems: 'center',
+    marginTop: 20,
+    fontSize: 13,
+    marginHorizontal: 10,
+  },
 
 
 });

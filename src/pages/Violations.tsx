@@ -8,6 +8,8 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { getViolations } from '../services/common';
 import { useAccount } from '../context/AccountProvider';
 import dayjs from 'dayjs';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+
 
 const Violations: React.FC = () => {
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
@@ -24,6 +26,11 @@ const Violations: React.FC = () => {
     const [page, setPage] = useState(1);
     const [violationData, setViolationData] = useState<any>();
     const [value, setValue] = useState(null);
+    const [fromDate, setFromDate] = useState(dayjs().subtract(7, 'day').toDate());
+    const [toDate, setToDate] = useState(new Date());
+    const [showFromPicker, setShowFromPicker] = useState(false);
+    const [showToPicker, setShowToPicker] = useState(false);
+    const [filterEnabled, setFilterEnabled] = useState(false);
 
 
 
@@ -36,8 +43,7 @@ const Violations: React.FC = () => {
 
     useEffect(() => {
         if (accountDetails) {
-            getViolationsData(accountDetails.AccountId, 1, true, 0);
-
+            getViolationsData(accountDetails.AccountId, 1, true);
         }
     }, [accountDetails]);
 
@@ -45,12 +51,16 @@ const Violations: React.FC = () => {
         navigation.navigate(path)
     }
 
-    const getViolationsData = async (accountId: number, pageNumber: number, isRefresh = false, lpnValue: any) => {
+    const getViolationsData = async (accountId: number, pageNumber: number, isRefresh = false,fromDate?: Date, toDate?: Date ) => {
         try {
             isRefresh ? setRefreshing(true) : setLoading(true);
             const DAYS_BACK = 7; // or any number of days you want
-            const fromDatetime = dayjs().startOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
-            const toDatetime = dayjs().endOf('day').format('YYYY-MM-DDTHH:mm:ss[Z]');
+            const fromDatetime = dayjs(fromDate || dayjs().subtract(7, 'day').toDate())
+                .startOf('day')
+                .format('YYYY-MM-DDTHH:mm:ss[Z]');
+            const toDatetime = dayjs(toDate || new Date())
+                .endOf('day')
+                .format('YYYY-MM-DDTHH:mm:ss[Z]');
             let payload = {
                 "accountId": 7,
                 "AccountUnitId": 0,
@@ -60,6 +70,7 @@ const Violations: React.FC = () => {
                 "PageNumber": 1,
                 "PageSize": 5
             }
+            console.log(payload);
             const response = await getViolations(payload);
             console.log('violation response', response);
             const newList = response || [];
@@ -74,6 +85,11 @@ const Violations: React.FC = () => {
             setLoading(false);
             setRefreshing(false);
         }
+    };
+
+    const handleClearFilter = () => {
+        setFilterEnabled(false);
+        getViolationsData(accountDetails.AccountId, 1, true, dayjs().subtract(7, 'day').toDate(), new Date());
     }
 
 
@@ -89,7 +105,7 @@ const Violations: React.FC = () => {
                 source={require('../../assets/images/background.png')}
                 style={styles.backgroundImage}
                 resizeMode="cover">
-                <View style={{flex: 1}}>
+                <View style={{ flex: 1 }}>
 
 
                     <View style={styles.headerMain}>
@@ -104,13 +120,20 @@ const Violations: React.FC = () => {
                             <TouchableOpacity style={styles.roundedIconBt} onPress={() => showModal()}>
                                 <Image style={styles.roundedIcon} source={require('../../assets/images/filter-icon.png')} />
                             </TouchableOpacity>
+                            <View style={styles.btHeader}>
+                                {filterEnabled && (
+                                    <Button onPress={handleClearFilter} labelStyle={styles.filterText}>
+                                        Clear Filter
+                                    </Button>
+                                )}
+                            </View>
 
                             <Portal>
                                 <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
 
                                     <Text style={styles.sectionTitleModal}>Violation Filters</Text>
 
-                                    <View style={styles.formGroupModal}>
+                                    {/* <View style={styles.formGroupModal}>
                                         <Dropdown
                                             style={styles.selectDropdown}
                                             placeholderStyle={styles.placeholderSelect}
@@ -129,43 +152,45 @@ const Violations: React.FC = () => {
                                                 </View>
                                             )}
                                         />
-                                    </View>
-
+                                    </View> */}
                                     <View style={styles.formGroupModal}>
-                                        <Text style={styles.labelModal}>Form Date</Text>
-                                        <TextInput
-                                            mode="flat"
-                                            placeholder='DD-MM-YYYY'
-                                            style={styles.calendarInputModal}
-                                            underlineColor="#fff"
-                                            placeholderTextColor="#707070"
-                                            textColor='#fff'
-                                            theme={{
-                                                colors: {
-                                                    primary: '#FF5400',
-                                                },
-                                            }}
-                                        />
-                                        <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} />
+                                        <Text style={styles.labelModal}>From Date</Text>
+                                        <TouchableOpacity onPress={() => setShowFromPicker(true)} style={styles.selectDropdown}>
+                                            <Text style={styles.selectedTextStyle}>{dayjs(fromDate).format('YYYY-MM-DD')}</Text>
+                                        </TouchableOpacity>
                                     </View>
 
+                                    <DateTimePickerModal
+                                        isVisible={showFromPicker}
+                                        mode="date"
+                                        date={fromDate}
+                                        maximumDate={new Date()}
+                                        onConfirm={(date) => {
+                                            setShowFromPicker(false);
+                                            setFromDate(date);
+                                        }}
+                                        onCancel={() => setShowFromPicker(false)}
+                                    />
+
+                                    {/* To Date Picker */}
                                     <View style={styles.formGroupModal}>
                                         <Text style={styles.labelModal}>To Date</Text>
-                                        <TextInput
-                                            mode="flat"
-                                            style={styles.calendarInputModal}
-                                            underlineColor="#fff"
-                                            placeholder='DD-MM-YYYY'
-                                            placeholderTextColor="#707070"
-                                            textColor='#fff'
-                                            theme={{
-                                                colors: {
-                                                    primary: '#FF5400',
-                                                },
-                                            }}
-                                        />
-                                        <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} />
+                                        <TouchableOpacity onPress={() => setShowToPicker(true)} style={styles.selectDropdown}>
+                                            <Text style={styles.selectedTextStyle}>{dayjs(toDate).format('YYYY-MM-DD')}</Text>
+                                        </TouchableOpacity>
                                     </View>
+
+                                    <DateTimePickerModal
+                                        isVisible={showToPicker}
+                                        mode="date"
+                                        date={toDate}
+                                        maximumDate={new Date()}
+                                        onConfirm={(date) => {
+                                            setShowToPicker(false);
+                                            setToDate(date);
+                                        }}
+                                        onCancel={() => setShowToPicker(false)}
+                                    />
 
                                     <View style={styles.buttonRow}>
                                         <Button
@@ -181,6 +206,10 @@ const Violations: React.FC = () => {
                                             mode="contained"
                                             onPress={() => {
                                                 hideModal();
+                                                 if (accountDetails?.AccountId) {
+                                                    getViolationsData(accountDetails.AccountId, 1, true, fromDate, toDate);
+                                                    setFilterEnabled(true);
+                                                }
                                             }}
                                             buttonColor="#FF5A00"
                                             style={styles.applyButton}
@@ -253,12 +282,12 @@ const Violations: React.FC = () => {
                         )}
                         onEndReached={() => {
                             if (!loading && violationData?.length < totalRows) {
-                                getViolationsData(accountDetails.AccountId, page + 1,false,0);
+                                getViolationsData(accountDetails.AccountId, page + 1, false);
                             }
                         }}
                         onEndReachedThreshold={0.3}
                         refreshing={refreshing}
-                        onRefresh={() => getViolationsData(accountDetails.AccountId, 1, true,0)}
+                        onRefresh={() => getViolationsData(accountDetails.AccountId, 1, true)}
                         ListFooterComponent={
                             loading && !refreshing ? (
                                 <View style={{ paddingVertical: 20 }}>
@@ -311,9 +340,17 @@ const styles = StyleSheet.create({
 
 
     btHeader: {
-        backgroundColor: '#ff5200', borderRadius: 100,
-        textAlign: 'center', alignSelf: 'flex-start', paddingTop: 5, paddingBottom: 7,
+         marginLeft: 0,
     },
+    filterText: {
+    color: '#000',
+    fontSize: 13,
+    backgroundColor: '#fff',
+    borderRadius: 40,
+    paddingHorizontal: 13,
+    paddingVertical: 6,
+    marginTop: 0
+  },
     btHeaderText: { color: '#fff', fontSize: 13, paddingHorizontal: 10, },
 
     roundedIconBt: {
