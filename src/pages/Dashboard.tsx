@@ -219,7 +219,7 @@ const Dashboard: React.FC = () => {
                         </View>
 
                         <View style={styles.iconItem}>
-                            <Card style={styles.imgGridItem}>
+                            <Card style={styles.imgGridItem} onPress={() => navigateTo('Statements')}>
                                 <Image style={styles.imgGItem} source={require('../../assets/images/statements-icon.png')} />
                             </Card>
                             <Text style={styles.iconLabel}>Statements</Text>

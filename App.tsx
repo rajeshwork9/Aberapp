@@ -27,6 +27,7 @@ import  Splash from './src/pages/Splash';
 import  TransactionHistory from './src/pages/TransactionHistory';
 import Toast from 'react-native-toast-message';
 import AddCases from './src/pages/AddCases';
+import Statements from './src/pages/Statements';
 TransactionHistory
 /* ──────────────── Auth Context ──────────────── */
 type AuthCtx = {
@@ -60,6 +61,7 @@ type MainStackParamList = {
   AddVehicle:undefined;
   AddCases:undefined;
   Cases:undefined;
+  Statements: undefined;
   Profile:undefined;
   Splash:undefined;
   TransactionHistory:undefined;
@@ -212,6 +214,16 @@ export const MainStack = React.memo(() => (
         headerTransparent: true, 
         headerTintColor: '#fff', 
         headerTitle: 'Transaction History', 
+      }} 
+      />
+      <MainStackNav.Screen 
+      name="Statements" 
+      component={Statements} 
+      options={{ 
+        headerShown: false, 
+        // headerTransparent: true, 
+        // headerTintColor: '#fff', 
+        // headerTitle: 'Transaction History', 
       }} 
       />
       

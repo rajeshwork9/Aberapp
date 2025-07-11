@@ -3,11 +3,19 @@ import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
 import { Text, Card, Icon, TextInput, Modal, Portal, PaperProvider, Button } from 'react-native-paper';
 import RNPickerSelect from 'react-native-picker-select';
+import { Dropdown } from 'react-native-element-dropdown';
 
 
 const AddCases: React.FC = () => {
     const navigation = useNavigation();
+    const [value, setValue] = useState(null);
 
+     const accountId = [
+        { label: '12345', statusvalue: '1' },
+    ];
+     const CaseType = [
+        { label: 'Select Case Type', statusvalue: '1' },
+    ];
 
     return (
 
@@ -28,32 +36,83 @@ const AddCases: React.FC = () => {
 
                     <ScrollView >
                         <View style={styles.containerInner}>
-                            <View style={styles.box1}>
-                                <View style={styles.formGroup}>
-                                    <RNPickerSelect
-                                        onValueChange={(value) => console.log(value)}
-                                        items={[
-                                            { label: 'Football', value: 'football' },
-                                            { label: 'Baseball', value: 'baseball' },
-                                            { label: 'Hockey', value: 'hockey' },
-                                        ]}
-                                    />
-                                    {/* <Picker
-                                        selectedValue={selectedOption}
-                                        onValueChange={(itemValue) => setSelectedOption(itemValue)}
-                                        style={styles.picker}
-                                        dropdownIconColor="#fff"
-                                    >
-                                        <Picker.Item label="-- Select License --" value="" />
-                                        <Picker.Item label="License A" value="license_a" />
-                                        <Picker.Item label="License B" value="license_b" />
-                                        <Picker.Item label="License C" value="license_c" />
-                                    </Picker>  */}
-                                </View>
-                                {/* {selectedOption ? (
-                                    <Text style={styles.selectedText}>Selected: {selectedOption}</Text>
-                                ) : null} */}
+                            <View style={styles.formGroupModal}>
+                                <Text style={styles.labelModal}>Account Id</Text>
+                                <Dropdown
+                                    style={styles.selectDropdown}
+                                    placeholderStyle={styles.placeholderSelect}
+                                    selectedTextStyle={styles.selectedTextStyle}
+                                    data={accountId}
+                                    labelField="label"
+                                    valueField="value"
+                                    placeholder="Select item"
+                                    containerStyle={styles.dropdownList}
+                                    activeColor="#000000"
+                                    value={null}
+                                    onChange={item => setValue(item.value)}
+                                    renderItem={item => (
+                                        <View style={styles.listSelectGroup}>
+                                            <Text style={styles.itemTextSelect}>{item.label}</Text>
+                                        </View>
+                                    )}
+                                />
                             </View>
+                            <View style={styles.formGroupModal}>
+                                <Text style={styles.labelModal}>Case Type</Text>
+                                <Dropdown
+                                    style={styles.selectDropdown}
+                                    placeholderStyle={styles.placeholderSelect}
+                                    selectedTextStyle={styles.selectedTextStyle}
+                                    data={CaseType}
+                                    labelField="label"
+                                    valueField="value"
+                                    placeholder="Select item"
+                                    containerStyle={styles.dropdownList}
+                                    activeColor="#000000"
+                                    value={null}
+                                    onChange={item => setValue(item.value)}
+                                    renderItem={item => (
+                                        <View style={styles.listSelectGroup}>
+                                            <Text style={styles.itemTextSelect}>{item.label}</Text>
+                                        </View>
+                                    )}
+                                />
+                            </View>
+                             <View style={styles.formGroupModal}>
+                                <Text style={styles.labelModal}>Message</Text>
+                                <TextInput
+                                    style={styles.formControl}
+                                    placeholder="Enter your Message here"
+                                    placeholderTextColor="#9F9F9F"
+                                    cursorColor="#fff"
+                                    textColor='#fff'
+                                    theme={{
+                                        colors: {
+                                            primary: '#FF5400',
+                                        },
+                                    }}
+
+                                />
+                            </View>
+                            <View style={styles.buttonRow}>
+                                <Button
+                                    mode="contained"
+                                    style={styles.closeButton}
+                                    textColor="#000"
+                                >
+                                    Close
+                                </Button>
+
+                                <Button
+                                    mode="contained"
+                                  
+                                    buttonColor="#FF5A00"
+                                    style={styles.applyButton}
+                                >
+                                    Add
+                                </Button>
+                            </View>
+                            
                         </View>
                     </ScrollView>
 
@@ -66,16 +125,7 @@ const AddCases: React.FC = () => {
 export default AddCases;
 
 const styles = StyleSheet.create({
-    footerAbsolute: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        padding: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.51)',
-        alignItems: 'center',
-        paddingVertical: 10,
-    },
+  
     //--- Header
     backgroundImage: {
         flex: 1,
@@ -89,27 +139,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
 
     },
-    label: {
-    color: '#fff',
-    marginBottom: 8,
-    fontSize: 16,
-  },
-  dropdownContainer: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    overflow: 'hidden',
-    backgroundColor: '#1a1a1a',
-  },
-  picker: {
-    height: 50,
-    color: '#fff',
-  },
-  selectedText: {
-    color: '#FF5400',
-    marginTop: 16,
-    fontSize: 16,
-  },
+   
     containerInner: {
         marginHorizontal: 40,
         marginTop: 10,
@@ -132,91 +162,29 @@ const styles = StyleSheet.create({
     headerIcon: { width: 18, height: 18, },
     headerTitle: { fontSize: 15, fontWeight: 'bold', color: '#fff' },
 
-
-    btHeader: {
-        backgroundColor: '#ff5200', borderRadius: 100,
-        textAlign: 'center', alignSelf: 'flex-start', paddingTop: 5, paddingBottom: 7,
-    },
-    btHeaderText: { color: '#fff', fontSize: 13, paddingHorizontal: 10, },
-
-    roundedIconBt: {
-        width: 34,
-        height: 34,
-        backgroundColor: '#ff5200',
-        borderRadius: 100,
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
-        paddingHorizontal: 0,
-    },
-    roundedIcon: {
-        width: 20,
-        height: 20,
-        tintColor: 'white'
-    },
-
-    searchBlock: {
-        marginTop: 0,
-        marginHorizontal: 5,
-        marginBottom: 15,
-        height: 50,
-
-    },
-
-    searchFormInput: {
-        height: 44,
-        borderColor: '#fff',
-        borderRadius: 100,
-        paddingRight: 20,
-        paddingLeft: 25,
-        marginTop: 0,
-        fontSize: 15,
-        fontWeight: 400,
-        color: '#000',
-        backgroundColor: '#fff'
-
-
-    },
-
-    formInputIcon: {
-        width: 16,
-        height: 16,
-        position: 'absolute',
-        top: 15,
-        left: 14,
-    },
-
     //--- Header End
 
     //---
 
+    formGroupModal: { marginTop: 10, marginBottom: 25, },
+  
 
-
-    sectionTitle: {
-        marginVertical: 20,
-        fontSize: 17,
+    labelModal: { color: '#fff', fontSize: 13, marginBottom: 5, },
+     selectDropdown: {
+        width: '100%',
+        marginHorizontal: 0,
+        height: 50,
+        borderRadius: 0,
         color: '#fff',
-        fontFamily: 'Poppins-Medium',
+        paddingHorizontal: 0,
+        paddingVertical: 0,
+        borderBottomColor: '#fff',
+        borderBottomWidth:1
     },
-
-    labelFile: {
-        marginTop: 15,
-        marginBottom: 5,
-        fontSize: 14,
-        color: '#fff',
-        fontWeight: 'normal',
-        fontFamily: 'Poppins-Regular',
-    },
-
-
-    formGroup: { marginTop: 10, marginBottom: 15, },
     formControl: {
         paddingHorizontal: 0,
         height: 38,
-        borderBottomColor: '#FCFCFC',
+        borderBottomColor: '#FCFCFC', 
         borderBottomWidth: 1,
         color: '#fff',
         fontSize: 14,
@@ -224,154 +192,65 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
 
-    formLabel: { color: '#fff', fontSize: 13, marginBottom: 10, },
+    placeholderSelect: {
+        fontSize: 13,
+        color: '#BDBDBD',
+    },
+    selectedTextStyle: {
+        fontSize: 14,
+        marginLeft: 6,
+        color: '#fff',
+    },
 
-    buttonRow: {
+    dropdownList: {
+        backgroundColor: '#222',
+        borderColor: '#222',
+        borderRadius: 4,
+        paddingVertical: 6,
+
+
+
+    },
+
+    listSelectGroup: {
+        backgroundColor: '#222',
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+    },
+    itemTextSelect: {
+        backgroundColor: 'transparent',
+        color: '#fff',
+    },
+ buttonRow: {
         flexDirection: 'row',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
     },
 
     applyButton: {
+        width: 150,
         paddingTop: 0,
-        paddingBottom: 3,
+        paddingBottom: 4,
         color: '#fff',
         borderRadius: 40,
         alignItems: 'center',
-        marginTop: 0,
+        marginTop: 20,
         fontSize: 13,
-        marginHorizontal: 10,
-        width: 130,
+        marginHorizontal: 0,
 
 
     },
 
     closeButton: {
-        width: 130,
+        width: 150,
         paddingTop: 0,
-        paddingBottom: 3,
+        paddingBottom: 4,
         backgroundColor: '#FFFFFF',
         color: '#000',
         borderRadius: 40,
         alignItems: 'center',
-        marginTop: 0,
+        marginTop: 20,
         fontSize: 13,
-        marginHorizontal: 10,
-    },
-
-    box1: {
-
-    },
-    cardItemMain: {
-        borderWidth: 0,
-        paddingVertical: 15,
-        marginTop: 0,
         marginHorizontal: 0,
-        marginBottom: 12,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        shadowOpacity: 0,
-        elevation: 0,
-    },
-    bulletText: {
-        paddingHorizontal: 15,
-        flexDirection: 'row',
-        paddingBottom: 10,
-    },
-    bulletT: {
-        fontSize: 23,
-        color: '#FF5400',
-        lineHeight: 22,
-    },
-    textB: {
-        fontSize: 14,
-        color: '#FF5400',
-        lineHeight: 22,
-        fontWeight: 400,
-        paddingLeft: 5,
-        paddingRight: 10,
-    },
-
-    uploadFileName: {
-        paddingLeft: 0,
-        paddingRight: 10,
-        flexDirection: 'row',
-        paddingBottom: 10,
-    },
-    fileIcon: {
-        width: 20,
-        height: 20,
-        marginRight: 10,
-    },
-    fileName: {
-        fontSize: 14,
-        color: '#FF5400',
-        lineHeight: 22,
-        fontWeight: 400,
-        paddingLeft: 5,
-        paddingRight: 10,
-        fontFamily: 'Poppins-Regular',
-    },
-    chooseFileBt: {
-        width: 150,
-        fontFamily: 'Poppins-Regular',
-
-        marginBottom: 15,
-        borderRadius: 10,
-    },
-
-    chooseFileCard: {
-        borderWidth: 0,
-        paddingVertical: 15,
-        paddingHorizontal: 15,
-        marginTop: 0,
-        marginHorizontal: 0,
-        marginBottom: 12,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        shadowOpacity: 0,
-        elevation: 0,
-    },
-
-    clearBt: {
-        borderColor: '#FF5400',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        width: 150,
-        borderRadius: 60,
-        paddingVertical: 5,
-        fontFamily: 'Poppins-Regular',
-    },
-
-    summaryBlock: {
-        paddingHorizontal: 15,
-        flexDirection: 'row',
-        marginBottom: 10,
-    },
-
-    summaryText: {
-        color: '#fff',
-        fontSize: 14,
-
-    },
-
-    summaryLabel: {
-        color: '#fff',
-        fontSize: 14,
-        width: 180,
-    },
-
-    confirmAlert: {
-        backgroundColor: '#000',
-        paddingHorizontal: 25,
-        marginHorizontal: 20,
-        borderRadius: 20,
-        color: '#fff',
-        paddingTop: 30,
-        paddingBottom: 40,
-    },
-
-    sectionTitleModal: {
-        marginVertical: 20,
-        fontSize: 17,
-        color: '#fff',
-        fontWeight: 'normal',
     },
 
 });
