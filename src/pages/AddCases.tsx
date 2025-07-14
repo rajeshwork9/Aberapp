@@ -161,7 +161,7 @@ const AddCases: React.FC = () => {
                                         <Text style={styles.labelModal}>Title *</Text>
                                         <TextInput
                                             style={styles.formControl}
-                                            placeholder="Enter your Message here"
+                                            placeholder="Enter your Title here"
                                             placeholderTextColor="#9F9F9F"
                                             cursorColor="#fff"
                                             textColor='#fff'

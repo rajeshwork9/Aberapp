@@ -64,6 +64,7 @@ export const getLicenceNumber = async (body: any) => {
   }
 };
 
+// violation start
 export const getViolations = async (body: any) => {
   try {
     const response = await api.post('accounts/page/violations', body);
@@ -72,6 +73,8 @@ export const getViolations = async (body: any) => {
     throw error;
   }
 };
+
+// violatio end 
 
 //cases start
 
@@ -114,7 +117,7 @@ export const addCases = async (body : any) => {
 //cases end
 
 
-//statements
+//statements start
 
 export const getStatements = async (body : any) => {
   try {
@@ -124,5 +127,28 @@ export const getStatements = async (body : any) => {
     throw error;
   }
 };
+
+// statements end
+
+export const getOverallClasses = async () => {
+  try {
+    const response = await api.get('masterTables/OverallClasses');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getTransactionStatus = async () => {
+  try {
+    const response = await api.get('masterTables/TransactionStatus');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+
 
 
