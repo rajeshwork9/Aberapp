@@ -94,7 +94,7 @@ const AddCases: React.FC = () => {
                         </View>
                     </View>
 
-                    <Formik
+                     <Formik
                         initialValues={{
                             accountId: full?.AccountId?.toString() || '',
                             caseType: '',
