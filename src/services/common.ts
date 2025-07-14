@@ -73,6 +73,8 @@ export const getViolations = async (body: any) => {
   }
 };
 
+//cases start
+
 export const getCases = async (body: any) => {
   try {
     const response = await api.post('cases/page/customer/account', body);
@@ -90,6 +92,26 @@ export const getCasesStatus = async () => {
     throw error;
   }
 };
+
+export const getCaseTypes = async () => {
+  try {
+    const response = await api.get('masterTables/CaseTypes');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const addCases = async (body : any) => {
+  try {
+    const response = await api.post('cases', body);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+//cases end
 
 
 //statements

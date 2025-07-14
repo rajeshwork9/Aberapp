@@ -25,6 +25,9 @@ import {
 } from 'react-native-paper';
 import { useAccount } from '../context/AccountProvider';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
 
 
 interface Cases {
@@ -42,6 +45,17 @@ interface Cases {
 const Cases: React.FC = () => {
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
     const { full } = useAccount();
+
+    const statusColors: Record<number, string> = {
+    2: '#808080',  // Closed - Gray
+    4: '#FFA500',  // Pending - Orange
+    5: '#28A745',  // Active - Green
+    6: '#17A2B8',  // In Progress - Blue
+    7: '#b394ecff',  // Assigned - Purple
+    8: '#FFC107',  // Reopened - Amber
+    9: '#DC3545',  // Escalated - Red
+    };
+
 
     const [search, setSearch] = useState('');
     const [accountDetails, setAccountDetails] = useState<any>();
@@ -72,26 +86,26 @@ const Cases: React.FC = () => {
             const DAYS_BACK = 7; // or any number of days you want
             const fromDatetime = dayjs(fromDateParam || dayjs().subtract(7, 'day').toDate())
                 .startOf('day')
-                .format('YYYY-MM-DDTHH:mm:ss[Z]');
+                .format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');           
+                // THH:mm:ss[Z]   
             const toDatetime = dayjs(toDateParam || new Date())
-                .endOf('day')
-                .format('YYYY-MM-DDTHH:mm:ss[Z]');
+                .utc()
+                .subtract(1, 'minute')
+                .format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
             const payload =
-            //   {
-            // accountId,
-            // AccountUnitId: lpnValue || 0,
-            // GantryId: 0,
-            // fromDate: fromDatetime,
-            // toDate: toDatetime,
-            // PageNumber: pageNumber,
-            // PageSize: 5
-            {
-                "accountId": 7,
-                "GantryId": 0,
-                "fromDate": "2021-05-12",
-                "toDate": "2025-06-17",
-                "PageNumber": 1,
-                "PageSize": 5
+              {
+            accountId:accountId,
+            fromDate: fromDatetime,
+            toDate: toDatetime,
+            PageNumber: pageNumber,
+            PageSize: 5
+            // {
+            //     "accountId": 7,
+            //     "GantryId": 0,
+            //     "fromDate": "2021-05-12",
+            //     "toDate": "2025-06-17",
+            //     "PageNumber": 1,
+            //     "PageSize": 5
             }
             console.log(payload, "payload");
 
@@ -201,7 +215,7 @@ const getCaseStatusData = async () => {
                                 </View>
                                 <View style={styles.rightTextCard}>
                                     <Text style={styles.statusTextCard}>
-                                        <Text style={[styles.activeText, { fontWeight: 'normal' }]}>{caseStatusData.find((data: any)=> data.ItemId == item.StatusId)?.ItemName} </Text>
+                                        <Text style={[styles.activeText, { fontWeight: 'normal', color: statusColors[item.StatusId] || '#000' }]}>{caseStatusData.find((data: any)=> data.ItemId == item.StatusId)?.ItemName} </Text>
                                     </Text>
                                 </View>
                             </View>

@@ -1,21 +1,81 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
 import { Text, Card, Icon, TextInput, Modal, Portal, PaperProvider, Button } from 'react-native-paper';
 import RNPickerSelect from 'react-native-picker-select';
 import { Dropdown } from 'react-native-element-dropdown';
+import { useAccount } from '../context/AccountProvider';
+import { getCaseTypes,addCases } from '../services/common';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { MainStackParamList } from '../../App';
 
+
+interface CaseTypes {
+    AdditionalData: string,
+    ItemId: number,
+    ItemName: string
+};
+
+const validationSchema = Yup.object().shape({
+    caseType: Yup.string().required('Case Type is required'),
+    title: Yup.string().trim().required('Title is required'),
+    message: Yup.string().trim().required('Message is required'),
+});
 
 const AddCases: React.FC = () => {
-    const navigation = useNavigation();
+    type NavigationProp = NativeStackNavigationProp<MainStackParamList, 'AddCases'>;
+    const navigation = useNavigation<NavigationProp>();
+    const { full } = useAccount();
     const [value, setValue] = useState(null);
+    const [accountDetails, setAccountDetails] = useState<any>();
+    const [caseTypes, setCaseTypes] = useState<CaseTypes[]>([]);
 
-     const accountId = [
-        { label: '12345', statusvalue: '1' },
-    ];
-     const CaseType = [
-        { label: 'Select Case Type', statusvalue: '1' },
-    ];
+    useEffect(() => {
+        setAccountDetails(full);
+    }, [full]);
+
+    useEffect(() => {
+        getcaseTypesData();
+    }, [])
+
+    const getcaseTypesData = async () => {
+        try {
+            const response = await getCaseTypes();
+            setCaseTypes(response);
+        }
+        catch (error) {
+            console.error(error);
+        }
+        finally {
+            console.log('Api completed');
+        }
+    };
+
+    const submitCase = async (values: any, resetForm: () => void) => {
+        const payload = {
+            accountId: Number(values.accountId),
+            CaseTypeId: Number(values.caseType),
+            Comment: values.message,
+            Title: values.title
+        };
+        try {
+            const response : any = await addCases(payload);
+            console.log(response);
+            if (response?.CaseId) {
+            console.log("Case submitted successfully with ID:", response.CaseId);
+            resetForm();
+            navigation.navigate('Cases')
+            }
+        }
+        catch (error) {
+            console.log(error)
+        }
+        finally {
+
+        }
+    }
 
     return (
 
@@ -34,98 +94,147 @@ const AddCases: React.FC = () => {
                         </View>
                     </View>
 
-                    <ScrollView >
-                        <View style={styles.containerInner}>
-                            <View style={styles.formGroupModal}>
-                                <Text style={styles.labelModal}>Account Id</Text>
-                                <Dropdown
-                                    style={styles.selectDropdown}
-                                    placeholderStyle={styles.placeholderSelect}
-                                    selectedTextStyle={styles.selectedTextStyle}
-                                    data={accountId}
-                                    labelField="label"
-                                    valueField="value"
-                                    placeholder="Select item"
-                                    containerStyle={styles.dropdownList}
-                                    activeColor="#000000"
-                                    value={null}
-                                    onChange={item => setValue(item.value)}
-                                    renderItem={item => (
-                                        <View style={styles.listSelectGroup}>
-                                            <Text style={styles.itemTextSelect}>{item.label}</Text>
-                                        </View>
-                                    )}
-                                />
-                            </View>
-                            <View style={styles.formGroupModal}>
-                                <Text style={styles.labelModal}>Case Type</Text>
-                                <Dropdown
-                                    style={styles.selectDropdown}
-                                    placeholderStyle={styles.placeholderSelect}
-                                    selectedTextStyle={styles.selectedTextStyle}
-                                    data={CaseType}
-                                    labelField="label"
-                                    valueField="value"
-                                    placeholder="Select item"
-                                    containerStyle={styles.dropdownList}
-                                    activeColor="#000000"
-                                    value={null}
-                                    onChange={item => setValue(item.value)}
-                                    renderItem={item => (
-                                        <View style={styles.listSelectGroup}>
-                                            <Text style={styles.itemTextSelect}>{item.label}</Text>
-                                        </View>
-                                    )}
-                                />
-                            </View>
-                             <View style={styles.formGroupModal}>
-                                <Text style={styles.labelModal}>Message</Text>
-                                <TextInput
-                                    style={styles.formControl}
-                                    placeholder="Enter your Message here"
-                                    placeholderTextColor="#9F9F9F"
-                                    cursorColor="#fff"
-                                    textColor='#fff'
-                                    theme={{
-                                        colors: {
-                                            primary: '#FF5400',
-                                        },
-                                    }}
+                    <Formik
+                        initialValues={{
+                            accountId: full?.AccountId?.toString() || '',
+                            caseType: '',
+                            title: '',
+                            message: '',
+                        }}
+                        validationSchema={validationSchema}
+                        onSubmit={(values,{ resetForm }) => {
+                            submitCase(values, resetForm);
+                        }}>
+                        {({
+                            handleChange,
+                            handleBlur,
+                            handleSubmit,
+                            setFieldValue,
+                            values,
+                            errors,
+                            touched,
+                        }) => (
+                            <ScrollView >
+                                <View style={styles.containerInner}>
+                                    <View style={styles.formGroupModal}>
+                                        <Text style={styles.labelModal}>Account Id</Text>
+                                        {full?.AccountId && (
+                                            <TextInput
+                                                style={styles.formControl}
+                                                textColor='#fff'
+                                                theme={{
+                                                    colors: {
+                                                        primary: '#FF5400',
+                                                    },
+                                                }}
+                                                value={values.accountId}
+                                                editable={false}
+                                            />
 
-                                />
-                            </View>
-                            <View style={styles.buttonRow}>
-                                <Button
-                                    mode="contained"
-                                    style={styles.closeButton}
-                                    textColor="#000"
-                                >
-                                    Close
-                                </Button>
+                                        )}
+                                    </View>
+                                    <View style={styles.formGroupModal}>
+                                        <Text style={styles.labelModal}>Case Type *</Text>
+                                        <Dropdown
+                                            style={styles.selectDropdown}
+                                            placeholderStyle={styles.placeholderSelect}
+                                            selectedTextStyle={styles.selectedTextStyle}
+                                            data={caseTypes}
+                                            labelField="ItemName"
+                                            valueField="ItemId"
+                                            placeholder="Select Case Type"
+                                            containerStyle={styles.dropdownList}
+                                            activeColor="#000000"
+                                            value={value}
+                                            onChange={(item) => setFieldValue('caseType', item.ItemId.toString())}
+                                            renderItem={item => (
+                                                <View style={styles.listSelectGroup}>
+                                                    <Text style={styles.itemTextSelect}>{item.ItemName}</Text>
+                                                </View>
+                                            )}
+                                        />
+                                        {touched.caseType && errors.caseType && (
+                                            <Text style={styles.errorText}>{errors.caseType}</Text>
+                                        )}
+                                    </View>
+                                    <View style={styles.formGroupModal}>
+                                        <Text style={styles.labelModal}>Title *</Text>
+                                        <TextInput
+                                            style={styles.formControl}
+                                            placeholder="Enter your Message here"
+                                            placeholderTextColor="#9F9F9F"
+                                            cursorColor="#fff"
+                                            textColor='#fff'
+                                            theme={{
+                                                colors: {
+                                                    primary: '#FF5400',
+                                                },
+                                            }}
+                                            value={values.title}
+                                            onChangeText={handleChange('title')}
+                                            onBlur={handleBlur('title')}
 
-                                <Button
-                                    mode="contained"
-                                  
-                                    buttonColor="#FF5A00"
-                                    style={styles.applyButton}
-                                >
-                                    Add
-                                </Button>
-                            </View>
-                            
-                        </View>
-                    </ScrollView>
+                                        />
+                                        {touched.title && errors.title && (
+                                            <Text style={styles.errorText}>{errors.title}</Text>
+                                        )}
+                                    </View>
+                                    <View style={styles.formGroupModal}>
+                                        <Text style={styles.labelModal}>Message *</Text>
+                                        <TextInput
+                                            style={styles.formControl}
+                                            placeholder="Enter your Message here"
+                                            placeholderTextColor="#9F9F9F"
+                                            cursorColor="#fff"
+                                            textColor='#fff'
+                                            theme={{
+                                                colors: {
+                                                    primary: '#FF5400',
+                                                },
+                                            }}
+                                            value={values.message}
+                                            onChangeText={handleChange('message')}
+                                            onBlur={handleBlur('message')}
 
+                                        />
+                                        {touched.message && errors.message && (
+                                            <Text style={styles.errorText}>{errors.message}</Text>
+                                        )}
+                                    </View>
+                                    <View style={styles.buttonRow}>
+                                        <Button
+                                            mode="contained"
+                                            style={styles.closeButton}
+                                            textColor="#000"
+                                            onPress={() => navigation.goBack()}
+                                        >
+                                            Close
+                                        </Button>
+
+                                        <Button
+                                            mode="contained"
+
+                                            buttonColor="#FF5A00"
+                                            style={styles.applyButton}
+                                            onPress={() => handleSubmit()}
+                                        >
+                                            Add
+                                        </Button>
+                                    </View>
+
+                                </View>
+                            </ScrollView>
+                        )}
+                    </Formik>
                 </PaperProvider>
             </View>
         </ImageBackground>
-
     );
 };
 export default AddCases;
 
 const styles = StyleSheet.create({
-  
+
     //--- Header
     backgroundImage: {
         flex: 1,
@@ -139,7 +248,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
 
     },
-   
+
     containerInner: {
         marginHorizontal: 40,
         marginTop: 10,
@@ -167,10 +276,10 @@ const styles = StyleSheet.create({
     //---
 
     formGroupModal: { marginTop: 10, marginBottom: 25, },
-  
+
 
     labelModal: { color: '#fff', fontSize: 13, marginBottom: 5, },
-     selectDropdown: {
+    selectDropdown: {
         width: '100%',
         marginHorizontal: 0,
         height: 50,
@@ -179,14 +288,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: 0,
         paddingVertical: 0,
         borderBottomColor: '#fff',
-        borderBottomWidth:1
+        borderBottomWidth: 1
     },
     formControl: {
         paddingHorizontal: 0,
         height: 38,
-        borderBottomColor: '#FCFCFC', 
+        borderBottomColor: '#FCFCFC',
         borderBottomWidth: 1,
-        color: '#fff',
+        color: 'white !important',
         fontSize: 14,
         fontWeight: 'bold',
         backgroundColor: 'transparent',
@@ -221,7 +330,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         color: '#fff',
     },
- buttonRow: {
+    buttonRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
@@ -251,6 +360,11 @@ const styles = StyleSheet.create({
         marginTop: 20,
         fontSize: 13,
         marginHorizontal: 0,
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 12,
+        marginTop: 4,
     },
 
 });

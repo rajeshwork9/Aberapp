@@ -43,7 +43,7 @@ const Profile: React.FC = () => {
       const savedPassword = await AsyncStorage.getItem('password');
 
       if (savedEmail && savedPassword) {
-        await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
+        await AsyncStorage.multiRemove(['accessToken', 'refreshToken','activeAccountId']);
       } else {
         await AsyncStorage.clear();
       }
