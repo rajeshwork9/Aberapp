@@ -4,18 +4,54 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../App';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image, } from 'react-native';
 import { Button, TextInput, Modal, Portal, Text, Badge, Avatar, Card, IconButton, PaperProvider } from 'react-native-paper';
-import { BarChart } from "react-native-gifted-charts";
+import { BarChart, LineChart  } from "react-native-gifted-charts";
 
+
+// const barData = [
+//         {value: 250, label: 'M'},
+//         {value: 500, label: 'T', frontColor: '#177AD5'},
+//         {value: 745, label: 'W', frontColor: '#177AD5'},
+//         {value: 320, label: 'T'},
+//         {value: 600, label: 'F', frontColor: '#177AD5'},
+//         {value: 256, label: 'S'},
+//         {value: 300, label: 'S'},
+//     ];
 
 const barData = [
-        {value: 250, label: 'M'},
-        {value: 500, label: 'T', frontColor: '#177AD5'},
-        {value: 745, label: 'W', frontColor: '#177AD5'},
-        {value: 320, label: 'T'},
-        {value: 600, label: 'F', frontColor: '#177AD5'},
-        {value: 256, label: 'S'},
-        {value: 300, label: 'S'},
-    ];
+  {
+    label: 'Jan',
+    bars: [
+      { value: 45, frontColor: '#4E95F7' },
+      { value: 60, frontColor: '#276DCB' },
+      { value: 30, frontColor: '#3EDC7E' },
+    ],
+  },
+  {
+    label: 'Feb',
+    bars: [
+      { value: 50, frontColor: '#4E95F7' },
+      { value: 60, frontColor: '#276DCB' },
+      { value: 20, frontColor: '#3EDC7E' },
+    ],
+  },
+  {
+    label: 'Mar',
+    bars: [
+      { value: 65, frontColor: '#4E95F7' },
+      { value: 50, frontColor: '#276DCB' },
+      { value: 40, frontColor: '#3EDC7E' },
+    ],
+  },
+  // more...
+];
+const lineData = [
+  { value: 50, label: 'Jan', labelTextStyle: { color: '#000' }, dataPointText: '50' },
+  { value: 80, label: 'Feb', labelTextStyle: { color: '#000' }, dataPointText: '80' },
+  { value: 40, label: 'Mar', labelTextStyle: { color: '#000' }, dataPointText: '40' },
+  { value: 90, label: 'Apr', labelTextStyle: { color: '#000' }, dataPointText: '90' },
+  { value: 60, label: 'May', labelTextStyle: { color: '#000' }, dataPointText: '60' },
+];
+
 
 const DashboardPage: React.FC = () => {
 
@@ -126,16 +162,76 @@ const DashboardPage: React.FC = () => {
 
                 <ScrollView >
                     <View style={styles.containerInner}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap:'4' }}>
+  <Text style={styles.PageTitle}>Most Recent Metrics</Text>
+  <Image style={[styles.roundedIcon, { marginLeft: 0 }]} source={require('../../assets/images/trips-icon.png')} />
+</View>
                         <Card style={styles.cardItemMain}>
-                            <BarChart
-                                barWidth={22}
-                                noOfSections={3}
-                                barBorderRadius={4}
-                                frontColor="lightgray"
-                                data={barData}
-                                yAxisThickness={0}
-                                xAxisThickness={0}
-                            />
+                            <View style={{ paddingVertical: 20, paddingHorizontal: 10, height: 300 }}>
+                                <BarChart
+                                    groupedBarData={barData}
+                                    isGroupedBar={true}
+                                    barWidth={12}
+                                    spacing={28}
+                                    noOfSections={4}
+                                    maxValue={80}
+                                    isAnimated
+                                    stepValue={20}
+                                    xAxisThickness={1}
+                                    xAxisColor="#ccc"
+                                    yAxisColor="#ccc"
+                                    yAxisThickness={1}
+                                    yAxisTextStyle={{ color: '#888' }}
+                                    labelTextStyle={{ color: '#000', fontWeight: '600' }}
+                                    xAxisLabelTextStyle={{ color: '#000', fontSize: 13, fontWeight: '600' }}
+                                    xAxisLabelsVertical={false}
+                                    showXAxisIndices={true}
+                                />
+                            </View>
+
+
+                            {/* ✅ LEGEND */}
+                            <View style={styles.legendContainer}>
+                                <View style={styles.legendItem}>
+                                    <View style={[styles.dot, { backgroundColor: '#4E95F7' }]} />
+                                    <Text style={styles.legendLabel}>2XL</Text>
+                                </View>
+                                <View style={styles.legendItem}>
+                                    <View style={[styles.dot, { backgroundColor: '#276DCB' }]} />
+                                    <Text style={styles.legendLabel}>3XL</Text>
+                                </View>
+                                <View style={styles.legendItem}>
+                                    <View style={[styles.dot, { backgroundColor: '#3EDC7E' }]} />
+                                    <Text style={styles.legendLabel}>6 Wheel</Text>
+                                </View>
+                            </View>
+                        </Card>
+
+                        <Card style={styles.cardItemMain}>
+                            <View style={{ paddingVertical: 20, paddingHorizontal: 10, height: 300 }}>
+                                <View style={{ backgroundColor: '#fff', padding: 16, borderRadius: 10 }}>
+                                    <LineChart
+                                        data={lineData}
+                                        curved
+                                        thickness={2}
+                                        color="#4E95F7"
+                                        maxValue={100}
+                                        noOfSections={5}
+                                        showDataPoint
+                                        dataPointsColor="#FF5400"
+                                        yAxisColor="#ccc"
+                                        yAxisTextStyle={{ color: '#888' }}
+                                        xAxisColor="#ccc"
+                                        xAxisLabelTextStyle={{ color: '#000', fontWeight: '600' }}
+                                        areaChart
+                                        startFillColor="#4E95F7"
+                                        endFillColor="#ffffff"
+                                        startOpacity={0.4}
+                                        endOpacity={0.1}
+                                    />
+                                </View>
+                            </View>
+
                         </Card>
                     </View>
                 </ScrollView>
@@ -153,9 +249,40 @@ const styles = StyleSheet.create({
     marginTop: 0,
     marginHorizontal: 5,
     marginBottom: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: '#fff',
     shadowOpacity: 0,
     elevation: 0,
+    width:'100%'
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  subtitle: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 8,
+  },
+  legendContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 12,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 8,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 6,
+  },
+  legendLabel: {
+    fontSize: 12,
+    color: '#333',
   },
     //--- Header
     backgroundImage: {
@@ -190,6 +317,7 @@ const styles = StyleSheet.create({
     headerRightBlock: { flexDirection: 'row', justifyContent: 'flex-end', },
     headerIcon: { width: 18, height: 18, },
     headerTitle: { fontSize: 15, fontWeight: 'bold', color: '#fff' },
+    PageTitle: { fontSize: 15, fontWeight: 'bold', color: '#fff', marginBottom:10, paddingLeft:8, marginTop:10 },
 
 
     btHeader: {
@@ -212,9 +340,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 0,
     },
     roundedIcon: {
-        width: 20,
-        height: 20,
-        tintColor: 'white'
+        width: 22,
+        height: 22,
     },
 
    
