@@ -9,6 +9,9 @@ import { useAccount } from '../context/AccountProvider';
 import dayjs from 'dayjs';
 import { getStatements } from '../services/common';
 
+
+
+
 interface Statements {
     Amount: number,
     DocumentContent: string,
@@ -196,7 +199,6 @@ const Statements: React.FC = () => {
                             </View>
                         }
                         renderItem={({ item }) => (
-
                             <Card style={styles.cardItemMain}>
                                 <View style={styles.cardContentInner}>
                                     <View style={styles.leftCardCont}>
@@ -209,10 +211,16 @@ const Statements: React.FC = () => {
                                             <Text style={styles.textCard}> <Image style={styles.calenderIcon} source={require('../../assets/images/calendar-icon.png')} /> {item.IssueDate}  </Text> {/*01 Mar 2025 - 31 May 2025*/}
                                         </View>
                                     </View>
-                                    <View style={styles.rightTextCard}>
+                                    {/* <View style={styles.rightTextCard}>
                                         <Image style={styles.tranupIcon} source={require('../../assets/images/tranup-icon.png')} />
                                         <Text style={[styles.statusText, { fontFamily: 'Poppins-SemiBold' }]}> {item.Amount.toFixed()}</Text>
+                                    </View> */}
+                                    <View style={styles.rightTextCard}>
+                                        <Card style={styles.downloadIcon}>
+                                            <Image style={styles.cardIconImg} source={require('../../assets/images/download-white-icon.png')} />
+                                        </Card>
                                     </View>
+                                    
                                 </View>
                             </Card>
                         )}
@@ -248,6 +256,20 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         marginTop: 12,
 
+    },
+     downloadIcon: {
+        width: 70,
+        height: 50,
+        backgroundColor: '#707070',
+        borderRadius: 100,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowOpacity: 0,
+        elevation: 0,
+        shadowColor: 'transparent',
+        marginRight: 5,
+        padding: 0,
     },
     backBt: {},
     headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', },

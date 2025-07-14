@@ -158,7 +158,8 @@ const getCaseStatusData = async () => {
             style={styles.backgroundImage}
             resizeMode="cover">
 
-            <View style={{ flex: 1 }}>
+            <View style={styles.container}>
+                
                 {/* header section */}
                 <View style={styles.headerMain}>
                     <View style={styles.headerLeftBlock}>
@@ -265,8 +266,8 @@ const styles = StyleSheet.create({
         color: '#fff'
     },
     container: {
-        // flex: 1,
-        marginHorizontal: 5,
+        flex: 1,
+        marginHorizontal: 8,
         marginTop: 20,
         paddingBottom: 40,
     },
