@@ -61,12 +61,13 @@ const Cases: React.FC = () => {
     const [accountDetails, setAccountDetails] = useState<any>();
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
-    const [totalRows, setTotalRows] = useState(0);
     const [page, setPage] = useState(1);
     const [casesData, setCasesData] = useState<Cases[]>([]);
     const [fromDate, setFromDate] = useState(dayjs().subtract(7, 'day').toDate());
     const [toDate, setToDate] = useState(new Date());
     const [caseStatusData, setCaseStatusData] = useState<any[]>([]);
+    const [hasMoreData, setHasMoreData] = useState(true);
+    
 
     useEffect(() => {
         setAccountDetails(full);
@@ -98,7 +99,7 @@ const Cases: React.FC = () => {
             fromDate: fromDatetime,
             toDate: toDatetime,
             PageNumber: pageNumber,
-            PageSize: 5
+            PageSize: 7
             // {
             //     "accountId": 7,
             //     "GantryId": 0,
@@ -112,13 +113,19 @@ const Cases: React.FC = () => {
 
             const response = await getCases(payload);
             console.log(response, "rsponse");
+       const PAGE_SIZE = 7;
 
             const newList = response || [];
+            if (isRefresh || pageNumber === 1) {
+                setCasesData(newList);
+            } else {
+                setCasesData((prev: any) => [...prev, ...newList]);
+            }
 
-            setTotalRows(response.TotalRows || 0);
-            setPage(pageNumber);
+            setHasMoreData(newList.length === PAGE_SIZE);
 
-            setCasesData(prev => isRefresh || pageNumber === 1 ? newList : [...prev, ...newList]);
+        setPage(pageNumber);
+          
         } catch (e) {
             console.error('Trips fetch error:', e);
         } finally {
@@ -158,7 +165,7 @@ const getCaseStatusData = async () => {
             style={styles.backgroundImage}
             resizeMode="cover">
 
-            <View style={styles.container}>
+            <View style={{flex: 1}}>
                 
                 {/* header section */}
                 <View style={styles.headerMain}>
@@ -223,7 +230,7 @@ const getCaseStatusData = async () => {
                         </Card>
                     )}
                     onEndReached={() => {
-                        if (!loading && casesData.length < totalRows) {
+                        if (!loading && hasMoreData) {
                             getCasesData(accountDetails.AccountId, page + 1, false,fromDate, toDate);
                         }
                     }}
@@ -235,7 +242,7 @@ const getCaseStatusData = async () => {
                             <View style={{ paddingVertical: 20 }}>
                                 <ActivityIndicator size="small" color="#fff" />
                             </View>
-                        ) : casesData.length >= totalRows ? (
+                        ) : !hasMoreData ? (
                             <View style={{ paddingVertical: 20 }}>
                                 <Text style={{ textAlign: 'center', color: '#aaa' }}>No more data to load</Text>
                             </View>
@@ -256,7 +263,6 @@ const styles = StyleSheet.create({
     //--- Header
     backgroundImage: {
         flex: 1,
-
     },
 
     title: {
@@ -266,7 +272,7 @@ const styles = StyleSheet.create({
         color: '#fff'
     },
     container: {
-        flex: 1,
+        
         marginHorizontal: 8,
         marginTop: 10,
         paddingBottom: 40,

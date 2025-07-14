@@ -20,7 +20,7 @@ import {
   PaperProvider,
   Button,
 } from 'react-native-paper';
-import { getVehiclesList } from '../services/common';
+import { getVehiclesList, getOverallClasses } from '../services/common';
 import { useAccount } from '../context/AccountProvider';
 import { usePaginatedList } from '../hooks/usePaginatedList';
 
@@ -32,10 +32,13 @@ const Vehicles: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [vehiclesList, setVehiclesList] = useState<any[]>([]);
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(8);
+  const [pageSize] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [typesData, setTypesData] = useState<any[]>([]);
+  const [hasMoreData, setHasMoreData] = useState(true);
+  
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
@@ -47,6 +50,7 @@ const Vehicles: React.FC = () => {
 
   useEffect(() => {
     getVehicles(1, true);
+    getTypes();
   }, []);
 
   const getVehicles = async (pageNumber: number, isRefresh = false) => {
@@ -62,20 +66,40 @@ const Vehicles: React.FC = () => {
       };
 
       const res = await getVehiclesList(payload);
-      console.log(res,'vehicle')
+      console.log(res,'vehicle');
+       const PAGE_SIZE = 10;
       const newList = res.List || [];
+      if (isRefresh || pageNumber === 1) {
+                setVehiclesList(newList);
+            } else {
+                setVehiclesList((prev: any) => [...prev, ...newList]);
+            }
 
-      setTotalRows(res.TotalRows || 0);
+            setHasMoreData(newList.length === PAGE_SIZE);
+
       setPage(pageNumber);
 
-      setVehiclesList(prev =>
-        isRefresh || pageNumber === 1 ? newList : [...prev, ...newList]
-      );
+
     } catch (err) {
       console.error('Vehicle fetch error:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  const getTypes = async () => {
+    try {
+      const response = await getOverallClasses();
+      console.log(response);
+      setTypesData(response);
+    }
+    catch (error: any) {
+      console.error(error);
+    }
+    finally {
+      console.log('api comopleted');
+
     }
   };
 
@@ -196,16 +220,14 @@ const Vehicles: React.FC = () => {
                   </View>
                 </View>
                 <View style={styles.rightTextCard}>
-                  <Text style={styles.largeTextRCard}>2XL</Text>
-                  <Text style={styles.statusTextCard}>
-                    <Text style={[styles.statusText, { fontWeight: 'normal' }]}>Active</Text>
-                  </Text>
+                  <Text style={styles.largeTextRCard}> {typesData.find((data : any) => item.OverallClassId == data.ItemId)?.ItemName} </Text>
+
                 </View>
               </View>
             </Card>
           )}
           onEndReached={() => {
-            if (!loading && vehiclesList.length < totalRows) {
+            if (!loading && hasMoreData) {
               getVehicles(page + 1);
             }
           }}
@@ -217,7 +239,7 @@ const Vehicles: React.FC = () => {
             <View style={{ paddingVertical: 20 }}>
                 <Text style={{ textAlign: 'center', color: '#fff' }}>Loading more...</Text>
             </View>
-            ) : vehiclesList.length >= totalRows ? (
+            ) : !hasMoreData ? (
             <View style={{ paddingVertical: 20 }}>
                 <Text style={{ textAlign: 'center', color: '#aaa' }}>No more data to load</Text>
             </View>
