@@ -302,7 +302,7 @@ const Violations: React.FC = () => {
                         ListFooterComponent={
                             loading && !refreshing ? (
                                 <View style={{ paddingVertical: 20 }}>
-                                    <ActivityIndicator size="small" color="#fff" />
+                                    <Text style={{ textAlign: 'center', color: '#fff' }}>Loading more...</Text>
                                 </View>
                             ) : !hasMoreData ? (
                                 <View style={{ paddingVertical: 20 }}>

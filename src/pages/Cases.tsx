@@ -76,6 +76,8 @@ const Cases: React.FC = () => {
     const [showFromPicker, setShowFromPicker] = useState(false);
     const [showToPicker, setShowToPicker] = useState(false);
     const [filterEnabled, setFilterEnabled] = useState(false);
+    const [clearFilterRequested, setClearFilterRequested] = useState(false);
+    
     
     useEffect(() => {
         setAccountDetails(full);
@@ -87,6 +89,14 @@ const Cases: React.FC = () => {
             getCaseStatusData();
         }
     }, [accountDetails]);
+
+      useEffect(() => {
+      if (clearFilterRequested && !activeValue) {
+        setClearFilterRequested(false);
+        getCasesData(accountDetails.AccountId, 1, false, dayjs().subtract(7, 'day').toDate(), new Date())
+
+      }
+    }, [clearFilterRequested, activeValue]);
 
 
     const getCasesData = async (accountId: number, pageNumber: number, isRefresh = false, fromDateParam?: Date, toDateParam?: Date) => {
@@ -175,8 +185,8 @@ const Cases: React.FC = () => {
         setFromDate(defaultFrom);
         setToDate(defaultTo);
         setActiveValue(false);
-        getCasesData(accountDetails.AccountId, 1, false, defaultFrom, defaultTo);
         setFilterEnabled(false);
+        setClearFilterRequested(true);
     }
 
     return (
@@ -328,7 +338,7 @@ const Cases: React.FC = () => {
                                             <Text style={styles.textCard}>Case ID : {item.CaseId} </Text>
                                             <Text style={styles.textCard}>Case Type : {item.CaseType}</Text>
                                             <Text style={styles.textCard}>Description : {item.ShortDescription}</Text>
-                                            <Text style={[styles.textCard, { fontWeight: 'light' }]}>{item.CreationDate}</Text>
+                                            <Text style={[styles.textCard, { fontWeight: 'light' }]}>{dayjs(item.CreationDate).format('YYYY-MM-DD HH:mm')}</Text>
                                         </View>
                                     </View>
                                     <View style={styles.rightTextCard}>

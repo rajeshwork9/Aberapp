@@ -1,0 +1,30 @@
+{
+  "login": {
+    "email": "Email",
+    "password": "Password",
+    "submit": "Login",
+    "title":"Login With Account",
+    "email_is_required":"Email is Required",
+    "password_is_required":"Password is Required",
+    "remember_me": "Remember me",
+    "forgot_password":"Forgot Password",
+    "enter_captcha":"Enter Captcha"
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "available_balance":"Available Balance",
+    "top_up": "Topup",
+    "vehicles":"Vehicles",
+    "trips":"Trips",
+    "violations":"Violations",
+    "cases":"Cases",
+    "statements":"Statements",
+    "dashboard":"Dashboard",
+    "transaction_history":"Transaction History",
+    "todays_trips":"Today's Trips",
+    "no_trip_found":"No Trips Found"
+  },
+  "profile": {
+    "title": "Your Profile"
+  }
+}

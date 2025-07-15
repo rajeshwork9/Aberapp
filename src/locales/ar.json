@@ -1,0 +1,31 @@
+{
+  "login": {
+    "email": "البريد الالكتروني",
+    "password": "كلمة المرور",
+    "submit": "تسجيل الدخول",
+    "title":"الدخول بحساب",
+    "email_is_required":"الرجاء إدخال عنوان البريد الإلكتروني",
+    "password_is_required":"الرجاء إدخال كلمة المرور",
+    "remember_me":"تذكرني",
+    "forgot_password":"نسيت كلمة المرور؟",
+    "enter_captcha":"أدخل كلمة التحقق"
+  },
+  "dashboard": {
+    "welcome": "مرحبا",
+    "available_balance":"الرصيد المتوفر",
+    "top_up":"إعادة شحن",
+    "vehicles":"المركبات",
+    "trips":"الرحلات",
+    "violations":"المخالفات",
+    "cases":"الشكاوى",
+    "statements":"الكشوفات",
+    "dashboard":"لوحة التحكم",
+    "transaction_history":"تاريخ المعاملات",
+    "todays_trips":"رحلات اليوم",
+    "no_trip_found":"لم يتم العثور على رحلات"
+
+  },
+  "profile": {
+    "title": "الملف الشخصي"
+  }
+}

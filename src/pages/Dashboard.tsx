@@ -19,8 +19,11 @@ import { Animated } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 import Splash from './Splash';
 import Loader from '../components/Loader';
-import { getTodaysTrips } from '../services/common';
+import { getTodaysTrips, getOverallClasses, getLicenceNumber } from '../services/common';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n'; // adjust based on path
+
 
 
 const local_data = [
@@ -40,6 +43,13 @@ const local_data = [
     },
 ];
 
+interface LPN {
+    label: string;
+    value: string;
+    AssetIdentifier: string;
+    OverallClassId: number;
+}
+
 const Dashboard: React.FC = () => {
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
     const { full, loadingFull } = useAccount();
@@ -48,6 +58,12 @@ const Dashboard: React.FC = () => {
     const [accountDetails, setAccountDetails] = useState<any>();
     const [fadeAnim] = useState(new Animated.Value(0));
     const [todaysTripsData, setTodaysTripsData] = useState<any>();
+    const [lpnData, setLpnData] = useState<LPN[] | any>([]);
+    const [typesData, setTypesData] = useState<any[]>([]);
+
+
+    const { t } = useTranslation();
+
 
     useEffect(() => {
         setAccountDetails(full);
@@ -81,12 +97,26 @@ const Dashboard: React.FC = () => {
     useEffect(() => {
         if (accountDetails) {
             todaysTrips(accountDetails.AccountId);
+            licenceNumber(accountDetails.AccountId);
+            getTypes();
         }
     }, [accountDetails]);
 
     const navigateTo = (path: keyof MainStackParamList) => {
         navigation.navigate(path);
     };
+
+    useEffect(() => {
+        const loadLanguage = async () => {
+            const savedLang = await AsyncStorage.getItem('appLanguage');
+            if (savedLang) {
+                setCountry(savedLang === 'ar' ? '2' : '1');
+                await i18n.changeLanguage(savedLang);
+            }
+        };
+        loadLanguage();
+    }, []);
+
 
     const todaysTrips = async (accountId: number) => {
         try {
@@ -107,7 +137,7 @@ const Dashboard: React.FC = () => {
 
             const response = await getTodaysTrips(payload);
             console.log('Todays Trips Response', response);
-            setTodaysTripsData(response);
+            setTodaysTripsData(response.TransactionsList);
         }
         catch (e) {
             console.log(e);
@@ -115,6 +145,59 @@ const Dashboard: React.FC = () => {
         finally {
             console.log('Api call completed');
         }
+    };
+
+    const changeLanguage = async (lang: 'en' | 'ar') => {
+        await AsyncStorage.setItem('appLanguage', lang);
+        await i18n.changeLanguage(lang);
+    };
+
+    const licenceNumber = async (accountId: any) => {
+        try {
+            let payload = {
+                accountId: accountId,
+                assetTypeId: 2 //static
+            }
+            const response = await getLicenceNumber(payload);
+            const formatted = response.map((item: any) => ({
+                ...item,
+                label: item.AssetIdentifier,
+                value: item.AccountUnitId
+            }));
+
+            setLpnData(formatted);
+            console.log(lpnData, "lpn data");
+
+        }
+        catch (error) {
+            console.error('License fetch failed:', error);
+        }
+        finally {
+
+        }
+    };
+
+    const getTypes = async () => {
+        try {
+            const response = await getOverallClasses();
+            console.log(response);
+            setTypesData(response);
+        }
+        catch (error: any) {
+            console.error(error);
+        }
+        finally {
+            console.log('api comopleted');
+
+        }
+    };
+
+    const getClassNameFromVRM = (vrm: string) => {
+        const lpnMatch = lpnData.find((d: any) => d.AssetIdentifier === vrm);
+        if (!lpnMatch) return '—';
+        const classId = lpnMatch.OverallClassId;
+        const className = typesData.find((t: any) => t.ItemId === classId)?.ItemName;
+        return className ?? '—';
     };
 
     return (
@@ -132,7 +215,7 @@ const Dashboard: React.FC = () => {
                         <TouchableOpacity style={styles.profileCont} onPress={() => navigateTo('Profile')}>
                             <Avatar.Icon size={28} style={styles.avatarIcon} icon="account" />
                             <View style={styles.userInfo}>
-                                <Text style={styles.userName}> AL ARABI GLOBAL LOGISTICS SERVICES
+                                <Text style={styles.userName}> {accountDetails.AccountName}
                                 </Text>
                             </View>
                         </TouchableOpacity>
@@ -155,8 +238,10 @@ const Dashboard: React.FC = () => {
                             containerStyle={styles.dropdownList}
                             activeColor="#333333"
                             // searchPlaceholder="Search..."
-                            onChange={e => {
+                            onChange={async e => {
                                 setCountry(e.value);
+                                const lang = e.value === '2' ? 'ar' : 'en';
+                                await changeLanguage(lang);
                             }}
                         />
 
@@ -178,7 +263,7 @@ const Dashboard: React.FC = () => {
                                     maximumFractionDigits: 2,
                                 }).format(accountDetails.Balance)
                                     : '0.00'}</Text>
-                                <Text style={styles.textBalance}>Available Balance (AED)</Text>
+                                <Text style={styles.textBalance}> {t('dashboard.available_balance')} (AED)</Text>
                             </Card>
                         </View>
                         <View style={styles.rightDiv}>
@@ -194,54 +279,54 @@ const Dashboard: React.FC = () => {
                             <Card style={styles.imgGridItem} onPress={() => navigateTo('Vehicles')}>
                                 <Image style={styles.imgGItem} source={require('../../assets/images/vehicles-icon.png')} />
                             </Card>
-                            <Text style={styles.iconLabel}>Vehicles</Text>
+                            <Text style={styles.iconLabel}>{t('dashboard.vehicles')}</Text>
                         </View>
 
                         <View style={styles.iconItem}>
                             <Card style={styles.imgGridItem} onPress={() => navigateTo('Trips')}>
                                 <Image style={styles.imgGItem} source={require('../../assets/images/trips-icon.png')} />
                             </Card>
-                            <Text style={styles.iconLabel}>Trips</Text>
+                            <Text style={styles.iconLabel}>{t('dashboard.trips')}</Text>
                         </View>
 
                         <View style={styles.iconItem}>
                             <Card style={styles.imgGridItem} onPress={() => navigateTo('Violations')}>
                                 <Image style={styles.imgGItem} source={require('../../assets/images/violations-icon.png')} />
                             </Card>
-                            <Text style={styles.iconLabel}>Violations</Text>
+                            <Text style={styles.iconLabel}>{t('dashboard.violations')}</Text>
                         </View>
 
                         <View style={styles.iconItem}>
                             <Card style={styles.imgGridItem} onPress={() => navigateTo('Cases')}>
                                 <Image style={styles.imgGItem} source={require('../../assets/images/cases-icon.png')} />
                             </Card>
-                            <Text style={styles.iconLabel}>Cases</Text>
+                            <Text style={styles.iconLabel}>{t('dashboard.cases')}</Text>
                         </View>
 
                         <View style={styles.iconItem}>
                             <Card style={styles.imgGridItem} onPress={() => navigateTo('Statements')}>
                                 <Image style={styles.imgGItem} source={require('../../assets/images/statements-icon.png')} />
                             </Card>
-                            <Text style={styles.iconLabel}>Statements</Text>
+                            <Text style={styles.iconLabel}>{t('dashboard.statements')}</Text>
                         </View>
 
                         <View style={styles.iconItem} >
                             <Card style={styles.imgGridItem} onPress={() => navigateTo('DashboardPage')}>
                                 <Image style={styles.imgGItem} source={require('../../assets/images/dashboard-icon.png')} />
                             </Card>
-                            <Text style={styles.iconLabel}>Dashboard</Text>
+                            <Text style={styles.iconLabel}>{t('dashboard.dashboard')}</Text>
                         </View>
 
                         <View style={styles.iconItem}>
                             <Card style={styles.imgGridItem} onPress={() => navigateTo('TransactionHistory')}>
                                 <Image style={styles.imgGItem} source={require('../../assets/images/transaction-history-icon.png')} />
                             </Card>
-                            <Text style={styles.iconLabel}>Transaction History</Text>
+                            <Text style={styles.iconLabel}>{t('dashboard.transaction_history')}</Text>
                         </View>
                     </View>
 
                     <View>
-                        <Text style={styles.sectionTitle}>Today's Trips</Text>
+                        <Text style={styles.sectionTitle}>{t('dashboard.todays_trips')}</Text>
                         {todaysTripsData && todaysTripsData.length > 0 ? (
                             todaysTripsData.map((data: any, index: number) => (
                                 <Card key={index} style={styles.cardItemMain}>
@@ -261,7 +346,7 @@ const Dashboard: React.FC = () => {
 
                                         </View>
                                         <View style={styles.rightTextCard}>
-                                            <Text style={styles.largeTextRCard}>3XL</Text>
+                                            <Text style={styles.largeTextRCard}>{getClassNameFromVRM(data.VRM)}</Text>
                                             <Image style={{ width: 16, height: 16, marginVertical: 4, }} source={require('../../assets/images/chat-icon.png')} />
 
                                             <Text style={styles.statusTextCard}>
@@ -277,13 +362,13 @@ const Dashboard: React.FC = () => {
                                 </Card>
                             ))
 
-                        ) : 
-                        (
+                        ) :
+                            (
                                 <Card style={styles.cardItemMain}>
-                                    <Text style={styles.noTripsText}>No Trips Found</Text>
+                                    <Text style={styles.noTripsText}>{t('dashboard.no_trip_found')}</Text>
                                     <View style={styles.cardContentInner}></View>
                                 </Card>
-                        )}
+                            )}
                     </View>
                 </View>
 

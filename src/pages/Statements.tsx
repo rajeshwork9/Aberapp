@@ -8,6 +8,10 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { useAccount } from '../context/AccountProvider';
 import dayjs from 'dayjs';
 import { getStatements } from '../services/common';
+import RNFS from 'react-native-fs';
+import { Alert, Platform, PermissionsAndroid } from 'react-native';
+import { ToastService } from '../utils/ToastService';
+
 
 
 
@@ -39,6 +43,9 @@ const Statements: React.FC = () => {
     const [totalRows, setTotalRows] = useState(0);
     const [page, setPage] = useState(1);
     const [statementData, setStatementData] = useState<Statements[]>([]);
+    const [year, setYear] = useState('2025');
+    const [hasMoreData, setHasMoreData] = useState(true);
+    const PAGE_SIZE = 10;
 
 
     useEffect(() => {
@@ -54,31 +61,41 @@ const Statements: React.FC = () => {
 
     const getStatementsData = async (accountId: number, pageNumber: number, isRefresh = false) => {
         try {
-            isRefresh ? setRefreshing(true) : setLoading(true);
-            const payload =
-            {
-                "AccountId": 7,
-                "FinancialDocumentTypeId": 2,
-                "year": 2025,
-                "PageNumber": 1,
-                "PageSize": 5
+            if (isRefresh) {
+                setRefreshing(true);
+                setHasMoreData(true); // reset hasMoreData when refreshing
+            } else {
+                setLoading(true);
             }
-            const response = await getStatements(payload);
-            console.log(response, " statement response");
 
+            const payload = {
+                AccountId: accountId,
+                FinancialDocumentTypeId: 2,
+                year: parseInt(year), // use selected year
+                PageNumber: pageNumber,
+                PageSize: PAGE_SIZE,
+            };
+
+            const response = await getStatements(payload);
+            console.log(response, "statemen")
             const newList = response || [];
 
-            setTotalRows(response.TotalRows || 0);
+            // Update data
             setPage(pageNumber);
+            setStatementData(prev =>
+                isRefresh || pageNumber === 1 ? newList : [...prev, ...newList]
+            );
 
-            setStatementData(prev => isRefresh || pageNumber === 1 ? newList : [...prev, ...newList]);
+            // If fetched less than PAGE_SIZE, no more data
+            setHasMoreData(newList.length === PAGE_SIZE);
         } catch (e) {
-            console.error('Trips fetch error:', e);
+            console.error('Statements fetch error:', e);
         } finally {
             setLoading(false);
             setRefreshing(false);
         }
     };
+
 
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
@@ -87,7 +104,36 @@ const Statements: React.FC = () => {
         navigation.navigate(path)
     }
 
+    const handleDownload = async (base64Data: string, filename = 'statement.pdf') => {
+        try {
+            if (Platform.OS === 'android') {
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                    {
+                        title: 'Storage Permission Required',
+                        message: 'App needs access to your storage to download the file',
+                        buttonNeutral: 'Ask Me Later',
+                        buttonNegative: 'Cancel',
+                        buttonPositive: 'OK',
+                    },
+                );
 
+                if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+                    ToastService.error('Permission Denied', 'Storage permission is required to download the file.');
+                    return;
+                }
+            }
+
+            const path = `${RNFS.DownloadDirectoryPath}/${filename}`;
+            await RNFS.writeFile(path, base64Data, 'base64');
+
+            ToastService.success('Download Successful', `File saved to ${path}`);
+            console.log('File downloaded to:', path);
+        } catch (error) {
+            console.error('Download error:', error);
+            ToastService.error('Download Failed', 'There was an error saving the file.');
+        }
+    };
 
 
 
@@ -125,37 +171,18 @@ const Statements: React.FC = () => {
                                     <Text style={styles.sectionTitleModal}>Transaction Filters</Text>
 
                                     <View style={styles.formGroupModal}>
-                                        <Text style={styles.labelModal}>Form Date</Text>
-                                        <TextInput
-                                            mode="flat"
-                                            placeholder='DD-MM-YYYY'
-                                            style={styles.calendarInputModal}
-                                            underlineColor="#fff"
-                                            placeholderTextColor="#707070"
-                                            textColor='#fff'
-                                            theme={{
-                                                colors: {
-                                                    primary: '#FF5400',
-                                                },
-                                            }}
-                                        />
-                                        <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} />
-                                    </View>
-
-                                    <View style={styles.formGroupModal}>
-                                        <Text style={styles.labelModal}>To Date</Text>
+                                        <Text style={styles.labelModal}>Year</Text>
                                         <TextInput
                                             mode="flat"
                                             style={styles.calendarInputModal}
                                             underlineColor="#fff"
-                                            placeholder='DD-MM-YYYY'
+                                            placeholder='YYYY'
+                                            value={year}
+                                            onChangeText={setYear}
+                                            keyboardType="numeric"
                                             placeholderTextColor="#707070"
                                             textColor='#fff'
-                                            theme={{
-                                                colors: {
-                                                    primary: '#FF5400',
-                                                },
-                                            }}
+                                            theme={{ colors: { primary: '#FF5400' } }}
                                         />
                                         <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} />
                                     </View>
@@ -173,6 +200,7 @@ const Statements: React.FC = () => {
                                         <Button
                                             mode="contained"
                                             onPress={() => {
+                                                getStatementsData(accountDetails.AccountId, 1, true);
                                                 hideModal();
                                             }}
                                             buttonColor="#FF5A00"
@@ -205,6 +233,13 @@ const Statements: React.FC = () => {
                                 <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
                             </View>
                         }
+                        ListFooterComponent={
+                            loading && page > 1 ? (
+                                <View style={{ padding: 16 }}>
+                                    <Text style={{ textAlign: 'center', color: '#666' }}>Loading more...</Text>
+                                </View>
+                            ) : null
+                        }
                         renderItem={({ item }) => (
                             <Card style={styles.cardItemMain}>
                                 <View style={styles.cardContentInner}>
@@ -215,22 +250,41 @@ const Statements: React.FC = () => {
 
                                         <View style={styles.leftTextCard}>
                                             <Text style={[styles.textCard, { fontFamily: 'Poppins-SemiBold' }]}>{item.ReferenceNumber}</Text>
-                                            <Text style={styles.textCard}> <Image style={styles.calenderIcon} source={require('../../assets/images/calendar-icon.png')} /> {item.IssueDate}  </Text> {/*01 Mar 2025 - 31 May 2025*/}
+                                            <View style={[styles.textCard, { flexDirection: 'row', alignItems: 'center' }]}>
+                                                <Image
+                                                    style={[styles.calenderIcon, { marginRight: 6 }]}
+                                                    source={require('../../assets/images/calendar-icon.png')}
+                                                />
+                                                <Text style={styles.textCard}>{dayjs(item.IssueDate).format('YYYY-MM-DD HH:mm')}</Text>
+                                            </View>
                                         </View>
                                     </View>
-                                    {/* <View style={styles.rightTextCard}>
-                                        <Image style={styles.tranupIcon} source={require('../../assets/images/tranup-icon.png')} />
-                                        <Text style={[styles.statusText, { fontFamily: 'Poppins-SemiBold' }]}> {item.Amount.toFixed()}</Text>
-                                    </View> */}
                                     <View style={styles.rightTextCard}>
-                                        <Card style={styles.downloadIcon}>
-                                            <Image style={styles.cardIconImg} source={require('../../assets/images/download-white-icon.png')} />
-                                        </Card>
+                                        <TouchableOpacity
+                                            onPress={() => handleDownload(item.DocumentContent, `Statement-${item.FinancialDocumentID}-${dayjs(item.PeriodTo).format('YYYY-MM-DD')}.pdf`)}
+                                        >
+                                            <Card style={styles.downloadIcon}>
+                                                <Image
+                                                    style={styles.cardIconImg}
+                                                    source={require('../../assets/images/download-white-icon.png')}
+                                                />
+                                            </Card>
+                                        </TouchableOpacity>
                                     </View>
-                                    
+
                                 </View>
                             </Card>
                         )}
+                        onEndReachedThreshold={0.5}
+                        onEndReached={() => {
+                            if (hasMoreData && !loading) {
+                                getStatementsData(accountDetails.AccountId, page + 1);
+                            }
+                        }}
+                        refreshing={refreshing}
+                        onRefresh={() => {
+                            getStatementsData(accountDetails.AccountId, 1, true);
+                        }}
                     />
                 </View>
             </ImageBackground>
@@ -264,7 +318,7 @@ const styles = StyleSheet.create({
         marginTop: 12,
 
     },
-     downloadIcon: {
+    downloadIcon: {
         width: 70,
         height: 50,
         backgroundColor: '#707070',
@@ -571,12 +625,12 @@ const styles = StyleSheet.create({
         fontSize: 13,
         marginHorizontal: 10,
     },
-      modalCloseIcon: {
-  position: 'absolute',
-  top: 8,
-  right: 8,
-  zIndex: 10,
-},
+    modalCloseIcon: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        zIndex: 10,
+    },
 
 
 });

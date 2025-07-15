@@ -10,7 +10,9 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ToastService } from '../utils/ToastService';
 import Loader from '../components/Loader';
-
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n'; 
+import { I18nManager } from 'react-native';
 
 const local_data = [
   {
@@ -43,6 +45,7 @@ const Login: React.FC = () => {
   const [captcha, setCaptcha] = useState('');
   const [secureText, setSecureText] = useState(true);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
 
   useEffect(() => {
@@ -118,6 +121,11 @@ const formik = useFormik({
     setCaptcha(newCaptcha);
   };
 
+  const changeLanguage = async (lang: 'en' | 'ar') => {
+  await AsyncStorage.setItem('appLanguage', lang); // persist
+  await i18n.changeLanguage(lang);                 // switch immediately
+};
+
   // if (loading) return <Loader />;
 
   return (
@@ -145,19 +153,23 @@ const formik = useFormik({
           placeholder="Select country"
           containerStyle={styles.dropdownList}
           activeColor="#333333"
-          onChange={e => setCountry(e.value)}
+           onChange={e => {
+  setCountry(e.value);
+  const lang = e.value === '2' ? 'ar' : 'en';
+  changeLanguage(lang);
+}}
         />
 
         {/* Main form */}
         <View style={styles.innerContainer}>
           <ImageBackground source={require('../../assets/images/logo.png')} style={styles.logoImage} />
-          <Text variant="headlineMedium" style={styles.title}>Login with Account</Text>
+          <Text variant="headlineMedium" style={styles.title}>{t('login.title')}</Text>
 
           {/* Email */}
           <View style={styles.formViewGroup}>
             <TextInput
               style={styles.formInput}
-              placeholder="Email"
+              placeholder={t('login.email')}
               placeholderTextColor="#aaa"
               keyboardType="email-address"
               autoCapitalize="none"
@@ -173,7 +185,7 @@ const formik = useFormik({
           <View style={styles.formViewGroup}>
             <TextInput
               style={styles.formInput}
-              placeholder="Password"
+              placeholder={t('login.password')}
               placeholderTextColor="#aaa"
               secureTextEntry={secureText}
               onChangeText={formik.handleChange('password')}
@@ -187,13 +199,13 @@ const formik = useFormik({
             {formik.touched.password && formik.errors.password && <Text style={styles.errorMessage}>{formik.errors.password}</Text>}
           </View>
 
-          <Text style={styles.forgotLink}>Forgot password?</Text>
+          <Text style={styles.forgotLink}>{t('login.forgot_password')}</Text>
 
           {/* Captcha */}
           <View style={styles.formViewGroup}>
             <TextInput
               style={styles.formInput}
-              placeholder="Enter Captcha"
+              placeholder= {t('login.enter_captcha')}
               placeholderTextColor="#aaa"
               onChangeText={formik.handleChange('captcha')}
               onBlur={formik.handleBlur('captcha')}
@@ -218,12 +230,12 @@ const formik = useFormik({
               status={checked ? 'checked' : 'unchecked'}
               onPress={() => setChecked(!checked)}
             />
-            <Text style={styles.cboxlabel}>Save Password</Text>
+            <Text style={styles.cboxlabel}> {t('login.remember_me')} </Text>
           </View>
 
           {/* Submit */}
           <Button mode="contained" style={styles.primaryBt} onPress={()=>formik.handleSubmit()}>
-            Login
+            {t('login.submit')}
           </Button>
         </View>
 

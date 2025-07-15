@@ -29,6 +29,13 @@ import Toast from 'react-native-toast-message';
 import AddCases from './src/pages/AddCases';
 import Statements from './src/pages/Statements';
 import DashboardPage from './src/pages/DashboardPage';
+import './src/i18n';
+import { I18nManager } from 'react-native';
+
+if (I18nManager.isRTL) {
+  I18nManager.allowRTL(false);
+  I18nManager.forceRTL(false);
+}
 TransactionHistory
 /* ──────────────── Auth Context ──────────────── */
 type AuthCtx = {

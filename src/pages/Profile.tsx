@@ -6,13 +6,17 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAccount } from '../context/AccountProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../App';
-import { getCustomerTypes, getUserInfo } from '../services/common';
+import { getCustomerTypes, getUserInfo, changePassword } from '../services/common';
+import { ToastService } from '../utils/ToastService';
 
 
 const Profile: React.FC = () => {
   const navigation = useNavigation();
   const { setLoggedIn } = useAuth();
   const [secureText, setSecureText] = useState(true);
+  const [secureOld, setSecureOld] = useState(true);
+  const [secureNew, setSecureNew] = useState(true);
+  const [secureConfirm, setSecureConfirm] = useState(true);
   const [visible, setVisible] = useState(false);
   const [viewDetailModal, setViewDetailModal] = useState(false);
   const { accounts, activeId, selectAccount, full, loadFullById } = useAccount();
@@ -20,6 +24,11 @@ const Profile: React.FC = () => {
   const [pendingDetails, setPendingDetails] = useState<any>();
   const [customerTypeData, setCustomerTypeData] = useState<any>();
   const [userData, setUserData] = useState<any>();
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errors, setErrors] = useState({ old: '', new: '', confirm: '' });
+
   console.log('accounts', accounts);
   console.log('accounts full', full);
 
@@ -84,6 +93,50 @@ const Profile: React.FC = () => {
     const userData = await getUserInfo();
     console.log(userData, "userData");
     setUserData(userData);
+  };
+
+
+  const handlechangepassword = async () => {
+    const newErrors = {
+      old: oldPassword ? '' : 'Old password is required',
+      new: newPassword ? '' : 'New password is required',
+      confirm:
+        confirmPassword !== newPassword
+          ? 'Passwords do not match'
+          : confirmPassword
+          ? ''
+          : 'Please confirm your new password',
+    };
+
+    setErrors(newErrors);
+
+    const hasErrors = Object.values(newErrors).some(error => error !== '');
+    if (!hasErrors) {
+      console.log('Old Password:', oldPassword);
+      console.log('New Password:', newPassword);
+      console.log('Confirm Password:', confirmPassword);
+      try{
+        let payload = {
+          Currentpassword: oldPassword,
+          Newpassword: newPassword,
+          Newpasswordconfirmed : confirmPassword
+        }
+        const response = await changePassword(payload);
+        console.log(response,"change password");
+        if(response.status == 200){
+          ToastService.success('Password Changed Successfully!, Please login again');
+          handleLogout();
+        }
+
+      }
+      catch{
+
+      }
+      finally{
+
+      }
+      hideModal(); // Optionally close the modal
+    }
   };
 
 
@@ -181,41 +234,74 @@ const Profile: React.FC = () => {
             </TouchableOpacity>
 
             {/* Modal */}
-            <Portal>
-              <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
-                <Text style={styles.sectionTitleModal}>Change password</Text>
+ <Portal>
+      <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
+        <Text style={styles.sectionTitleModal}>Change password</Text>
 
-                {['Enter Old Password', 'Enter New Password', 'Confirm New Password'].map((label, index) => (
-                  <View style={styles.formGroupModal} key={index}>
-                    <TextInput
-                      placeholder={label}
-                      style={styles.inputModal}
-                      placeholderTextColor="#ccc"
-                      textColor="#fff"
-                      secureTextEntry
-                      theme={{ colors: { primary: '#FF5400' } }}
-                    />
-                    <TouchableOpacity onPress={toggleSecureEntry} style={styles.passwordIcon}>
-                      <Icon name={secureText ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
-                    </TouchableOpacity>
-                  </View>
-                ))}
+        <View style={styles.formGroupModal}>
+          <TextInput
+            placeholder="Enter Old Password"
+            style={styles.inputModal}
+            placeholderTextColor="#ccc"
+            textColor="#fff"
+            secureTextEntry={secureOld}
+            value={oldPassword}
+            onChangeText={setOldPassword}
+            error={!!errors.old}
+            theme={{ colors: { primary: '#FF5400' } }}
+          />
+          <TouchableOpacity onPress={() => setSecureOld(prev => !prev)} style={styles.passwordIcon}>
+            <Icon name={secureOld ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
+          </TouchableOpacity>
+          {!!errors.old && <Text style={{ color: 'red' }}>{errors.old}</Text>}
+        </View>
 
-                <View style={styles.buttonRow}>
-                  <Button mode="contained" onPress={hideModal} style={styles.closeButton} textColor="#000">
-                    Close
-                  </Button>
-                  <Button
-                    mode="contained"
-                    onPress={hideModal}
-                    buttonColor="#FF5A00"
-                    style={styles.applyButton}
-                  >
-                    Apply
-                  </Button>
-                </View>
-              </Modal>
-            </Portal>
+        <View style={styles.formGroupModal}>
+          <TextInput
+            placeholder="Enter New Password"
+            style={styles.inputModal}
+            placeholderTextColor="#ccc"
+            textColor="#fff"
+            secureTextEntry={secureNew}
+            value={newPassword}
+            onChangeText={setNewPassword}
+            error={!!errors.new}
+            theme={{ colors: { primary: '#FF5400' } }}
+          />
+          <TouchableOpacity onPress={() => setSecureNew(prev => !prev)} style={styles.passwordIcon}>
+            <Icon name={secureNew ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
+          </TouchableOpacity>
+          {!!errors.new && <Text style={{ color: 'red' }}>{errors.new}</Text>}
+        </View>
+
+        <View style={styles.formGroupModal}>
+          <TextInput
+            placeholder="Confirm New Password"
+            style={styles.inputModal}
+            placeholderTextColor="#ccc"
+            textColor="#fff"
+            secureTextEntry={secureConfirm}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            error={!!errors.confirm}
+            theme={{ colors: { primary: '#FF5400' } }}
+          />
+          <TouchableOpacity onPress={() => setSecureConfirm(prev => !prev)} style={styles.passwordIcon}>
+            <Icon name={secureConfirm ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
+          </TouchableOpacity>
+          {!!errors.confirm && <Text style={{ color: 'red' }}>{errors.confirm}</Text>}
+        </View>
+
+        <View style={styles.buttonRow}>
+          <Button mode="contained" onPress={hideModal} style={styles.closeButton} textColor="#000">
+            Close
+          </Button>
+          <Button mode="contained" onPress={handlechangepassword} buttonColor="#FF5A00" style={styles.applyButton}>
+            Apply
+          </Button>
+        </View>
+      </Modal>
+    </Portal>
 
             {/*Details Modal*/}
 <Portal>

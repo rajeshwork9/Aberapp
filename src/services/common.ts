@@ -46,10 +46,19 @@ export const getUserInfo = async () => {
   }
 };
 
+export const changePassword = async (body : any) => {
+  try {
+    const response = await api.post('users/changepassword', body);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getTodaysTrips = async (body: any) => {
   try {
     const response = await api.post('accounts/page/transactions', body);
-    return response.data.TransactionsList;
+    return response.data;
   } catch (error) {
     throw error;
   }

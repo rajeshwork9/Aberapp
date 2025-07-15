@@ -18,10 +18,6 @@ const TransactionHistory: React.FC = () => {
     const navigateTo = (path: keyof MainStackParamList) => {
         navigation.navigate(path)
     }
-
-
-
-
      const [value, setValue] = useState(null);
 
     return (

@@ -1,5 +1,5 @@
 // imports remain the same
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../App';
@@ -7,7 +7,7 @@ import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image,
 import { Button, TextInput, Modal, Portal, Text, Card, PaperProvider, IconButton, } from 'react-native-paper';
 import { Dropdown } from 'react-native-element-dropdown';
 import dayjs from 'dayjs';
-import { getLicenceNumber, getTodaysTrips } from '../services/common';
+import { getLicenceNumber, getTodaysTrips, getOverallClasses } from '../services/common';
 import { useAccount } from '../context/AccountProvider';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
@@ -24,6 +24,7 @@ interface LPN {
   label: string;
   value: string;
   AssetIdentifier: string;
+  OverallClassId: number;
 }
 
 const Trips: React.FC = () => {
@@ -38,15 +39,19 @@ const Trips: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
-  const [lpnData, setLpnData] = useState<LPN[]>([]);
-
-  const [gantryValue, setGantryValue] = useState(null);
-  const [lpnValue, setLpnValue] = useState(null);
+  const [lpnData, setLpnData] = useState<LPN[] | any>([]);
+  const [lpnValue, setLpnValue] = useState<any>();
   const [filterEnabled, setFilterEnabled] = useState(false);
   const [fromDate, setFromDate] = useState(dayjs().subtract(7, 'day').toDate());
   const [toDate, setToDate] = useState(new Date());
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
+  const [typesData, setTypesData] = useState<any[]>([]);
+  const [hasMoreData, setHasMoreData] = useState(true);
+  const isFetchingMore = useRef(false);
+  const [clearFilterRequested, setClearFilterRequested] = useState(false);
+
+
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
@@ -57,59 +62,72 @@ const Trips: React.FC = () => {
 
   useEffect(() => {
     if (accountDetails) {
-      getTrips(accountDetails.AccountId, 1, true, 0);
+    console.log(accountDetails);
+
+      getTrips(accountDetails.AccountId, 1, true);
       licenceNumber(accountDetails.AccountId);
+      getTypes();
     }
   }, [accountDetails]);
 
-  const getTrips = async (accountId: number, pageNumber: number, isRefresh = false, lpnValue: any, fromDateParam?: Date,
-    toDateParam?: Date) => {
-    try {
-      isRefresh ? setRefreshing(true) : setLoading(true);
-      const DAYS_BACK = 7; // or any number of days you want
-      const fromDatetime = dayjs(fromDateParam || dayjs().subtract(7, 'day').toDate())
-        .startOf('day')
-        .format('YYYY-MM-DDTHH:mm:ss[Z]');
-      const toDatetime = dayjs(toDateParam || new Date())
-        .endOf('day')
-        .format('YYYY-MM-DDTHH:mm:ss[Z]');
-      const payload =
-      //   {
-      // accountId,
-      // AccountUnitId: lpnValue || 0,
-      // GantryId: 0,
-      // fromDate: fromDatetime,
-      // toDate: toDatetime,
-      // PageNumber: pageNumber,
-      // PageSize: 5
-      {
-        "accountId": 7,
-        "AccountUnitId": lpnValue ? lpnValue : 0,
-        "GantryId": 0,
-        "fromDate": "2021-05-12",
-        "toDate": "2025-06-17",
-        "PageNumber": 1,
-        "PageSize": 5
-      }
-      console.log(payload, "payload");
+  useEffect(() => {
+  if (clearFilterRequested && lpnValue === 0) {
+    setClearFilterRequested(false);
+    getTrips(accountDetails.AccountId, 1, true, dayjs().subtract(7, 'day').toDate(), new Date());
+  }
+}, [clearFilterRequested, lpnValue]);
 
+const getTrips = async (
+  accountId: number,
+  pageNumber: number,
+  isRefresh = false,
+  fromDateParam?: Date,
+  toDateParam?: Date
+) => {
+  if (!isRefresh && isFetchingMore.current) return;
 
-      const response = await getTodaysTrips(payload);
-      console.log(response, "rsponse");
+  try {
+    if (!isRefresh) isFetchingMore.current = true;
+    isRefresh ? setRefreshing(true) : setLoading(true);
 
-      const newList = response || [];
+    const fromDatetime = dayjs(fromDateParam || fromDate)
+      .startOf('day')
+      .format('YYYY-MM-DDTHH:mm:ss[Z]');
+    const toDatetime = dayjs(toDateParam || toDate)
+      .endOf('day')
+      .format('YYYY-MM-DDTHH:mm:ss[Z]');
 
-      setTotalRows(response.TotalRows || 0);
-      setPage(pageNumber);
+    const payload = {
+      accountId,
+      AccountUnitId: lpnValue ? lpnValue : 0,
+      GantryId: 0,
+      fromDate: fromDatetime,
+      toDate: toDatetime,
+      PageNumber: pageNumber,
+      PageSize: 10,
+    };
+    console.log("paylod", payload);
+    
 
-      setTripsData(prev => isRefresh || pageNumber === 1 ? newList : [...prev, ...newList]);
-    } catch (e) {
-      console.error('Trips fetch error:', e);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+    const response = await getTodaysTrips(payload);
+    const newList = response.TransactionsList || [];
+
+    const total = response.TotalRows || 0;
+    const updatedList = isRefresh || pageNumber === 1 ? newList : [...tripsData, ...newList];
+
+    setTripsData(updatedList);
+    setPage(pageNumber);
+    setHasMoreData(updatedList.length < total);
+    setTotalRows(total);
+  } catch (e) {
+    console.error('Trips fetch error:', e);
+  } finally {
+    setLoading(false);
+    setRefreshing(false);
+    isFetchingMore.current = false;
+  }
+};
+
 
   const licenceNumber = async (accountId: any) => {
     try {
@@ -125,6 +143,8 @@ const Trips: React.FC = () => {
       }));
 
       setLpnData(formatted);
+      console.log(lpnData, "lpn data");
+
     }
     catch (error) {
       console.error('License fetch failed:', error);
@@ -136,15 +156,35 @@ const Trips: React.FC = () => {
 
   const handleClearFilter = () => {
     setFilterEnabled(false);
-    setLpnValue(null);
-    getTrips(accountDetails.AccountId, 1, true, null, dayjs().subtract(7, 'day').toDate(), new Date());
-  }
+    setLpnValue(0);
+    setPage(1);
+    setHasMoreData(true);
+    setClearFilterRequested(true);
+  };
 
-  const gantrydata = [
-    { label: 'Select gantry', value: 'Select gantry', disabled: true },
-    { label: 'Gantry 1 2', value: '1' },
-    { label: 'Gantry 2', value: '2' },
-  ];
+  const getTypes = async () => {
+    try {
+      const response = await getOverallClasses();
+      console.log(response);
+      setTypesData(response);
+    }
+    catch (error: any) {
+      console.error(error);
+    }
+    finally {
+      console.log('api comopleted');
+
+    }
+  };
+
+  const getClassNameFromVRM = (vrm: string) => {
+    const lpnMatch = lpnData.find((d: any) => d.AssetIdentifier === vrm);
+    if (!lpnMatch) return '—';
+    const classId = lpnMatch.OverallClassId;
+    const className = typesData.find((t: any) => t.ItemId === classId)?.ItemName;
+    return className ?? '—';
+  };
+
 
   return (
     <PaperProvider>
@@ -178,7 +218,7 @@ const Trips: React.FC = () => {
           {/* Filter Modal */}
           <Portal>
             <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
-               {/* Close Icon */}
+              {/* Close Icon */}
               <IconButton
                 icon="close"
                 size={24}
@@ -237,16 +277,16 @@ const Trips: React.FC = () => {
                   labelField="label"
                   valueField="value"
                   value={lpnValue}
-                  onChange={item => setLpnValue(item.value)}
+                  onChange={item => setLpnValue(item.AccountUnitId)}
                 />
               </View>
 
               <View style={styles.buttonRow}>
-                <Button mode="contained" onPress={()=> {
+                <Button mode="contained" onPress={() => {
                   hideModal();
                   setLpnValue(null);
-                }} 
-                style={styles.closeButton} textColor="#000">
+                }}
+                  style={styles.closeButton} textColor="#000">
                   Close
                 </Button>
                 <Button
@@ -254,7 +294,7 @@ const Trips: React.FC = () => {
                   onPress={() => {
                     hideModal();
                     if (accountDetails?.AccountId) {
-                      getTrips(accountDetails.AccountId, 1, true, lpnValue, fromDate, toDate);
+                      getTrips(accountDetails.AccountId, 1, true, fromDate, toDate);
                       setFilterEnabled(true);
                     }
                     // Apply filter logic here
@@ -262,7 +302,7 @@ const Trips: React.FC = () => {
                   buttonColor="#FF5A00"
                   style={[styles.applyButton]}
                 >
-                {/* disabled={!lpnValue && !gantryValue} */}
+                  {/* disabled={!lpnValue && !gantryValue} */}
                   Apply
                 </Button>
               </View>
@@ -298,11 +338,11 @@ const Trips: React.FC = () => {
                       <Text style={styles.textCard}>{item.VRM}</Text>
                       <Text style={styles.textCard}>{item.LocationName}</Text>
                       <Text style={styles.textCard}>Transaction ID: {item.TransactionId}</Text>
-                      <Text style={styles.textCard}>{item.TransactionDate}</Text>
+                      <Text style={styles.textCard}>{dayjs(item.TransactionDate).format('YYYY-MM-DD HH:mm')}</Text>
                     </View>
                   </View>
                   <View style={styles.rightTextCard}>
-                    <Text style={styles.largeTextRCard}>3XL</Text>
+                    <Text style={styles.largeTextRCard}>{getClassNameFromVRM(item.VRM)}</Text>
                     <Image style={{ width: 16, height: 16, marginVertical: 4 }} source={require('../../assets/images/chat-icon.png')} />
                     <Text style={styles.statusTextCard}>
                       <Text style={[styles.statusText, { fontWeight: 'normal' }]}>Paid: </Text>
@@ -313,23 +353,23 @@ const Trips: React.FC = () => {
               </Card>
             )}
             onEndReached={() => {
-              if (!loading && tripsData.length < totalRows) {
-                getTrips(accountDetails.AccountId, page + 1, false,fromDate, toDate);
+              if (hasMoreData && !loading && !refreshing && !isFetchingMore.current) {
+                getTrips(accountDetails.AccountId, page + 1, false, fromDate, toDate);
               }
             }}
-            onEndReachedThreshold={0.3}
+            onEndReachedThreshold={0.1}
             refreshing={refreshing}
-            onRefresh={() => getTrips(accountDetails.AccountId, 1, true,fromDate, toDate)}
+            onRefresh={() => getTrips(accountDetails.AccountId, 1, true, fromDate, toDate)}
             ListFooterComponent={
               loading && !refreshing ? (
                 <View style={{ paddingVertical: 20 }}>
-                  <ActivityIndicator size="small" color="#fff" />
+                 <Text style={{ textAlign: 'center', color: '#fff' }}>Loading more...</Text>
                 </View>
               ) : tripsData.length >= totalRows ? (
                 <View style={{ paddingVertical: 20 }}>
                   <Text style={{ textAlign: 'center', color: '#aaa' }}>No more data to load</Text>
                 </View>
-              ) : null
+              ) : (<View style={{ height: 60 }} />)
             }
           />
         </View>
@@ -655,10 +695,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   modalCloseIcon: {
-  position: 'absolute',
-  top: 8,
-  right: 8,
-  zIndex: 10,
-},
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 10,
+  },
 
 });
