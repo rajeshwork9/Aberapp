@@ -204,7 +204,7 @@ const Cases: React.FC = () => {
                             <TouchableOpacity style={styles.roundedIconBt} onPress={showModal}>
                                 <Image style={styles.roundedIcon} source={require('../../assets/images/filter-icon.png')} />
                             </TouchableOpacity>
-                            <View style={styles.btHeader}>
+                            <View>
                                 {filterEnabled && (
                                     <Button onPress={handleClearFilter} labelStyle={styles.filterText}>
                                         Clear Filter
@@ -387,8 +387,8 @@ const styles = StyleSheet.create({
 
     },
     backBt: {},
-    headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', },
-    headerRightBlock: { flexDirection: 'row', justifyContent: 'flex-end', },
+    headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', marginTop:-6 },
+    headerRightBlock: { flexDirection: 'row', justifyContent: 'flex-end', marginTop:2 },
     headerIcon: { width: 18, height: 18, },
     headerTitle: { fontSize: 15, fontWeight: 'bold', color: '#fff' },
 
