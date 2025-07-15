@@ -81,7 +81,7 @@ export const getViolations = async (body: any) => {
 export const getCases = async (body: any) => {
   try {
     const response = await api.post('cases/page/customer/account', body);
-    return response.data.List;
+    return response.data;
   } catch (error) {
     throw error;
   }

@@ -124,14 +124,15 @@ const Cases: React.FC = () => {
             console.log(response, "rsponse");
             const PAGE_SIZE = 7;
 
-            const newList = response || [];
+            const newList = response.List || [];
+            const totalRows = response.TotalRows || 0;
             if (isRefresh || pageNumber === 1) {
                 setCasesData(newList);
             } else {
                 setCasesData((prev: any) => [...prev, ...newList]);
             }
 
-            setHasMoreData(newList.length === PAGE_SIZE);
+             setHasMoreData((pageNumber * PAGE_SIZE) < totalRows);
 
             setPage(pageNumber);
 
@@ -174,7 +175,7 @@ const Cases: React.FC = () => {
         setFromDate(defaultFrom);
         setToDate(defaultTo);
         setActiveValue(false);
-        getCasesData(accountDetails.AccountId, 1, true, defaultFrom, defaultTo);
+        getCasesData(accountDetails.AccountId, 1, false, defaultFrom, defaultTo);
         setFilterEnabled(false);
     }
 
@@ -339,7 +340,7 @@ const Cases: React.FC = () => {
                             </Card>
                         )}
                         onEndReached={() => {
-                            if (!loading && hasMoreData) {
+                            if (!loading && !refreshing && hasMoreData && casesData.length >= 7) {
                                 getCasesData(accountDetails.AccountId, page + 1, false, fromDate, toDate);
                             }
                         }}
