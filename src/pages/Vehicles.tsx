@@ -19,6 +19,7 @@ import {
   Portal,
   PaperProvider,
   Button,
+  IconButton
 } from 'react-native-paper';
 import { getVehiclesList, getOverallClasses } from '../services/common';
 import { useAccount } from '../context/AccountProvider';
@@ -131,6 +132,14 @@ const Vehicles: React.FC = () => {
 
             <Portal>
               <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
+                  {/* Close Icon */}
+                  <IconButton
+                    icon="close"
+                    size={24}
+                    onPress={hideModal}
+                    style={styles.modalCloseIcon}
+                    iconColor="#fff"
+                  />
                 <Text style={styles.sectionTitleModal}>Vehicle Filters</Text>
 
                 <View style={styles.formGroupModal}>
@@ -530,4 +539,10 @@ const styles = StyleSheet.create({
         fontSize: 13,
         marginHorizontal: 10,
     },
+      modalCloseIcon: {
+  position: 'absolute',
+  top: 8,
+  right: 8,
+  zIndex: 10,
+},
 });

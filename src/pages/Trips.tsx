@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../App';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image, FlatList, ActivityIndicator } from 'react-native';
-import { Button, TextInput, Modal, Portal, Text, Card, PaperProvider } from 'react-native-paper';
+import { Button, TextInput, Modal, Portal, Text, Card, PaperProvider, IconButton, } from 'react-native-paper';
 import { Dropdown } from 'react-native-element-dropdown';
 import dayjs from 'dayjs';
 import { getLicenceNumber, getTodaysTrips } from '../services/common';
@@ -178,6 +178,14 @@ const Trips: React.FC = () => {
           {/* Filter Modal */}
           <Portal>
             <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
+               {/* Close Icon */}
+              <IconButton
+                icon="close"
+                size={24}
+                onPress={hideModal}
+                style={styles.modalCloseIcon}
+                iconColor="#fff"
+              />
               <Text style={styles.sectionTitleModal}>Trip Filters</Text>
 
               <View style={styles.formGroupModal}>
@@ -646,6 +654,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginHorizontal: 10,
   },
-
+  modalCloseIcon: {
+  position: 'absolute',
+  top: 8,
+  right: 8,
+  zIndex: 10,
+},
 
 });

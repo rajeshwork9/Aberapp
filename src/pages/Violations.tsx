@@ -3,7 +3,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../App';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image, FlatList } from 'react-native';
-import { Text, Card, TextInput, Modal, Portal, PaperProvider, Button, ActivityIndicator } from 'react-native-paper';
+import { Text, Card, TextInput, Modal, Portal, PaperProvider, Button, ActivityIndicator, IconButton } from 'react-native-paper';
 import { Dropdown } from 'react-native-element-dropdown';
 import { getViolations, getOverallClasses, getTransactionStatus } from '../services/common';
 import { useAccount } from '../context/AccountProvider';
@@ -171,7 +171,14 @@ const Violations: React.FC = () => {
 
                         <Portal>
                             <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
-
+                                    {/* Close Icon */}
+                                    <IconButton
+                                        icon="close"
+                                        size={24}
+                                        onPress={hideModal}
+                                        style={styles.modalCloseIcon}
+                                        iconColor="#fff"
+                                    />
                                 <Text style={styles.sectionTitleModal}>Violation Filters</Text>
                                 <View style={styles.formGroupModal}>
                                     <Text style={styles.labelModal}>From Date</Text>
@@ -666,7 +673,12 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
 
-
+ modalCloseIcon: {
+  position: 'absolute',
+  top: 8,
+  right: 8,
+  zIndex: 10,
+},
 
 
 

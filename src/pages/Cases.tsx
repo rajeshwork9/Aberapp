@@ -21,6 +21,7 @@ import {
     Portal,
     PaperProvider,
     Button,
+    IconButton,
     ActivityIndicator,
     Checkbox,
 } from 'react-native-paper';
@@ -75,8 +76,7 @@ const Cases: React.FC = () => {
     const [showFromPicker, setShowFromPicker] = useState(false);
     const [showToPicker, setShowToPicker] = useState(false);
     const [filterEnabled, setFilterEnabled] = useState(false);
-
-
+    
     useEffect(() => {
         setAccountDetails(full);
     }, [full]);
@@ -212,7 +212,19 @@ const Cases: React.FC = () => {
                                 )}
                             </View>
                             <Portal>
-                                <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
+                                <Modal
+                            visible={visible}
+                            onDismiss={hideModal}
+                            contentContainerStyle={styles.modalBottomContainer}
+                        >
+                            {/* Close Icon */}
+                            <IconButton
+                                icon="close"
+                                size={24}
+                                onPress={hideModal}
+                                style={styles.modalCloseIcon}
+                                iconColor="#fff"
+                            />
                                     <Text style={styles.sectionTitleModal}>Cases Filter</Text>
 
                                     <View style={styles.formGroupModal}>
@@ -662,5 +674,11 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     color: '#fff',
   },
+   modalCloseIcon: {
+  position: 'absolute',
+  top: 8,
+  right: 8,
+  zIndex: 10,
+},
 
 });
