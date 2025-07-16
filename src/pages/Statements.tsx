@@ -11,6 +11,7 @@ import { getStatements } from '../services/common';
 import RNFS from 'react-native-fs';
 import { Alert, Platform, PermissionsAndroid } from 'react-native';
 import { ToastService } from '../utils/ToastService';
+import { useTranslation } from 'react-i18next';
 
 
 
@@ -33,6 +34,7 @@ interface Statements {
 const Statements: React.FC = () => {
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
     const { full } = useAccount();
+    const {t} = useTranslation();
 
     const [search, setSearch] = React.useState('');
     const [visible, setVisible] = React.useState(false);
@@ -150,7 +152,7 @@ const Statements: React.FC = () => {
                             <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
                                 <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
                             </TouchableOpacity>
-                            <Text style={styles.headerTitle}>Statements</Text>
+                            <Text style={styles.headerTitle}>{t('statements.statements')}</Text>
                         </View>
 
                         <View style={styles.headerRightBlock}>
@@ -168,10 +170,10 @@ const Statements: React.FC = () => {
                                         style={styles.modalCloseIcon}
                                         iconColor="#fff"
                                     />
-                                    <Text style={styles.sectionTitleModal}>Transaction Filters</Text>
+                                    <Text style={styles.sectionTitleModal}>{t('statements.statements_filters')}</Text>
 
                                     <View style={styles.formGroupModal}>
-                                        <Text style={styles.labelModal}>Year</Text>
+                                        <Text style={styles.labelModal}>{t('statements.year')}</Text>
                                         <TextInput
                                             mode="flat"
                                             style={styles.calendarInputModal}
@@ -194,7 +196,7 @@ const Statements: React.FC = () => {
                                             style={styles.closeButton}
                                             textColor="#000"
                                         >
-                                            Close
+                                            {t('common.close')}
                                         </Button>
 
                                         <Button
@@ -206,7 +208,7 @@ const Statements: React.FC = () => {
                                             buttonColor="#FF5A00"
                                             style={styles.applyButton}
                                         >
-                                            Apply
+                                            {t('common.apply')}
                                         </Button>
                                     </View>
 
@@ -224,7 +226,7 @@ const Statements: React.FC = () => {
                             <View style={styles.searchBlock}>
                                 <TextInput
                                     style={styles.searchFormInput}
-                                    placeholder='search'
+                                    placeholder={t('common.search')}
                                     value={search}
                                     onChangeText={setSearch}
                                     mode='outlined'
@@ -236,9 +238,13 @@ const Statements: React.FC = () => {
                         ListFooterComponent={
                             loading && page > 1 ? (
                                 <View style={{ padding: 16 }}>
-                                    <Text style={{ textAlign: 'center', color: '#666' }}>Loading more...</Text>
+                                    <Text style={{ textAlign: 'center', color: '#666' }}>{t('common.loading_more')}</Text>
                                 </View>
-                            ) : null
+                            ) : statementData.length >= totalRows ? (
+                                <View style={{ paddingVertical: 20 }}>
+                                    <Text style={{ textAlign: 'center', color: '#aaa' }}>{t('common.no_more_data_to_load')}</Text>
+                                </View>
+                            ) : (<View style={{ height: 60 }} />)
                         }
                         renderItem={({ item }) => (
                             <Card style={styles.cardItemMain}>

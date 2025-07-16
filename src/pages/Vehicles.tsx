@@ -24,6 +24,7 @@ import {
 import { getVehiclesList, getOverallClasses } from '../services/common';
 import { useAccount } from '../context/AccountProvider';
 import { usePaginatedList } from '../hooks/usePaginatedList';
+import { useTranslation } from 'react-i18next';
 
 const Vehicles: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
@@ -46,6 +47,7 @@ const Vehicles: React.FC = () => {
   const navigateTo = (path: keyof MainStackParamList) => {
     navigation.navigate(path);
   };
+  const { t } = useTranslation()
 
   const { accounts, activeId, selectAccount, full } = useAccount();
 
@@ -118,12 +120,12 @@ const Vehicles: React.FC = () => {
             <TouchableOpacity style={[styles.backBt, { marginRight: 12 }]} onPress={() => navigation.goBack()}>
               <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Vehicles</Text>
+            <Text style={styles.headerTitle}>{t('vehicles.vehicles')}</Text>
           </View>
 
           <View style={styles.headerRightBlock}>
             <TouchableOpacity onPress={() => navigateTo('AddVehicle')} style={[styles.btHeader, { marginRight: 12 }]}>
-              <Text style={styles.btHeaderText}>Add Vehicle</Text>
+              <Text style={styles.btHeaderText}>{t('vehicles.add_vehicles')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.roundedIconBt} onPress={showModal}>
@@ -140,10 +142,10 @@ const Vehicles: React.FC = () => {
                     style={styles.modalCloseIcon}
                     iconColor="#fff"
                   />
-                <Text style={styles.sectionTitleModal}>Vehicle Filters</Text>
+                <Text style={styles.sectionTitleModal}>{t('vehicles.vehicle_filters')}</Text>
 
                 <View style={styles.formGroupModal}>
-                  <Text style={styles.labelModal}>From Date</Text>
+                  <Text style={styles.labelModal}>{t('common.from_date')}</Text>
                   <TextInput
                     mode="flat"
                     placeholder="DD-MM-YYYY"
@@ -157,7 +159,7 @@ const Vehicles: React.FC = () => {
                 </View>
 
                 <View style={styles.formGroupModal}>
-                  <Text style={styles.labelModal}>To Date</Text>
+                  <Text style={styles.labelModal}>{t('common.to_date')}</Text>
                   <TextInput
                     mode="flat"
                     style={styles.calendarInputModal}
@@ -172,7 +174,7 @@ const Vehicles: React.FC = () => {
 
                 <View style={styles.buttonRow}>
                   <Button mode="contained" onPress={hideModal} style={styles.closeButton} textColor="#000">
-                    Close
+                    {t('common.close')}
                   </Button>
                   <Button
                     mode="contained"
@@ -180,7 +182,7 @@ const Vehicles: React.FC = () => {
                     buttonColor="#FF5A00"
                     style={styles.applyButton}
                   >
-                    Apply
+                    {t('common.apply')}
                   </Button>
                 </View>
               </Modal>
@@ -197,7 +199,7 @@ const Vehicles: React.FC = () => {
             <View style={styles.searchBlock}>
               <TextInput
                 style={styles.searchFormInput}
-                placeholder="Search"
+                placeholder={t('common.search  ')}
                 placeholderTextColor="#7B8994"
                 value={search}
                 onChangeText={setSearch}
@@ -246,11 +248,11 @@ const Vehicles: React.FC = () => {
            ListFooterComponent={
             loading && !refreshing ? (
             <View style={{ paddingVertical: 20 }}>
-                <Text style={{ textAlign: 'center', color: '#fff' }}>Loading more...</Text>
+                <Text style={{ textAlign: 'center', color: '#fff' }}>{t('common.loading_more')}</Text>
             </View>
             ) : !hasMoreData ? (
             <View style={{ paddingVertical: 20 }}>
-                <Text style={{ textAlign: 'center', color: '#aaa' }}>No more data to load</Text>
+                <Text style={{ textAlign: 'center', color: '#aaa' }}>{t('common.no_more_data_to_load')}</Text>
             </View>
             ) : null
         }

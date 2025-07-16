@@ -23,7 +23,32 @@
     "transaction_history":"تاريخ المعاملات",
     "todays_trips":"رحلات اليوم",
     "no_trip_found":"لم يتم العثور على رحلات"
-
+  },
+  "vehicles":{
+    "vehicles":"المركبات",
+    "add_vehicles":"إضافة مركبة",
+    "vehicle_filters":"مرشحات المركبات"
+  },
+  "trips": {
+    "trips":"رحلات",
+    "trip_filters":"مرشحات الرحلة",
+    "licence_plate_number":"رقم لوحة الترخيص",
+    "paid":"مدفوع"
+  },
+  "transaction":{
+    "transaction_history":"تاريخ المعاملات",
+    "transaction_filters":"مرشحات المعاملات",
+    "transaction_id":"معرف المعاملة"
+  },
+  "common":{
+    "from_date":"من تاريخ",
+    "to_date":"حتى الآن",
+    "close":"يغلق",
+    "apply":"يتقدم",
+    "search":"يبحث",
+    "loading_more":"جارٍ تحميل المزيد...",
+    "no_more_data_to_load":"لا مزيد من البيانات لتحميلها",
+    "clear_filter":"مسح التصفية"
   },
   "profile": {
     "title": "الملف الشخصي"

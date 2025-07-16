@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import { getLicenceNumber, getTodaysTrips, getOverallClasses } from '../services/common';
 import { useAccount } from '../context/AccountProvider';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { useTranslation } from 'react-i18next';
 
 interface Trip {
   AssetId: string;
@@ -50,7 +51,7 @@ const Trips: React.FC = () => {
   const [hasMoreData, setHasMoreData] = useState(true);
   const isFetchingMore = useRef(false);
   const [clearFilterRequested, setClearFilterRequested] = useState(false);
-
+  const {t} = useTranslation();
 
 
   const showModal = () => setVisible(true);
@@ -196,7 +197,7 @@ const getTrips = async (
               <TouchableOpacity style={[styles.backBt, { marginRight: 12 }]} onPress={() => navigation.goBack()}>
                 <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
               </TouchableOpacity>
-              <Text style={styles.headerTitle}>Trips</Text>
+              <Text style={styles.headerTitle}>{t('trips.trips')}</Text>
             </View>
 
             <View style={styles.headerRightBlock}>
@@ -206,7 +207,7 @@ const getTrips = async (
               <View style={styles.btHeader}>
                 {filterEnabled && (
                   <Button onPress={handleClearFilter} labelStyle={styles.filterText}>
-                    Clear Filter
+                    {t('common.clear_filter')}
                   </Button>
                 )}
               </View>
@@ -226,10 +227,10 @@ const getTrips = async (
                 style={styles.modalCloseIcon}
                 iconColor="#fff"
               />
-              <Text style={styles.sectionTitleModal}>Trip Filters</Text>
+              <Text style={styles.sectionTitleModal}>{t('trips.trip_filters')}</Text>
 
               <View style={styles.formGroupModal}>
-                <Text style={styles.labelModal}>From Date</Text>
+                <Text style={styles.labelModal}>{t('common.from_date')}</Text>
                 <TouchableOpacity onPress={() => setShowFromPicker(true)} style={styles.selectDropdown}>
                   <Text style={styles.selectedTextStyle}>{dayjs(fromDate).format('YYYY-MM-DD')}</Text>
                 </TouchableOpacity>
@@ -249,7 +250,7 @@ const getTrips = async (
 
               {/* To Date Picker */}
               <View style={styles.formGroupModal}>
-                <Text style={styles.labelModal}>To Date</Text>
+                <Text style={styles.labelModal}>{t('common.to_date')}</Text>
                 <TouchableOpacity onPress={() => setShowToPicker(true)} style={styles.selectDropdown}>
                   <Text style={styles.selectedTextStyle}>{dayjs(toDate).format('YYYY-MM-DD')}</Text>
                 </TouchableOpacity>
@@ -268,7 +269,7 @@ const getTrips = async (
               />
 
               <View style={styles.formGroupModal}>
-                <Text style={styles.labelModal}>Licence Plate Number</Text>
+                <Text style={styles.labelModal}>{t('trips.licence_plate_number')}</Text>
                 <Dropdown
                   style={styles.selectDropdown}
                   placeholderStyle={styles.placeholderSelect}
@@ -287,7 +288,7 @@ const getTrips = async (
                   setLpnValue(null);
                 }}
                   style={styles.closeButton} textColor="#000">
-                  Close
+                  {t('common.close')}
                 </Button>
                 <Button
                   mode="contained"
@@ -303,7 +304,7 @@ const getTrips = async (
                   style={[styles.applyButton]}
                 >
                   {/* disabled={!lpnValue && !gantryValue} */}
-                  Apply
+                  {t('common.apply')}
                 </Button>
               </View>
             </Modal>
@@ -345,7 +346,7 @@ const getTrips = async (
                     <Text style={styles.largeTextRCard}>{getClassNameFromVRM(item.VRM)}</Text>
                     <Image style={{ width: 16, height: 16, marginVertical: 4 }} source={require('../../assets/images/chat-icon.png')} />
                     <Text style={styles.statusTextCard}>
-                      <Text style={[styles.statusText, { fontWeight: 'normal' }]}>Paid: </Text>
+                      <Text style={[styles.statusText, { fontWeight: 'normal' }]}>{t('trips.paid')}: </Text>
                       <Text style={[styles.statusText, { fontWeight: 'bold' }]}>{item.AmountFinal}</Text>
                     </Text>
                   </View>
@@ -363,11 +364,11 @@ const getTrips = async (
             ListFooterComponent={
               loading && !refreshing ? (
                 <View style={{ paddingVertical: 20 }}>
-                 <Text style={{ textAlign: 'center', color: '#fff' }}>Loading more...</Text>
+                 <Text style={{ textAlign: 'center', color: '#fff' }}>{t('common.loading_more')}</Text>
                 </View>
               ) : tripsData.length >= totalRows ? (
                 <View style={{ paddingVertical: 20 }}>
-                  <Text style={{ textAlign: 'center', color: '#aaa' }}>No more data to load</Text>
+                  <Text style={{ textAlign: 'center', color: '#aaa' }}>{t('common.no_more_data_to_load')}</Text>
                 </View>
               ) : (<View style={{ height: 60 }} />)
             }

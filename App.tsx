@@ -50,6 +50,19 @@ export const useAuth = () => {
   return ctx;
 };
 
+// const logAllAsyncStorage = async () => {
+//   try {
+//     const keys = await AsyncStorage.getAllKeys();
+//     for (const key of keys) {
+//       const value = await AsyncStorage.getItem(key);
+//       console.log(`Key: ${key}, Value: ${value}`);
+//     }
+//   } catch (error) {
+//     console.error('Error fetching AsyncStorage values:', error);
+//   }
+// };
+// logAllAsyncStorage();
+
 /* ──────────────── Navigation Stacks ──────────────── */
 // ------- Param Lists -------
 type AuthStackParamList = {

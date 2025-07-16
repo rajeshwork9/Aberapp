@@ -66,6 +66,17 @@ const Login: React.FC = () => {
     generateCaptcha();
   },[]);
 
+  useEffect(() => {
+    const loadLanguage = async () => {
+      const savedLang = await AsyncStorage.getItem('appLanguage');
+      if (savedLang) {
+        setCountry(savedLang === 'ar' ? '2' : '1');
+        await i18n.changeLanguage(savedLang);
+      }
+    };
+    loadLanguage();
+  }, []);
+
 
 const formik = useFormik({
     initialValues: { email: savedEmail, password: savedPassword, captcha: '' },

@@ -77,6 +77,8 @@ const Cases: React.FC = () => {
     const [showToPicker, setShowToPicker] = useState(false);
     const [filterEnabled, setFilterEnabled] = useState(false);
     const [clearFilterRequested, setClearFilterRequested] = useState(false);
+    const PAGE_SIZE = 10;
+
     
     
     useEffect(() => {
@@ -117,7 +119,7 @@ const Cases: React.FC = () => {
                 fromDate: fromDatetime,
                 toDate: toDatetime,
                 PageNumber: pageNumber,
-                PageSize: 7,
+                PageSize: PAGE_SIZE,
                 onlyActive: activeValue
                 // {
                 //     "accountId": 7,
@@ -132,7 +134,6 @@ const Cases: React.FC = () => {
 
             const response = await getCases(payload);
             console.log(response, "rsponse");
-            const PAGE_SIZE = 7;
 
             const newList = response.List || [];
             const totalRows = response.TotalRows || 0;
@@ -350,7 +351,7 @@ const Cases: React.FC = () => {
                             </Card>
                         )}
                         onEndReached={() => {
-                            if (!loading && !refreshing && hasMoreData && casesData.length >= 7) {
+                            if (!loading && !refreshing && hasMoreData && casesData.length >= PAGE_SIZE) {
                                 getCasesData(accountDetails.AccountId, page + 1, false, fromDate, toDate);
                             }
                         }}

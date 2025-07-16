@@ -24,7 +24,38 @@
     "todays_trips":"Today's Trips",
     "no_trip_found":"No Trips Found"
   },
+  "vehicles":{
+    "vehicles":"Vehicles",
+    "add_vehicles":"Add Vehicle",
+    "vehicle_filters":"Vehicle Filters"
+  },
+  "trips": {
+    "trips":"Trips",
+    "trip_filters":"Trip Filters",
+    "licence_plate_number":"Licence Plate Number",
+    "paid":"Paid"
+  },
+  "statements":{
+    "statements":"Statements",
+    "statements_filters":"Statement Filters",
+    "year":"Year"
+  },
+  "transaction":{
+    "transaction_history":"Transaction History",
+    "transaction_filters":"Transaction Filters",
+    "transaction_id":"Transaction ID"
+  },
   "profile": {
     "title": "Your Profile"
+  },
+  "common":{
+    "from_date":"From Date",
+    "to_date":"To Date",
+    "close":"Close",
+    "apply":"Apply",
+    "search":"Search",
+    "loading_more":"Loading more...",
+    "no_more_data_to_load":"No more data to load",
+    "clear_filter":"Clear Filter"
   }
 }
