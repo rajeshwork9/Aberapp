@@ -9,7 +9,24 @@ import { useAuth } from '../../App';
 import { getCustomerTypes, getUserInfo, changePassword } from '../services/common';
 import { ToastService } from '../utils/ToastService';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n'; // adjust based on path
 
+const local_data = [
+    {
+        value: '1',
+        lable: 'EN',
+        image: {
+            uri: 'http://rpdemos.net/clients/4xmsol/assets/images/us.png',
+        },
+    },
+    {
+        value: '2',
+        lable: 'AE',
+        image: {
+            uri: 'http://rpdemos.net/clients/4xmsol/assets/images/ar.png',
+        },
+    },
+];
 
 const Profile: React.FC = () => {
   const navigation = useNavigation();
@@ -31,6 +48,8 @@ const Profile: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({ old: '', new: '', confirm: '' });
+  const [country, setCountry] = useState('1');
+  
 
   console.log('accounts', accounts);
   console.log('accounts full', full);
@@ -147,8 +166,21 @@ const Profile: React.FC = () => {
   };
 
   const handleLanuageModal = async () => {
+    await AsyncStorage.setItem('appLanguage', language);
+    await i18n.changeLanguage(language);
+    hideLangugeModal();
+  };
 
-  }
+  useEffect(() => {
+    const loadLanguage = async () => {
+      const savedLang = await AsyncStorage.getItem('appLanguage');
+      if (savedLang) {
+        setCountry(savedLang === 'ar' ? '2' : '1');
+        await i18n.changeLanguage(savedLang);
+      }
+    };
+    loadLanguage();
+  }, []);
 
 
 
@@ -415,13 +447,13 @@ const Profile: React.FC = () => {
 
   <TouchableOpacity
     style={styles.radioOption}
-    onPress={() => setLanguage('ur')}
+    onPress={() => setLanguage('ar')}
   >
-    <RadioButton value="ur" color="#ff5200" />
+    <RadioButton value="ar" color="#ff5200" />
     <Text
       style={[
         styles.radioText,
-        language === 'ur' && styles.radioTextSelected,
+        language === 'ar' && styles.radioTextSelected,
       ]}
     >
       {t('profile.arabic')}

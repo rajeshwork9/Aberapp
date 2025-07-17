@@ -70,6 +70,8 @@
     "get_help":"احصل على المساعدة",
     "language":"لغة",
     "select_language":"اختر اللغة",
-    "logout":"تسجيل الخروج"
+    "logout":"تسجيل الخروج",
+    "english":"إنجليزي",
+    "arabic":"عربي"
   }
 }

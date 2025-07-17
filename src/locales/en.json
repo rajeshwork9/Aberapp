@@ -64,7 +64,9 @@
     "get_help":"Get Help",
     "language":"Language",
     "select_language":"Select Language",
-    "logout":"Logout"
+    "logout":"Logout",
+    "english":"English",
+    "arabic":"Arabic"
   },
   "common":{
     "from_date":"From Date",
