@@ -213,7 +213,7 @@ const Vehicles: React.FC = () => {
                 <View style={styles.searchBlock}>
                   <TextInput
                     style={styles.searchFormInput}
-                    placeholder={t('common.search  ')}
+                    placeholder={t('common.search')}
                     placeholderTextColor="#7B8994"
                     value={search}
                     onChangeText={setSearch}
