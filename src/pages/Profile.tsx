@@ -8,11 +8,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../App';
 import { getCustomerTypes, getUserInfo, changePassword } from '../services/common';
 import { ToastService } from '../utils/ToastService';
+import { useTranslation } from 'react-i18next';
 
 
 const Profile: React.FC = () => {
   const navigation = useNavigation();
   const { setLoggedIn } = useAuth();
+  const {t} = useTranslation(); 
   const [secureText, setSecureText] = useState(true);
   const [secureOld, setSecureOld] = useState(true);
   const [secureNew, setSecureNew] = useState(true);
@@ -168,7 +170,7 @@ const Profile: React.FC = () => {
                 source={require('../../assets/images/left-arrow.png')}
               />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Profile</Text>
+            <Text style={styles.headerTitle}>{t('profile.profile')}</Text>
           </View>
         </View>
 
@@ -184,7 +186,7 @@ const Profile: React.FC = () => {
               </Text>
             </View>
 
-            <Text style={styles.sectionTitle}>Accounts</Text>
+            <Text style={styles.sectionTitle}>{t('profile.accounts')}</Text>
 
             {accounts.map(account => {
               const isActive = account.AccountId === activeId;
@@ -209,7 +211,7 @@ const Profile: React.FC = () => {
                       </Card>
                       <View style={styles.leftTextCard}>
                         <Text style={styles.textCard}>{account.AccountName}</Text>
-                        <Text style={styles.smallLabel}>Customer ID</Text>
+                        <Text style={styles.smallLabel}>{t('accounts.customer_id')}</Text>
                         <Text style={styles.smallTextCard}>{account.AccountCode}</Text>
                       </View>
                     </View>
@@ -230,7 +232,7 @@ const Profile: React.FC = () => {
                 { borderBottomColor: '#ccc', borderBottomWidth: 1, paddingBottom: 8 },
               ]}
             >
-              Settings
+              {t('profile.settings')}
             </Text>
 
             {/* Change Password Button */}
@@ -239,17 +241,17 @@ const Profile: React.FC = () => {
                 style={styles.iconProBt}
                 source={require('../../assets/images/changepassword-icon.png')}
               />
-              <Text style={styles.textProBt}>Change Password</Text>
+              <Text style={styles.textProBt}>{t('profile.change_password')}</Text>
             </TouchableOpacity>
 
             {/* Modal */}
             <Portal>
               <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
-                <Text style={styles.sectionTitleModal}>Change password</Text>
+                <Text style={styles.sectionTitleModal}>{t('profile.change_password')}</Text>
 
                 <View style={styles.formGroupModal}>
                   <TextInput
-                    placeholder="Enter Old Password"
+                    placeholder={t('profile.enter_old_password')}
                     style={styles.inputModal}
                     placeholderTextColor="#ccc"
                     textColor="#fff"
@@ -267,7 +269,7 @@ const Profile: React.FC = () => {
 
                 <View style={styles.formGroupModal}>
                   <TextInput
-                    placeholder="Enter New Password"
+                    placeholder= {t('profile.enter_new_password')}
                     style={styles.inputModal}
                     placeholderTextColor="#ccc"
                     textColor="#fff"
@@ -285,7 +287,7 @@ const Profile: React.FC = () => {
 
                 <View style={styles.formGroupModal}>
                   <TextInput
-                    placeholder="Confirm New Password"
+                    placeholder={t('profile.confirm_new_password')}
                     style={styles.inputModal}
                     placeholderTextColor="#ccc"
                     textColor="#fff"
@@ -303,10 +305,10 @@ const Profile: React.FC = () => {
 
                 <View style={styles.buttonRow}>
                   <Button mode="contained" onPress={hideModal} style={styles.closeButton} textColor="#000">
-                    Close
+                    {t('common.close')}
                   </Button>
                   <Button mode="contained" onPress={handlechangepassword} buttonColor="#FF5A00" style={styles.applyButton}>
-                    Apply
+                    {t('common.apply')}
                   </Button>
                 </View>
               </Modal>
@@ -321,7 +323,7 @@ const Profile: React.FC = () => {
               >
                 <View style={{ position: 'relative' }}>
                   {/* Header */}
-                  <Text style={styles.sectionTitleModal}>Account Details</Text>
+                  <Text style={styles.sectionTitleModal}>{t('proflile.account_details')}</Text>
 
                   {/* Close button (top-right) */}
                   <TouchableOpacity
@@ -343,7 +345,7 @@ const Profile: React.FC = () => {
                       { label: 'Customer Type', value: customerTypeData.find((item: any) => item.ItemId == userData.CustomerTypeId)?.ItemName || '-' },
                       { label: 'Company Name', value: userData.CompanyName },
                       { label: 'Trading Name', value: userData.TradingName || '-' },
-                      { label: 'Address', value: `${userData?.AddressLine1 || ''} ${userData?.AddressLine2 || ''}` || '-' },
+                      { label: 'Address', value: `${userData?.AddressLine1 || ''} ${userData?.AddressLine2 || ''} `|| '-' },
                     ].map((item, index) => (
                       <View key={index} style={{ marginBottom: 18 }}>
                         <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>{item.label}</Text>
@@ -362,7 +364,7 @@ const Profile: React.FC = () => {
                     style={styles.closeButton}
                     textColor="#000"
                   >
-                    Close
+                    {t('common.close')}
                   </Button>
                   <Button
                     mode="contained"
@@ -370,7 +372,7 @@ const Profile: React.FC = () => {
                     buttonColor="#FF5A00"
                     style={styles.applyButton}
                   >
-                    Set as Primary
+                    {t('profile.set_as_primary')}
                   </Button>
                 </View>
               </Modal>
@@ -380,17 +382,17 @@ const Profile: React.FC = () => {
             {/* Static Profile Options */}
             <TouchableOpacity style={styles.profileBt}>
               <Image style={styles.iconProBt} source={require('../../assets/images/gethelp-icon.png')} />
-              <Text style={styles.textProBt}>Get Help</Text>
+              <Text style={styles.textProBt}>{t('profile.get_help')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.profileBt} onPress={showLanguageModal}>
               <Image style={styles.iconProBt} source={require('../../assets/images/language-icon.png')} />
-              <Text style={styles.textProBt}>Language</Text>
+              <Text style={styles.textProBt}>{t('profile.language')}</Text>
             </TouchableOpacity>
 
             <Portal>
               <Modal visible={languageModal} onDismiss={hideLangugeModal} contentContainerStyle={styles.modalBottomContainer}>
-  <Text style={styles.sectionTitleModal}>Select Language</Text>
+  <Text style={styles.sectionTitleModal}>{t('profile.select_language')}</Text>
 
   <RadioButton.Group
   onValueChange={newValue => setLanguage(newValue)}
@@ -407,7 +409,7 @@ const Profile: React.FC = () => {
         language === 'en' && styles.radioTextSelected,
       ]}
     >
-      English
+      {t('profile.english')}
     </Text>
   </TouchableOpacity>
 
@@ -422,7 +424,7 @@ const Profile: React.FC = () => {
         language === 'ur' && styles.radioTextSelected,
       ]}
     >
-      Urdu
+      {t('profile.arabic')}
     </Text>
   </TouchableOpacity>
 </RadioButton.Group>
@@ -433,7 +435,7 @@ const Profile: React.FC = () => {
 
             <TouchableOpacity style={styles.profileBt} onPress={handleLogout}>
               <Image style={styles.iconProBt} source={require('../../assets/images/logout-icon.png')} />
-              <Text style={styles.textProBt}>Logout</Text>
+              <Text style={styles.textProBt}>{t('profile.logout')}</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -446,6 +448,9 @@ export default Profile;
 
 
 const styles = StyleSheet.create({
+  radioTextSelected:{
+    color:'#fff'
+  },
    radioOption: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -455,10 +460,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#fff',
   },
-  radioTextSelected: {
-    // color: '#ff5200', // Orange when selected
-    fontWeight: 'normal',
-  },
+  
   
  
   footerAbsolute: {
@@ -484,6 +486,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
 
   },
+  
 
   innerContainerPad: {
     paddingBottom: 70,
