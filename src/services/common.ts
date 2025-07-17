@@ -131,7 +131,7 @@ export const addCases = async (body : any) => {
 export const getStatements = async (body : any) => {
   try {
     const response = await api.post('accounts/page/financialdocumentsbyyear', body);
-    return response.data.List;
+    return response.data;
   } catch (error) {
     throw error;
   }

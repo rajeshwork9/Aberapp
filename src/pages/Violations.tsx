@@ -1,8 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../App';
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image, FlatList } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image, FlatList, Dimensions, Animated } from 'react-native';
 import { Text, Card, TextInput, Modal, Portal, PaperProvider, Button, ActivityIndicator, IconButton } from 'react-native-paper';
 import { Dropdown } from 'react-native-element-dropdown';
 import { getViolations, getOverallClasses, getTransactionStatus } from '../services/common';
@@ -12,20 +12,22 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useTranslation } from 'react-i18next';
 
 
+
 const Violations: React.FC = () => {
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
     const containerStyle = { backgroundColor: 'white', padding: 100 };
     const { full } = useAccount();
-    const {t} = useTranslation();
+    const { t } = useTranslation();
+
 
     const statusColors: Record<number, string> = {
-    2: '#808080',  // Closed - Gray
-    1: '#FFA500',  // Pending - Orange
-    3: '#28A745',  // Active - Green
-    17: '#17A2B8',  // In Progress - Blue
-    100: '#b394ecff',  // Assigned - Purple
-    101: '#FFC107',  // Reopened - Amber
-    102: '#DC3545',  // Escalated - Red
+        2: '#808080',  // Closed - Gray
+        1: '#FFA500',  // Pending - Orange
+        3: '#28A745',  // Active - Green
+        17: '#17A2B8',  // In Progress - Blue
+        100: '#b394ecff',  // Assigned - Purple
+        101: '#FFC107',  // Reopened - Amber
+        102: '#DC3545',  // Escalated - Red
     };
     const [search, setSearch] = React.useState('');
     const [visible, setVisible] = React.useState(false);
@@ -34,7 +36,7 @@ const Violations: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [page, setPage] = useState(1);
-    const [violationData, setViolationData] = useState<any>();
+    const [violationData, setViolationData] = useState<any[]>([]);
     const [value, setValue] = useState(null);
     const [fromDate, setFromDate] = useState(dayjs().subtract(7, 'day').toDate());
     const [toDate, setToDate] = useState(new Date());
@@ -43,11 +45,15 @@ const Violations: React.FC = () => {
     const [filterEnabled, setFilterEnabled] = useState(false);
     const [hasMoreData, setHasMoreData] = useState(true);
     const [statusData, setStatusData] = useState<any[]>([]);
+    const [visibleHeight, setVisibleHeight] = useState(1);
+    const [contentHeight, setContentHeight] = useState(1)
+    const scrollY = useRef(new Animated.Value(0)).current;
 
 
 
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
+
 
     useEffect(() => {
         setAccountDetails(full);
@@ -88,7 +94,7 @@ const Violations: React.FC = () => {
             console.log('violation response', response);
             const PAGE_SIZE = 10;
             const newList = response || [];
-           
+
             if (isRefresh || pageNumber === 1) {
                 setViolationData(newList);
             } else {
@@ -113,34 +119,34 @@ const Violations: React.FC = () => {
         getViolationsData(accountDetails.AccountId, 1, true, dayjs().subtract(7, 'day').toDate(), new Date());
     }
 
-    const getTypes =  async ()   => {
+    const getTypes = async () => {
         try {
-            const response = await  getOverallClasses();
+            const response = await getOverallClasses();
             console.log(response);
         }
-        catch (error: any){
+        catch (error: any) {
             console.error(error);
         }
         finally {
             console.log('api comopleted');
-            
+
         }
     };
-    
-    const getTransactionStatusData =  async ()   => {
+
+    const getTransactionStatusData = async () => {
         try {
-            const response = await  getTransactionStatus();
+            const response = await getTransactionStatus();
             console.log(response);
             setStatusData(response);
         }
-        catch (error: any){
+        catch (error: any) {
             console.error(error);
         }
         finally {
             console.log('api comopleted');
-            
+
         }
-    } 
+    }
 
     return (
         <PaperProvider>
@@ -151,28 +157,28 @@ const Violations: React.FC = () => {
 
                 <View style={{ flex: 1 }}>
 
-                <View style={styles.headerMain}>
-                    <View style={styles.headerLeftBlock} >
-                        <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
-                            <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
-                        </TouchableOpacity>
-                        <Text style={styles.headerTitle}>{t('violation.violations')}</Text>
-                    </View>
-
-                    <View style={styles.headerRightBlock}>
-                        <TouchableOpacity style={styles.roundedIconBt} onPress={() => showModal()}>
-                            <Image style={styles.roundedIcon} source={require('../../assets/images/filter-icon.png')} />
-                        </TouchableOpacity>
-                        <View style={styles.btHeader}>
-                            {filterEnabled && (
-                                <Button onPress={handleClearFilter} labelStyle={styles.filterText}>
-                                    {t('common.clear_filter')}
-                                </Button>
-                            )}
+                    <View style={styles.headerMain}>
+                        <View style={styles.headerLeftBlock} >
+                            <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
+                                <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
+                            </TouchableOpacity>
+                            <Text style={styles.headerTitle}>{t('violation.violations')}</Text>
                         </View>
 
-                        <Portal>
-                            <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
+                        <View style={styles.headerRightBlock}>
+                            <TouchableOpacity style={styles.roundedIconBt} onPress={() => showModal()}>
+                                <Image style={styles.roundedIcon} source={require('../../assets/images/filter-icon.png')} />
+                            </TouchableOpacity>
+                            <View style={styles.btHeader}>
+                                {filterEnabled && (
+                                    <Button onPress={handleClearFilter} labelStyle={styles.filterText}>
+                                        {t('common.clear_filter')}
+                                    </Button>
+                                )}
+                            </View>
+
+                            <Portal>
+                                <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
                                     {/* Close Icon */}
                                     <IconButton
                                         icon="close"
@@ -181,139 +187,172 @@ const Violations: React.FC = () => {
                                         style={styles.modalCloseIcon}
                                         iconColor="#fff"
                                     />
-                                <Text style={styles.sectionTitleModal}>{t('violation.violtion_filters')}</Text>
-                                <View style={styles.formGroupModal}>
-                                    <Text style={styles.labelModal}>{t('common.from_date')}</Text>
-                                    <TouchableOpacity onPress={() => setShowFromPicker(true)} style={styles.selectDropdown}>
-                                        <Text style={styles.selectedTextStyle}>{dayjs(fromDate).format('YYYY-MM-DD')}</Text>
-                                    </TouchableOpacity>
-                                </View>
+                                    <Text style={styles.sectionTitleModal}>{t('violation.violtion_filters')}</Text>
+                                    <View style={styles.formGroupModal}>
+                                        <Text style={styles.labelModal}>{t('common.from_date')}</Text>
+                                        <TouchableOpacity onPress={() => setShowFromPicker(true)} style={styles.selectDropdown}>
+                                            <Text style={styles.selectedTextStyle}>{dayjs(fromDate).format('YYYY-MM-DD')}</Text>
+                                        </TouchableOpacity>
+                                    </View>
 
-                                <DateTimePickerModal
-                                    isVisible={showFromPicker}
-                                    mode="date"
-                                    date={fromDate}
-                                    maximumDate={new Date()}
-                                    onConfirm={(date) => {
-                                        setShowFromPicker(false);
-                                        setFromDate(date);
-                                    }}
-                                    onCancel={() => setShowFromPicker(false)}
-                                />
-
-                                {/* To Date Picker */}
-                                <View style={styles.formGroupModal}>
-                                    <Text style={styles.labelModal}>{t('common.to_date')}</Text>
-                                    <TouchableOpacity onPress={() => setShowToPicker(true)} style={styles.selectDropdown}>
-                                        <Text style={styles.selectedTextStyle}>{dayjs(toDate).format('YYYY-MM-DD')}</Text>
-                                    </TouchableOpacity>
-                                </View>
-
-                                <DateTimePickerModal
-                                    isVisible={showToPicker}
-                                    mode="date"
-                                    date={toDate}
-                                    maximumDate={new Date()}
-                                    onConfirm={(date) => {
-                                        setShowToPicker(false);
-                                        setToDate(date);
-                                    }}
-                                    onCancel={() => setShowToPicker(false)}
-                                />
-
-                                <View style={styles.buttonRow}>
-                                    <Button
-                                        mode="contained"
-                                        onPress={hideModal}
-                                        style={styles.closeButton}
-                                        textColor="#000"
-                                    >
-                                        {t('common.close')}
-                                    </Button>
-
-                                    <Button
-                                        mode="contained"
-                                        onPress={() => {
-                                            hideModal();
-                                            if (accountDetails?.AccountId) {
-                                                getViolationsData(accountDetails.AccountId, 1, true, fromDate, toDate);
-                                                setFilterEnabled(true);
-                                            }
+                                    <DateTimePickerModal
+                                        isVisible={showFromPicker}
+                                        mode="date"
+                                        date={fromDate}
+                                        maximumDate={new Date()}
+                                        onConfirm={(date) => {
+                                            setShowFromPicker(false);
+                                            setFromDate(date);
                                         }}
-                                        buttonColor="#FF5A00"
-                                        style={styles.applyButton}
-                                    >
-                                        {t('common.apply')}
-                                    </Button>
-                                </View>
+                                        onCancel={() => setShowFromPicker(false)}
+                                    />
 
-                            </Modal>
-                        </Portal>
+                                    {/* To Date Picker */}
+                                    <View style={styles.formGroupModal}>
+                                        <Text style={styles.labelModal}>{t('common.to_date')}</Text>
+                                        <TouchableOpacity onPress={() => setShowToPicker(true)} style={styles.selectDropdown}>
+                                            <Text style={styles.selectedTextStyle}>{dayjs(toDate).format('YYYY-MM-DD')}</Text>
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    <DateTimePickerModal
+                                        isVisible={showToPicker}
+                                        mode="date"
+                                        date={toDate}
+                                        maximumDate={new Date()}
+                                        onConfirm={(date) => {
+                                            setShowToPicker(false);
+                                            setToDate(date);
+                                        }}
+                                        onCancel={() => setShowToPicker(false)}
+                                    />
+
+                                    <View style={styles.buttonRow}>
+                                        <Button
+                                            mode="contained"
+                                            onPress={hideModal}
+                                            style={styles.closeButton}
+                                            textColor="#000"
+                                        >
+                                            {t('common.close')}
+                                        </Button>
+
+                                        <Button
+                                            mode="contained"
+                                            onPress={() => {
+                                                hideModal();
+                                                if (accountDetails?.AccountId) {
+                                                    getViolationsData(accountDetails.AccountId, 1, true, fromDate, toDate);
+                                                    setFilterEnabled(true);
+                                                }
+                                            }}
+                                            buttonColor="#FF5A00"
+                                            style={styles.applyButton}
+                                        >
+                                            {t('common.apply')}
+                                        </Button>
+                                    </View>
+
+                                </Modal>
+                            </Portal>
+                        </View>
                     </View>
-                </View>
-
-                    <FlatList
-                        data={violationData}
-                        keyExtractor={(item, index) => `${item.AccountId}-${index}`}
-                        contentContainerStyle={[styles.container, { paddingBottom: 100 }]}
-                        ListHeaderComponent={
-                            <View style={styles.searchBlock}>
-                                <TextInput
-                                    style={styles.searchFormInput}
-                                    placeholder={t('common.search')}
-                                    value={search}
-                                    onChangeText={setSearch}
-                                    mode="outlined"
-                                    theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
-                                />
-                                <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
-                            </View>
-                        }
-                        renderItem={({ item }) => (
-                            <Card style={styles.cardItemMain} onPress={() => navigation.navigate('ViolationsDetails')}>
-                                <View style={styles.cardContentInner}>
-                                    <View style={styles.leftCardCont}>
-                                        <Card style={styles.cardWithIcon}>
-                                            <Image style={styles.cardIconImg} source={require('../../assets/images/vehicles-icon.png')} />
-                                        </Card>
-                                        <View style={styles.leftTextCard}>
-                                            <Text style={styles.textCard}>{item.VRM}</Text>
-                                            <Text style={styles.textCard}>{item.LocationName}</Text>
-                                            <Text style={styles.textCard}>{t('violataion.transaction_id')}: {item.TransactionId}</Text>
-                                            <Text style={styles.textCard}>{dayjs(item.TransactionDate).format('YYYY-MM-DD HH:mm')}</Text>
+                    <View
+                        style={styles.MainScrollbar}
+                        onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
+                    ><FlatList
+                            data={violationData}
+                            keyExtractor={(item, index) => `${item.AccountId}-${index}`}
+                            contentContainerStyle={[styles.container, { paddingBottom: 100 }]}
+                            showsVerticalScrollIndicator={false}
+                            onScroll={Animated.event(
+                                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                                { useNativeDriver: false }
+                            )}
+                            scrollEventThrottle={16}
+                            onContentSizeChange={(_, height) => setContentHeight(height)}
+                            ListHeaderComponent={
+                                <View style={styles.searchBlock}>
+                                    <TextInput
+                                        style={styles.searchFormInput}
+                                        placeholder={t('common.search')}
+                                        value={search}
+                                        onChangeText={setSearch}
+                                        mode="outlined"
+                                        theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
+                                    />
+                                    <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
+                                </View>
+                            }
+                            renderItem={({ item }) => (
+                                <Card style={styles.cardItemMain} onPress={() => navigation.navigate('ViolationsDetails')}>
+                                    <View style={styles.cardContentInner}>
+                                        <View style={styles.leftCardCont}>
+                                            <Card style={styles.cardWithIcon}>
+                                                <Image style={styles.cardIconImg} source={require('../../assets/images/vehicles-icon.png')} />
+                                            </Card>
+                                            <View style={styles.leftTextCard}>
+                                                <Text style={styles.textCard}>{item.VRM}</Text>
+                                                <Text style={styles.textCard}>{item.LocationName}</Text>
+                                                <Text style={styles.textCard}>{t('violataion.transaction_id')}: {item.TransactionId}</Text>
+                                                <Text style={styles.textCard}>{dayjs(item.TransactionDate).format('YYYY-MM-DD HH:mm')}</Text>
+                                            </View>
+                                        </View>
+                                        <View style={styles.rightTextCard}>
+                                            <Text style={styles.statusTextCard}>
+                                                <Text style={[styles.statusText, { fontWeight: 'normal', color: statusColors[item.StatusId] }]}> {statusData.find((data: any) => item.StatusId == data.ItemId)?.ItemName} : </Text>
+                                                <Text style={[styles.statusText, { fontWeight: 'bold', color: statusColors[item.StatusId] }]}>{item.AmountFinal}</Text>
+                                            </Text>
                                         </View>
                                     </View>
-                                    <View style={styles.rightTextCard}>
-                                        <Text style={styles.statusTextCard}>
-                                            <Text style={[styles.statusText, { fontWeight: 'normal',color: statusColors[item.StatusId] }]}> {statusData.find((data : any)=> item.StatusId == data.ItemId)?.ItemName} : </Text>
-                                            <Text style={[styles.statusText, { fontWeight: 'bold', color: statusColors[item.StatusId] }]}>{item.AmountFinal}</Text>
-                                        </Text>
+                                </Card>
+                            )}
+                            onEndReached={() => {
+                                console.log("Reached end, loading more...");
+                                if (!loading && hasMoreData) {
+                                    getViolationsData(accountDetails.AccountId, page + 1, false, fromDate, toDate);
+                                }
+                            }}
+                            onEndReachedThreshold={0.1}
+                            refreshing={refreshing}
+                            onRefresh={() => getViolationsData(accountDetails.AccountId, 1, true, fromDate, toDate)}
+                            ListFooterComponent={
+                                loading && !refreshing ? (
+                                    <View style={{ paddingVertical: 20 }}>
+                                        <Text style={{ textAlign: 'center', color: '#fff' }}>{t('common.loading_more')}</Text>
                                     </View>
-                                </View>
-                            </Card>
-                        )}
-                        onEndReached={() => {
-                            console.log("Reached end, loading more...");
-                            if (!loading && hasMoreData) {
-                                getViolationsData(accountDetails.AccountId, page + 1, false,  fromDate, toDate);
+                                ) : !hasMoreData ? (
+                                    <View style={{ paddingVertical: 20 }}>
+                                        <Text style={{ textAlign: 'center', color: '#aaa' }}>{t('common.no_more_data_to_load')}</Text>
+                                    </View>
+                                ) : null
                             }
-                        }}
-                        onEndReachedThreshold={0.1}
-                        refreshing={refreshing}
-                        onRefresh={() => getViolationsData(accountDetails.AccountId, 1, true, fromDate, toDate)}
-                        ListFooterComponent={
-                            loading && !refreshing ? (
-                                <View style={{ paddingVertical: 20 }}>
-                                    <Text style={{ textAlign: 'center', color: '#fff' }}>{t('common.loading_more')}</Text>
-                                </View>
-                            ) : !hasMoreData ? (
-                                <View style={{ paddingVertical: 20 }}>
-                                    <Text style={{ textAlign: 'center', color: '#aaa' }}>{t('common.no_more_data_to_load')}</Text>
-                                </View>
-                            ) : null
-                        }
-                    />
+                        /></View>
+
+                    {contentHeight > visibleHeight && (
+                        <Animated.View
+                            style={{
+                                position: 'absolute',
+                                right: 4,
+                                top:100,
+                                width: 6,
+                                height: Math.max((visibleHeight / contentHeight) * visibleHeight, 30),
+                                backgroundColor: '#FF5A00',
+                                borderRadius: 3,
+                                transform: [
+                                    {
+                                        translateY: scrollY.interpolate({
+                                            inputRange: [0, contentHeight - visibleHeight],
+                                            outputRange: [0, visibleHeight - ((visibleHeight / contentHeight) * visibleHeight)],
+                                            extrapolate: 'clamp',
+                                        }),
+                                    },
+                                ],
+                            }}
+                        />
+                    )}
                 </View>
+
             </ImageBackground>
         </PaperProvider>
 
@@ -321,7 +360,10 @@ const Violations: React.FC = () => {
 };
 export default Violations;
 const styles = StyleSheet.create({
-
+MainScrollbar:{
+    flex:1,
+    position:'relative',
+},
     //--- Header
     backgroundImage: {
         flex: 1,
@@ -330,7 +372,7 @@ const styles = StyleSheet.create({
     },
 
     container: {
-       
+
         marginHorizontal: 10,
         marginTop: 20,
     },
@@ -675,12 +717,12 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
 
- modalCloseIcon: {
-  position: 'absolute',
-  top: 8,
-  right: 8,
-  zIndex: 10,
-},
+    modalCloseIcon: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        zIndex: 10,
+    },
 
 
 

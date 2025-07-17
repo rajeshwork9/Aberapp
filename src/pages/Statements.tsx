@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../App';
-import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image, FlatList, } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image, FlatList, Animated, } from 'react-native';
 import { Button, TextInput, Modal, Portal, Text, Badge, Avatar, Card, IconButton, PaperProvider } from 'react-native-paper';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useAccount } from '../context/AccountProvider';
@@ -12,9 +12,6 @@ import RNFS from 'react-native-fs';
 import { Alert, Platform, PermissionsAndroid } from 'react-native';
 import { ToastService } from '../utils/ToastService';
 import { useTranslation } from 'react-i18next';
-
-
-
 
 
 interface Statements {
@@ -34,22 +31,24 @@ interface Statements {
 const Statements: React.FC = () => {
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
     const { full } = useAccount();
-    const {t} = useTranslation();
+    const { t } = useTranslation();
 
     const [search, setSearch] = React.useState('');
     const [visible, setVisible] = React.useState(false);
-    const [value, setValue] = useState(null);
     const [accountDetails, setAccountDetails] = useState<any>();
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [totalRows, setTotalRows] = useState(0);
     const [page, setPage] = useState(1);
     const [statementData, setStatementData] = useState<Statements[]>([]);
+    const [filterApplied, setFilterApplied] = useState(false);
+    const defaultYear = new Date().getFullYear().toString();
     const [year, setYear] = useState('2025');
     const [hasMoreData, setHasMoreData] = useState(true);
     const PAGE_SIZE = 10;
-
-
+    const [visibleHeight, setVisibleHeight] = useState(1);
+    const [contentHeight, setContentHeight] = useState(1)
+    const scrollY = useRef(new Animated.Value(0)).current;
     useEffect(() => {
         setAccountDetails(full);
     }, [full]);
@@ -61,42 +60,44 @@ const Statements: React.FC = () => {
     }, [accountDetails]);
 
 
-    const getStatementsData = async (accountId: number, pageNumber: number, isRefresh = false) => {
+    const getStatementsData = async (accountId: number, pageNumber: number, isRefresh = false, overrideYear?: string) => {
         try {
             if (isRefresh) {
                 setRefreshing(true);
-                setHasMoreData(true); // reset hasMoreData when refreshing
+                setHasMoreData(true); // Reset
             } else {
                 setLoading(true);
             }
-
+            const usedYear = overrideYear || year;
             const payload = {
                 AccountId: accountId,
                 FinancialDocumentTypeId: 2,
-                year: parseInt(year), // use selected year
+                year: parseInt(usedYear),
                 PageNumber: pageNumber,
                 PageSize: PAGE_SIZE,
             };
+            console.log(payload, "payload");
 
             const response = await getStatements(payload);
-            console.log(response, "statemen")
-            const newList = response || [];
+            console.log(response, 'statements');
 
-            // Update data
+            const newList = Array.isArray(response.List) ? response.List : [];
+
             setPage(pageNumber);
+            setTotalRows(response.totalRows)
             setStatementData(prev =>
                 isRefresh || pageNumber === 1 ? newList : [...prev, ...newList]
             );
 
-            // If fetched less than PAGE_SIZE, no more data
-            setHasMoreData(newList.length === PAGE_SIZE);
+            setHasMoreData(newList.length >= PAGE_SIZE); // handle edge case
         } catch (e) {
             console.error('Statements fetch error:', e);
         } finally {
+            if (isRefresh) setRefreshing(false);
             setLoading(false);
-            setRefreshing(false);
         }
     };
+    ;
 
 
     const showModal = () => setVisible(true);
@@ -137,6 +138,16 @@ const Statements: React.FC = () => {
         }
     };
 
+    const getYearOptions = (startYear = 2020) => {
+        const currentYear = new Date().getFullYear();
+        return Array.from({ length: currentYear - startYear + 1 }, (_, i) => {
+            const y = (startYear + i).toString();
+            return { label: y, value: y };
+        }).reverse(); // latest first
+    };
+
+    const yearOptions = getYearOptions(2015);
+
 
 
     return (
@@ -159,6 +170,21 @@ const Statements: React.FC = () => {
                             <TouchableOpacity style={styles.roundedIconBt} onPress={() => showModal()}>
                                 <Image style={styles.roundedIcon} source={require('../../assets/images/filter-icon.png')} />
                             </TouchableOpacity>
+                            {filterApplied && (
+                                <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 8 }}>
+                                    <Text style={styles.yearBadge}>{year}</Text>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            setYear(defaultYear);
+                                            setFilterApplied(false);
+                                            getStatementsData(accountDetails.AccountId, 1, true, defaultYear);
+                                        }}
+                                        style={styles.clearFilterButton}
+                                    >
+                                        <Text style={styles.clearFilterText}>{t('common.clear_filter')}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            )}
 
                             <Portal>
                                 <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
@@ -174,19 +200,18 @@ const Statements: React.FC = () => {
 
                                     <View style={styles.formGroupModal}>
                                         <Text style={styles.labelModal}>{t('statements.year')}</Text>
-                                        <TextInput
-                                            mode="flat"
-                                            style={styles.calendarInputModal}
-                                            underlineColor="#fff"
-                                            placeholder='YYYY'
+                                        <Dropdown
+                                            data={yearOptions}
+                                            labelField="label"
+                                            valueField="value"
+                                            placeholder="Select Year"
+                                            placeholderStyle={{ color: '#ccc' }}
                                             value={year}
-                                            onChangeText={setYear}
-                                            keyboardType="numeric"
-                                            placeholderTextColor="#707070"
-                                            textColor='#fff'
-                                            theme={{ colors: { primary: '#FF5400' } }}
+                                            onChange={item => setYear(item.value)}
+                                            style={styles.dropdownStyle}
+                                            containerStyle={{ backgroundColor: '#fff' }}
                                         />
-                                        <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} />
+                                        {/* <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} /> */}
                                     </View>
 
                                     <View style={styles.buttonRow}>
@@ -204,6 +229,7 @@ const Statements: React.FC = () => {
                                             onPress={() => {
                                                 getStatementsData(accountDetails.AccountId, 1, true);
                                                 hideModal();
+                                                setFilterApplied(true);
                                             }}
                                             buttonColor="#FF5A00"
                                             style={styles.applyButton}
@@ -217,81 +243,113 @@ const Statements: React.FC = () => {
                         </View>
                     </View>
 
-
+                    <View
+                        style={styles.MainScrollbar}
+                        onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
+                    >                    
                     <FlatList
-                        data={statementData}
-                        keyExtractor={(item, index) => `${item.DocumentTypeId}-${index}`}
-                        contentContainerStyle={styles.container}
-                        ListHeaderComponent={
-                            <View style={styles.searchBlock}>
-                                <TextInput
-                                    style={styles.searchFormInput}
-                                    placeholder={t('common.search')}
-                                    value={search}
-                                    onChangeText={setSearch}
-                                    mode='outlined'
-                                    theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
-                                />
-                                <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
-                            </View>
-                        }
-                        ListFooterComponent={
-                            loading && page > 1 ? (
-                                <View style={{ padding: 16 }}>
-                                    <Text style={{ textAlign: 'center', color: '#666' }}>{t('common.loading_more')}</Text>
+                            data={statementData}
+                            keyExtractor={(item, index) => `${item.DocumentTypeId}-${index}`}
+                            contentContainerStyle={[styles.container, { paddingBottom: 100 }]}
+                            showsVerticalScrollIndicator={false}
+                             onScroll={Animated.event(
+                                                            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                                                            { useNativeDriver: false }
+                                                        )}
+                                                        scrollEventThrottle={16}
+                                                        onContentSizeChange={(_, height) => setContentHeight(height)}
+                            ListHeaderComponent={
+                                <View style={styles.searchBlock}>
+                                    <TextInput
+                                        style={styles.searchFormInput}
+                                        placeholder={t('common.search')}
+                                        value={search}
+                                        onChangeText={setSearch}
+                                        mode='outlined'
+                                        theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
+                                    />
+                                    <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
                                 </View>
-                            ) : statementData.length >= totalRows ? (
-                                <View style={{ paddingVertical: 20 }}>
-                                    <Text style={{ textAlign: 'center', color: '#aaa' }}>{t('common.no_more_data_to_load')}</Text>
-                                </View>
-                            ) : (<View style={{ height: 60 }} />)
-                        }
-                        renderItem={({ item }) => (
-                            <Card style={styles.cardItemMain}>
-                                <View style={styles.cardContentInner}>
-                                    <View style={styles.leftCardCont}>
-                                        <Card style={styles.cardWithIcon}>
-                                            <Image style={styles.cardIconImg} source={require('../../assets/images/statements-icon.png')} />
-                                        </Card>
+                            }
+                            ListFooterComponent={
+                                loading && !refreshing ? (
+                                    <View style={{ padding: 16 }}>
+                                        <Text style={{ textAlign: 'center', color: '#666' }}>{t('common.loading_more')}</Text>
+                                    </View>
+                                ) : !hasMoreData ? (
+                                    <View style={{ paddingVertical: 20 }}>
+                                        <Text style={{ textAlign: 'center', color: '#aaa' }}>{t('common.no_more_data_to_load')}</Text>
+                                    </View>
+                                ) : (<View style={{ height: 60 }} />)
+                            }
+                            renderItem={({ item }) => (
+                                <Card style={styles.cardItemMain}>
+                                    <View style={styles.cardContentInner}>
+                                        <View style={styles.leftCardCont}>
+                                            <Card style={styles.cardWithIcon}>
+                                                <Image style={styles.cardIconImg} source={require('../../assets/images/statements-icon.png')} />
+                                            </Card>
 
-                                        <View style={styles.leftTextCard}>
-                                            <Text style={[styles.textCard, { fontFamily: 'Poppins-SemiBold' }]}>{item.ReferenceNumber}</Text>
-                                            <View style={[styles.textCard, { flexDirection: 'row', alignItems: 'center' }]}>
-                                                <Image
-                                                    style={[styles.calenderIcon, { marginRight: 6 }]}
-                                                    source={require('../../assets/images/calendar-icon.png')}
-                                                />
-                                                <Text style={styles.textCard}>{dayjs(item.IssueDate).format('YYYY-MM-DD HH:mm')}</Text>
+                                            <View style={styles.leftTextCard}>
+                                                <Text style={[styles.textCard, { fontFamily: 'Poppins-SemiBold' }]}>{item.ReferenceNumber}</Text>
+                                                <View style={[styles.textCard, { flexDirection: 'row', alignItems: 'center' }]}>
+                                                    <Image
+                                                        style={[styles.calenderIcon, { marginRight: 6 }]}
+                                                        source={require('../../assets/images/calendar-icon.png')}
+                                                    />
+                                                    <Text style={styles.textCard}>{dayjs(item.IssueDate).format('YYYY-MM-DD HH:mm')}</Text>
+                                                </View>
                                             </View>
                                         </View>
-                                    </View>
-                                    <View style={styles.rightTextCard}>
-                                        <TouchableOpacity
-                                            onPress={() => handleDownload(item.DocumentContent, `Statement-${item.FinancialDocumentID}-${dayjs(item.PeriodTo).format('YYYY-MM-DD')}.pdf`)}
-                                        >
-                                            <Card style={styles.downloadIcon}>
-                                                <Image
-                                                    style={styles.cardIconImg}
-                                                    source={require('../../assets/images/download-white-icon.png')}
-                                                />
-                                            </Card>
-                                        </TouchableOpacity>
-                                    </View>
+                                        <View style={styles.rightTextCard}>
+                                            <TouchableOpacity
+                                                onPress={() => handleDownload(item.DocumentContent, `Statement-${item.FinancialDocumentID}-${dayjs(item.PeriodTo).format('YYYY-MM-DD')}.pdf`)}
+                                            >
+                                                <Card style={styles.downloadIcon}>
+                                                    <Image
+                                                        style={styles.cardIconImg}
+                                                        source={require('../../assets/images/download-white-icon.png')}
+                                                    />
+                                                </Card>
+                                            </TouchableOpacity>
+                                        </View>
 
-                                </View>
-                            </Card>
-                        )}
-                        onEndReachedThreshold={0.5}
-                        onEndReached={() => {
-                            if (hasMoreData && !loading) {
-                                getStatementsData(accountDetails.AccountId, page + 1);
-                            }
-                        }}
-                        refreshing={refreshing}
-                        onRefresh={() => {
-                            getStatementsData(accountDetails.AccountId, 1, true);
-                        }}
-                    />
+                                    </View>
+                                </Card>
+                            )}
+                            onEndReachedThreshold={0.5}
+                            onEndReached={() => {
+                                if (hasMoreData && !loading) {
+                                    getStatementsData(accountDetails.AccountId, page + 1);
+                                }
+                            }}
+                            refreshing={refreshing}
+                            onRefresh={() => {
+                                getStatementsData(accountDetails.AccountId, 1, true);
+                            }}
+                        /></View>
+                    {contentHeight > visibleHeight && (
+                        <Animated.View
+                            style={{
+                                position: 'absolute',
+                                right: 4,
+                                top: 100,
+                                width: 6,
+                                height: Math.max((visibleHeight / contentHeight) * visibleHeight, 30),
+                                backgroundColor: '#FF5A00',
+                                borderRadius: 3,
+                                transform: [
+                                    {
+                                        translateY: scrollY.interpolate({
+                                            inputRange: [0, contentHeight - visibleHeight],
+                                            outputRange: [0, visibleHeight - ((visibleHeight / contentHeight) * visibleHeight)],
+                                            extrapolate: 'clamp',
+                                        }),
+                                    },
+                                ],
+                            }}
+                        />
+                    )}
                 </View>
             </ImageBackground>
         </PaperProvider>
@@ -300,16 +358,19 @@ const Statements: React.FC = () => {
 };
 export default Statements;
 const styles = StyleSheet.create({
-
+    MainScrollbar: {
+        flex: 1,
+        position: 'relative',
+    },
     //--- Header
     backgroundImage: {
-        flex: 1,
+   
         width: '100%',
         height: '100%',
     },
 
     container: {
-        flex: 1,
+       
         marginHorizontal: 10,
         marginTop: 20,
     },
@@ -568,7 +629,9 @@ const styles = StyleSheet.create({
         paddingVertical: 0,
         borderWidth: 1,
         borderBottomColor: '#fff',
+
     },
+
 
     placeholderSelect: {
         fontSize: 13,
@@ -637,6 +700,35 @@ const styles = StyleSheet.create({
         right: 8,
         zIndex: 10,
     },
+    dropdownStyle: {
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        padding: 12,
+        marginTop: 8,
+    },
+    yearBadge: {
+        backgroundColor: '#fff',
+        borderRadius: 50,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        fontSize: 12,
+        color: '#000',
+        fontWeight: 'bold',
+        marginRight: 6,
+    },
 
+    clearFilterButton: {
+        backgroundColor: '#fff',
+        borderRadius: 50,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderWidth: 1,
+        borderColor: '#ccc',
+    },
 
+    clearFilterText: {
+        fontSize: 12,
+        color: '#000',
+        fontWeight: '500',
+    },
 });
