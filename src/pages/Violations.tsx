@@ -9,12 +9,14 @@ import { getViolations, getOverallClasses, getTransactionStatus } from '../servi
 import { useAccount } from '../context/AccountProvider';
 import dayjs from 'dayjs';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { useTranslation } from 'react-i18next';
 
 
 const Violations: React.FC = () => {
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
     const containerStyle = { backgroundColor: 'white', padding: 100 };
     const { full } = useAccount();
+    const {t} = useTranslation();
 
     const statusColors: Record<number, string> = {
     2: '#808080',  // Closed - Gray
@@ -154,7 +156,7 @@ const Violations: React.FC = () => {
                         <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
                             <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
                         </TouchableOpacity>
-                        <Text style={styles.headerTitle}>Violations</Text>
+                        <Text style={styles.headerTitle}>{t('violation.violations')}</Text>
                     </View>
 
                     <View style={styles.headerRightBlock}>
@@ -164,7 +166,7 @@ const Violations: React.FC = () => {
                         <View style={styles.btHeader}>
                             {filterEnabled && (
                                 <Button onPress={handleClearFilter} labelStyle={styles.filterText}>
-                                    Clear Filter
+                                    {t('common.clear_filter')}
                                 </Button>
                             )}
                         </View>
@@ -179,9 +181,9 @@ const Violations: React.FC = () => {
                                         style={styles.modalCloseIcon}
                                         iconColor="#fff"
                                     />
-                                <Text style={styles.sectionTitleModal}>Violation Filters</Text>
+                                <Text style={styles.sectionTitleModal}>{t('violation.violtion_filters')}</Text>
                                 <View style={styles.formGroupModal}>
-                                    <Text style={styles.labelModal}>From Date</Text>
+                                    <Text style={styles.labelModal}>{t('common.from_date')}</Text>
                                     <TouchableOpacity onPress={() => setShowFromPicker(true)} style={styles.selectDropdown}>
                                         <Text style={styles.selectedTextStyle}>{dayjs(fromDate).format('YYYY-MM-DD')}</Text>
                                     </TouchableOpacity>
@@ -201,7 +203,7 @@ const Violations: React.FC = () => {
 
                                 {/* To Date Picker */}
                                 <View style={styles.formGroupModal}>
-                                    <Text style={styles.labelModal}>To Date</Text>
+                                    <Text style={styles.labelModal}>{t('common.to_date')}</Text>
                                     <TouchableOpacity onPress={() => setShowToPicker(true)} style={styles.selectDropdown}>
                                         <Text style={styles.selectedTextStyle}>{dayjs(toDate).format('YYYY-MM-DD')}</Text>
                                     </TouchableOpacity>
@@ -226,7 +228,7 @@ const Violations: React.FC = () => {
                                         style={styles.closeButton}
                                         textColor="#000"
                                     >
-                                        Close
+                                        {t('common.close')}
                                     </Button>
 
                                     <Button
@@ -241,7 +243,7 @@ const Violations: React.FC = () => {
                                         buttonColor="#FF5A00"
                                         style={styles.applyButton}
                                     >
-                                        Apply
+                                        {t('common.apply')}
                                     </Button>
                                 </View>
 
@@ -258,7 +260,7 @@ const Violations: React.FC = () => {
                             <View style={styles.searchBlock}>
                                 <TextInput
                                     style={styles.searchFormInput}
-                                    placeholder="Search"
+                                    placeholder={t('common.search')}
                                     value={search}
                                     onChangeText={setSearch}
                                     mode="outlined"
@@ -277,7 +279,7 @@ const Violations: React.FC = () => {
                                         <View style={styles.leftTextCard}>
                                             <Text style={styles.textCard}>{item.VRM}</Text>
                                             <Text style={styles.textCard}>{item.LocationName}</Text>
-                                            <Text style={styles.textCard}>Transaction ID: {item.TransactionId}</Text>
+                                            <Text style={styles.textCard}>{t('violataion.transaction_id')}: {item.TransactionId}</Text>
                                             <Text style={styles.textCard}>{dayjs(item.TransactionDate).format('YYYY-MM-DD HH:mm')}</Text>
                                         </View>
                                     </View>
@@ -302,11 +304,11 @@ const Violations: React.FC = () => {
                         ListFooterComponent={
                             loading && !refreshing ? (
                                 <View style={{ paddingVertical: 20 }}>
-                                    <Text style={{ textAlign: 'center', color: '#fff' }}>Loading more...</Text>
+                                    <Text style={{ textAlign: 'center', color: '#fff' }}>{t('common.loading_more')}</Text>
                                 </View>
                             ) : !hasMoreData ? (
                                 <View style={{ paddingVertical: 20 }}>
-                                    <Text style={{ textAlign: 'center', color: '#aaa' }}>No more data to load</Text>
+                                    <Text style={{ textAlign: 'center', color: '#aaa' }}>{t('common.no_more_data_to_load')}</Text>
                                 </View>
                             ) : null
                         }

@@ -45,8 +45,26 @@
     "transaction_filters":"Transaction Filters",
     "transaction_id":"Transaction ID"
   },
+  "violation":{
+    "violations":"Violations",
+    "violtion_filters":"Violation Filters",
+    "transaction_id":"Transaction ID"
+  },
   "profile": {
-    "title": "Your Profile"
+    "profile":"Profile",
+    "accounts":"Accounts",
+    "customer_id":"Customer ID",
+    "settings":"Settings",
+    "change_password":"Change Password",
+    "enter_old_password":"Enter Old Password",
+    "enter_new_password":"Enter New Password",
+    "confirm_new_password":"Confirm New Password",
+    "account_details":"Account Details",
+    "set_as_primary":"Set as Primary",
+    "get_help":"Get Help",
+    "language":"Language",
+    "select_language":"Select Language",
+    "logout":"Logout"
   },
   "common":{
     "from_date":"From Date",

@@ -40,6 +40,11 @@
     "transaction_filters":"مرشحات المعاملات",
     "transaction_id":"معرف المعاملة"
   },
+  "violation":{
+    "violations":"المخالفات",
+    "violtion_filters":"مرشحات الانتهاكات",
+    "transaction_id":"معرف المعاملة"
+  },
   "common":{
     "from_date":"من تاريخ",
     "to_date":"حتى الآن",
@@ -51,6 +56,20 @@
     "clear_filter":"مسح التصفية"
   },
   "profile": {
-    "title": "الملف الشخصي"
+    "title": "الملف الشخصي",
+    "profile":"حساب تعريفي",
+    "accounts":"الحسابات",
+    "customer_id":"معرف العميل",
+    "settings":"إعدادات",
+    "change_password":"تغيير كلمة المرور",
+    "enter_old_password":"أدخل كلمة المرور القديمة",
+    "enter_new_password":"أدخل كلمة المرور الجديدة",
+    "confirm_new_password":"تأكيد كلمة المرور الجديدة",
+    "account_details":"تفاصيل الحساب",
+    "set_as_primary":"تعيين كأساسي",
+    "get_help":"احصل على المساعدة",
+    "language":"لغة",
+    "select_language":"اختر اللغة",
+    "logout":"تسجيل الخروج"
   }
 }
