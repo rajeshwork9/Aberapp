@@ -12,6 +12,7 @@ import {
     Image,
     FlatList,
     RefreshControl,
+    Animated,
 } from 'react-native';
 import {
     Text,
@@ -78,9 +79,12 @@ const Cases: React.FC = () => {
     const [filterEnabled, setFilterEnabled] = useState(false);
     const [clearFilterRequested, setClearFilterRequested] = useState(false);
     const PAGE_SIZE = 10;
+    const [visibleHeight, setVisibleHeight] = useState(1);
+    const [contentHeight, setContentHeight] = useState(1)
+    const scrollY = useRef(new Animated.Value(0)).current;
 
-    
-    
+
+
     useEffect(() => {
         setAccountDetails(full);
     }, [full]);
@@ -92,12 +96,12 @@ const Cases: React.FC = () => {
         }
     }, [accountDetails]);
 
-      useEffect(() => {
-      if (clearFilterRequested && !activeValue) {
-        setClearFilterRequested(false);
-        getCasesData(accountDetails.AccountId, 1, false, dayjs().subtract(7, 'day').toDate(), new Date())
+    useEffect(() => {
+        if (clearFilterRequested && !activeValue) {
+            setClearFilterRequested(false);
+            getCasesData(accountDetails.AccountId, 1, false, dayjs().subtract(7, 'day').toDate(), new Date())
 
-      }
+        }
     }, [clearFilterRequested, activeValue]);
 
 
@@ -143,7 +147,7 @@ const Cases: React.FC = () => {
                 setCasesData((prev: any) => [...prev, ...newList]);
             }
 
-             setHasMoreData((pageNumber * PAGE_SIZE) < totalRows);
+            setHasMoreData((pageNumber * PAGE_SIZE) < totalRows);
 
             setPage(pageNumber);
 
@@ -225,18 +229,18 @@ const Cases: React.FC = () => {
                             </View>
                             <Portal>
                                 <Modal
-                            visible={visible}
-                            onDismiss={hideModal}
-                            contentContainerStyle={styles.modalBottomContainer}
-                        >
-                            {/* Close Icon */}
-                            <IconButton
-                                icon="close"
-                                size={24}
-                                onPress={hideModal}
-                                style={styles.modalCloseIcon}
-                                iconColor="#fff"
-                            />
+                                    visible={visible}
+                                    onDismiss={hideModal}
+                                    contentContainerStyle={styles.modalBottomContainer}
+                                >
+                                    {/* Close Icon */}
+                                    <IconButton
+                                        icon="close"
+                                        size={24}
+                                        onPress={hideModal}
+                                        style={styles.modalCloseIcon}
+                                        iconColor="#fff"
+                                    />
                                     <Text style={styles.sectionTitleModal}>Cases Filter</Text>
 
                                     <View style={styles.formGroupModal}>
@@ -307,69 +311,101 @@ const Cases: React.FC = () => {
                         </View>
                     </View>
                     {/* End Header */}
+                    <View
+                        style={styles.MainScrollbar}
+                        onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
+                    >
+                        <FlatList
+                            data={casesData}
+                            keyExtractor={(item, index) => `${item.CaseId}-${index}`}
+                            contentContainerStyle={[styles.container, { paddingBottom: 100 }]}
+                            showsVerticalScrollIndicator={false}
+                            onScroll={Animated.event(
+                                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                                { useNativeDriver: false }
+                            )}
+                            scrollEventThrottle={16}
+                            onContentSizeChange={(_, height) => setContentHeight(height)}
+                            ListHeaderComponent={
+                                <View style={styles.searchBlock}>
+                                    <TextInput
+                                        style={styles.searchFormInput}
+                                        placeholder='search'
+                                        value={search}
+                                        onChangeText={setSearch}
+                                        mode='outlined'
+                                        theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
+                                    />
+                                    <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
+                                </View>
+                            }
+                            renderItem={({ item }) => (
 
-                    <FlatList
-                        data={casesData}
-                        keyExtractor={(item, index) => `${item.CaseId}-${index}`}
-                        contentContainerStyle={[styles.container]}
-                        ListHeaderComponent={
-                            <View style={styles.searchBlock}>
-                                <TextInput
-                                    style={styles.searchFormInput}
-                                    placeholder='search'
-                                    value={search}
-                                    onChangeText={setSearch}
-                                    mode='outlined'
-                                    theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
-                                />
-                                <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
-                            </View>
-                        }
-                        showsVerticalScrollIndicator={true}
-                        renderItem={({ item }) => (
-
-                            <Card style={styles.cardItemMain}>
-                                <View style={styles.cardContentInner}>
-                                    <View style={styles.leftCardCont}>
-                                        <Card style={styles.cardWithIcon}>
-                                            <Image style={styles.cardIconImg} source={require('../../assets/images/cases-icon.png')} />
-                                        </Card>
-                                        <View style={styles.leftTextCard}>
-                                            <Text style={styles.textCard}>Registration Center</Text>
-                                            <Text style={styles.textCard}>Case ID : {item.CaseId} </Text>
-                                            <Text style={styles.textCard}>Case Type : {item.CaseType}</Text>
-                                            <Text style={styles.textCard}>Description : {item.ShortDescription}</Text>
-                                            <Text style={[styles.textCard, { fontWeight: 'light' }]}>{dayjs(item.CreationDate).format('YYYY-MM-DD HH:mm')}</Text>
+                                <Card style={styles.cardItemMain}>
+                                    <View style={styles.cardContentInner}>
+                                        <View style={styles.leftCardCont}>
+                                            <Card style={styles.cardWithIcon}>
+                                                <Image style={styles.cardIconImg} source={require('../../assets/images/cases-icon.png')} />
+                                            </Card>
+                                            <View style={styles.leftTextCard}>
+                                                <Text style={styles.textCard}>Registration Center</Text>
+                                                <Text style={styles.textCard}>Case ID : {item.CaseId} </Text>
+                                                <Text style={styles.textCard}>Case Type : {item.CaseType}</Text>
+                                                <Text style={styles.textCard}>Description : {item.ShortDescription}</Text>
+                                                <Text style={[styles.textCard, { fontWeight: 'light' }]}>{dayjs(item.CreationDate).format('YYYY-MM-DD HH:mm')}</Text>
+                                            </View>
+                                        </View>
+                                        <View style={styles.rightTextCard}>
+                                            <Text style={styles.statusTextCard}>
+                                                <Text style={[styles.activeText, { fontWeight: 'normal', color: statusColors[item.StatusId] || '#000' }]}>{caseStatusData.find((data: any) => data.ItemId == item.StatusId)?.ItemName} </Text>
+                                            </Text>
                                         </View>
                                     </View>
-                                    <View style={styles.rightTextCard}>
-                                        <Text style={styles.statusTextCard}>
-                                            <Text style={[styles.activeText, { fontWeight: 'normal', color: statusColors[item.StatusId] || '#000' }]}>{caseStatusData.find((data: any) => data.ItemId == item.StatusId)?.ItemName} </Text>
-                                        </Text>
+                                </Card>
+                            )}
+                            onEndReached={() => {
+                                if (!loading && !refreshing && hasMoreData && casesData.length >= PAGE_SIZE) {
+                                    getCasesData(accountDetails.AccountId, page + 1, false, fromDate, toDate);
+                                }
+                            }}
+                            onEndReachedThreshold={0.3}
+                            refreshing={refreshing}
+                            onRefresh={() => getCasesData(accountDetails.AccountId, 1, true, fromDate, toDate)}
+                            ListFooterComponent={
+                                loading && !refreshing ? (
+                                    <View style={{ paddingVertical: 20 }}>
+                                        <ActivityIndicator size="small" color="#fff" />
                                     </View>
-                                </View>
-                            </Card>
-                        )}
-                        onEndReached={() => {
-                            if (!loading && !refreshing && hasMoreData && casesData.length >= PAGE_SIZE) {
-                                getCasesData(accountDetails.AccountId, page + 1, false, fromDate, toDate);
+                                ) : !hasMoreData ? (
+                                    <View style={{ paddingVertical: 20 }}>
+                                        <Text style={{ textAlign: 'center', color: '#aaa' }}>No more data to load</Text>
+                                    </View>
+                                ) : null
                             }
-                        }}
-                        onEndReachedThreshold={0.3}
-                        refreshing={refreshing}
-                        onRefresh={() => getCasesData(accountDetails.AccountId, 1, true, fromDate, toDate)}
-                        ListFooterComponent={
-                            loading && !refreshing ? (
-                                <View style={{ paddingVertical: 20 }}>
-                                    <ActivityIndicator size="small" color="#fff" />
-                                </View>
-                            ) : !hasMoreData ? (
-                                <View style={{ paddingVertical: 20 }}>
-                                    <Text style={{ textAlign: 'center', color: '#aaa' }}>No more data to load</Text>
-                                </View>
-                            ) : null
-                        }
-                    />
+                        />
+                    </View>
+                    {contentHeight > visibleHeight && (
+                        <Animated.View
+                            style={{
+                                position: 'absolute',
+                                right: 4,
+                                top: 100,
+                                width: 6,
+                                height: Math.max((visibleHeight / contentHeight) * visibleHeight, 30),
+                                backgroundColor: '#FF5A00',
+                                borderRadius: 3,
+                                transform: [
+                                    {
+                                        translateY: scrollY.interpolate({
+                                            inputRange: [0, contentHeight - visibleHeight],
+                                            outputRange: [0, visibleHeight - ((visibleHeight / contentHeight) * visibleHeight)],
+                                            extrapolate: 'clamp',
+                                        }),
+                                    },
+                                ],
+                            }}
+                        />
+                    )}
                 </View>
             </ImageBackground>
         </PaperProvider>
@@ -380,7 +416,10 @@ const Cases: React.FC = () => {
 export default Cases;
 
 const styles = StyleSheet.create({
-
+    MainScrollbar: {
+        flex: 1,
+        position: 'relative',
+    },
     //--- Header
     backgroundImage: {
         flex: 1,
@@ -411,8 +450,8 @@ const styles = StyleSheet.create({
 
     },
     backBt: {},
-    headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', marginTop:-6 },
-    headerRightBlock: { flexDirection: 'row', justifyContent: 'flex-end', marginTop:2 },
+    headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', marginTop: -6 },
+    headerRightBlock: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 2 },
     headerIcon: { width: 18, height: 18, },
     headerTitle: { fontSize: 15, fontWeight: 'bold', color: '#fff' },
 
@@ -660,37 +699,37 @@ const styles = StyleSheet.create({
         top: 7,
         fontSize: 13,
     },
-  filterText: {
-    color: '#000',
-    fontSize: 13,
-    backgroundColor: '#fff',
-    borderRadius: 40,
-    paddingHorizontal: 13,
-    paddingVertical: 6,
-    marginTop: 0
-  },
-  selectDropdown: {
-    width: '100%',
-    marginHorizontal: 0,
-    height: 40,
-    backgroundColor: '#000000',
-    borderRadius: 0,
-    color: '#fff',
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-    borderWidth: 1,
-    borderBottomColor: '#fff',
-  },
-  selectedTextStyle: {
-    fontSize: 14,
-    marginLeft: 6,
-    color: '#fff',
-  },
-   modalCloseIcon: {
-  position: 'absolute',
-  top: 8,
-  right: 8,
-  zIndex: 10,
-},
+    filterText: {
+        color: '#000',
+        fontSize: 13,
+        backgroundColor: '#fff',
+        borderRadius: 40,
+        paddingHorizontal: 13,
+        paddingVertical: 6,
+        marginTop: 0
+    },
+    selectDropdown: {
+        width: '100%',
+        marginHorizontal: 0,
+        height: 40,
+        backgroundColor: '#000000',
+        borderRadius: 0,
+        color: '#fff',
+        paddingHorizontal: 0,
+        paddingVertical: 0,
+        borderWidth: 1,
+        borderBottomColor: '#fff',
+    },
+    selectedTextStyle: {
+        fontSize: 14,
+        marginLeft: 6,
+        color: '#fff',
+    },
+    modalCloseIcon: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        zIndex: 10,
+    },
 
 });

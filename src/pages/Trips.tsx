@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../App';
-import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image, FlatList, ActivityIndicator, Animated } from 'react-native';
 import { Button, TextInput, Modal, Portal, Text, Card, PaperProvider, IconButton, } from 'react-native-paper';
 import { Dropdown } from 'react-native-element-dropdown';
 import dayjs from 'dayjs';
@@ -51,7 +51,10 @@ const Trips: React.FC = () => {
   const [hasMoreData, setHasMoreData] = useState(true);
   const isFetchingMore = useRef(false);
   const [clearFilterRequested, setClearFilterRequested] = useState(false);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
+  const [visibleHeight, setVisibleHeight] = useState(1);
+  const [contentHeight, setContentHeight] = useState(1)
+  const scrollY = useRef(new Animated.Value(0)).current;
 
 
   const showModal = () => setVisible(true);
@@ -63,7 +66,7 @@ const Trips: React.FC = () => {
 
   useEffect(() => {
     if (accountDetails) {
-    console.log(accountDetails);
+      console.log(accountDetails);
 
       getTrips(accountDetails.AccountId, 1, true);
       licenceNumber(accountDetails.AccountId);
@@ -72,62 +75,62 @@ const Trips: React.FC = () => {
   }, [accountDetails]);
 
   useEffect(() => {
-  if (clearFilterRequested && lpnValue === 0) {
-    setClearFilterRequested(false);
-    getTrips(accountDetails.AccountId, 1, true, dayjs().subtract(7, 'day').toDate(), new Date());
-  }
-}, [clearFilterRequested, lpnValue]);
+    if (clearFilterRequested && lpnValue === 0) {
+      setClearFilterRequested(false);
+      getTrips(accountDetails.AccountId, 1, true, dayjs().subtract(7, 'day').toDate(), new Date());
+    }
+  }, [clearFilterRequested, lpnValue]);
 
-const getTrips = async (
-  accountId: number,
-  pageNumber: number,
-  isRefresh = false,
-  fromDateParam?: Date,
-  toDateParam?: Date
-) => {
-  if (!isRefresh && isFetchingMore.current) return;
+  const getTrips = async (
+    accountId: number,
+    pageNumber: number,
+    isRefresh = false,
+    fromDateParam?: Date,
+    toDateParam?: Date
+  ) => {
+    if (!isRefresh && isFetchingMore.current) return;
 
-  try {
-    if (!isRefresh) isFetchingMore.current = true;
-    isRefresh ? setRefreshing(true) : setLoading(true);
+    try {
+      if (!isRefresh) isFetchingMore.current = true;
+      isRefresh ? setRefreshing(true) : setLoading(true);
 
-    const fromDatetime = dayjs(fromDateParam || fromDate)
-      .startOf('day')
-      .format('YYYY-MM-DDTHH:mm:ss[Z]');
-    const toDatetime = dayjs(toDateParam || toDate)
-      .endOf('day')
-      .format('YYYY-MM-DDTHH:mm:ss[Z]');
+      const fromDatetime = dayjs(fromDateParam || fromDate)
+        .startOf('day')
+        .format('YYYY-MM-DDTHH:mm:ss[Z]');
+      const toDatetime = dayjs(toDateParam || toDate)
+        .endOf('day')
+        .format('YYYY-MM-DDTHH:mm:ss[Z]');
 
-    const payload = {
-      accountId,
-      AccountUnitId: lpnValue ? lpnValue : 0,
-      GantryId: 0,
-      fromDate: fromDatetime,
-      toDate: toDatetime,
-      PageNumber: pageNumber,
-      PageSize: 10,
-    };
-    console.log("paylod", payload);
-    
+      const payload = {
+        accountId,
+        AccountUnitId: lpnValue ? lpnValue : 0,
+        GantryId: 0,
+        fromDate: fromDatetime,
+        toDate: toDatetime,
+        PageNumber: pageNumber,
+        PageSize: 10,
+      };
+      console.log("paylod", payload);
 
-    const response = await getTodaysTrips(payload);
-    const newList = response.TransactionsList || [];
 
-    const total = response.TotalRows || 0;
-    const updatedList = isRefresh || pageNumber === 1 ? newList : [...tripsData, ...newList];
+      const response = await getTodaysTrips(payload);
+      const newList = response.TransactionsList || [];
 
-    setTripsData(updatedList);
-    setPage(pageNumber);
-    setHasMoreData(updatedList.length < total);
-    setTotalRows(total);
-  } catch (e) {
-    console.error('Trips fetch error:', e);
-  } finally {
-    setLoading(false);
-    setRefreshing(false);
-    isFetchingMore.current = false;
-  }
-};
+      const total = response.TotalRows || 0;
+      const updatedList = isRefresh || pageNumber === 1 ? newList : [...tripsData, ...newList];
+
+      setTripsData(updatedList);
+      setPage(pageNumber);
+      setHasMoreData(updatedList.length < total);
+      setTotalRows(total);
+    } catch (e) {
+      console.error('Trips fetch error:', e);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+      isFetchingMore.current = false;
+    }
+  };
 
 
   const licenceNumber = async (accountId: any) => {
@@ -310,69 +313,103 @@ const getTrips = async (
             </Modal>
           </Portal>
 
-          {/* List with Search */}
-          <FlatList
-            data={tripsData}
-            keyExtractor={(item, index) => `${item.AssetId}-${index}`}
-            contentContainerStyle={styles.container}
-            ListHeaderComponent={
-              <View style={styles.searchBlock}>
-                <TextInput
-                  style={styles.searchFormInput}
-                  placeholder="Search"
-                  value={search}
-                  onChangeText={setSearch}
-                  mode="outlined"
-                  theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
-                />
-                <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
-              </View>
-            }
-            renderItem={({ item }) => (
-              <Card style={styles.cardItemMain} onPress={() => navigation.navigate('TripsDetails')}>
-                <View style={styles.cardContentInner}>
-                  <View style={styles.leftCardCont}>
-                    <Card style={styles.cardWithIcon}>
-                      <Image style={styles.cardIconImg} source={require('../../assets/images/trips-icon.png')} />
-                    </Card>
-                    <View style={styles.leftTextCard}>
-                      <Text style={styles.textCard}>{item.VRM}</Text>
-                      <Text style={styles.textCard}>{item.LocationName}</Text>
-                      <Text style={styles.textCard}>Transaction ID: {item.TransactionId}</Text>
-                      <Text style={styles.textCard}>{dayjs(item.TransactionDate).format('YYYY-MM-DD HH:mm')}</Text>
+          <View
+            style={styles.MainScrollbar}
+            onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
+          >
+            <FlatList
+              data={tripsData}
+              keyExtractor={(item, index) => `${item.AssetId}-${index}`}
+              contentContainerStyle={[styles.container, { paddingBottom: 100 }]}
+              showsVerticalScrollIndicator={false}
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                { useNativeDriver: false }
+              )}
+              scrollEventThrottle={16}
+              onContentSizeChange={(_, height) => setContentHeight(height)}
+              ListHeaderComponent={
+                <View style={styles.searchBlock}>
+                  <TextInput
+                    style={styles.searchFormInput}
+                    placeholder="Search"
+                    value={search}
+                    onChangeText={setSearch}
+                    mode="outlined"
+                    theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
+                  />
+                  <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
+                </View>
+              }
+              renderItem={({ item }) => (
+                <Card style={styles.cardItemMain} onPress={() => navigation.navigate('TripsDetails')}>
+                  <View style={styles.cardContentInner}>
+                    <View style={styles.leftCardCont}>
+                      <Card style={styles.cardWithIcon}>
+                        <Image style={styles.cardIconImg} source={require('../../assets/images/trips-icon.png')} />
+                      </Card>
+                      <View style={styles.leftTextCard}>
+                        <Text style={styles.textCard}>{item.VRM}</Text>
+                        <Text style={styles.textCard}>{item.LocationName}</Text>
+                        <Text style={styles.textCard}>Transaction ID: {item.TransactionId}</Text>
+                        <Text style={styles.textCard}>{dayjs(item.TransactionDate).format('YYYY-MM-DD HH:mm')}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.rightTextCard}>
+                      <Text style={styles.largeTextRCard}>{getClassNameFromVRM(item.VRM)}</Text>
+                      <Image style={{ width: 16, height: 16, marginVertical: 4 }} source={require('../../assets/images/chat-icon.png')} />
+                      <Text style={styles.statusTextCard}>
+                        <Text style={[styles.statusText, { fontWeight: 'normal' }]}>{t('trips.paid')}: </Text>
+                        <Text style={[styles.statusText, { fontWeight: 'bold' }]}>{item.AmountFinal}</Text>
+                      </Text>
                     </View>
                   </View>
-                  <View style={styles.rightTextCard}>
-                    <Text style={styles.largeTextRCard}>{getClassNameFromVRM(item.VRM)}</Text>
-                    <Image style={{ width: 16, height: 16, marginVertical: 4 }} source={require('../../assets/images/chat-icon.png')} />
-                    <Text style={styles.statusTextCard}>
-                      <Text style={[styles.statusText, { fontWeight: 'normal' }]}>{t('trips.paid')}: </Text>
-                      <Text style={[styles.statusText, { fontWeight: 'bold' }]}>{item.AmountFinal}</Text>
-                    </Text>
+                </Card>
+              )}
+              onEndReached={() => {
+                if (hasMoreData && !loading && !refreshing && !isFetchingMore.current) {
+                  getTrips(accountDetails.AccountId, page + 1, false, fromDate, toDate);
+                }
+              }}
+              onEndReachedThreshold={0.1}
+              refreshing={refreshing}
+              onRefresh={() => getTrips(accountDetails.AccountId, 1, true, fromDate, toDate)}
+              ListFooterComponent={
+                loading && !refreshing ? (
+                  <View style={{ paddingVertical: 20 }}>
+                    <Text style={{ textAlign: 'center', color: '#fff' }}>{t('common.loading_more')}</Text>
                   </View>
-                </View>
-              </Card>
-            )}
-            onEndReached={() => {
-              if (hasMoreData && !loading && !refreshing && !isFetchingMore.current) {
-                getTrips(accountDetails.AccountId, page + 1, false, fromDate, toDate);
+                ) : tripsData.length >= totalRows ? (
+                  <View style={{ paddingVertical: 20 }}>
+                    <Text style={{ textAlign: 'center', color: '#aaa' }}>{t('common.no_more_data_to_load')}</Text>
+                  </View>
+                ) : (<View style={{ height: 60 }} />)
               }
-            }}
-            onEndReachedThreshold={0.1}
-            refreshing={refreshing}
-            onRefresh={() => getTrips(accountDetails.AccountId, 1, true, fromDate, toDate)}
-            ListFooterComponent={
-              loading && !refreshing ? (
-                <View style={{ paddingVertical: 20 }}>
-                 <Text style={{ textAlign: 'center', color: '#fff' }}>{t('common.loading_more')}</Text>
-                </View>
-              ) : tripsData.length >= totalRows ? (
-                <View style={{ paddingVertical: 20 }}>
-                  <Text style={{ textAlign: 'center', color: '#aaa' }}>{t('common.no_more_data_to_load')}</Text>
-                </View>
-              ) : (<View style={{ height: 60 }} />)
-            }
-          />
+            />
+          </View>
+          {/* List with Search */}
+          {contentHeight > visibleHeight && (
+            <Animated.View
+              style={{
+                position: 'absolute',
+                right: 4,
+                top: 100,
+                width: 6,
+                height: Math.max((visibleHeight / contentHeight) * visibleHeight, 30),
+                backgroundColor: '#FF5A00',
+                borderRadius: 3,
+                transform: [
+                  {
+                    translateY: scrollY.interpolate({
+                      inputRange: [0, contentHeight - visibleHeight],
+                      outputRange: [0, visibleHeight - ((visibleHeight / contentHeight) * visibleHeight)],
+                      extrapolate: 'clamp',
+                    }),
+                  },
+                ],
+              }}
+            />
+          )}
         </View>
       </ImageBackground>
     </PaperProvider>
@@ -382,7 +419,10 @@ const getTrips = async (
 export default Trips;
 
 const styles = StyleSheet.create({
-
+  MainScrollbar: {
+    flex: 1,
+    position: 'relative',
+  },
   //--- Header
   backgroundImage: {
     flex: 1,
