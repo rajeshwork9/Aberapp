@@ -455,7 +455,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#fff',
   },
-  
+  radioTextSelected: {
+    // color: '#ff5200', // Orange when selected
+    fontWeight: 'normal',
+  },
   
  
   footerAbsolute: {
