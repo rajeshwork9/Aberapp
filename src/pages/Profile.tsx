@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
-import { Text, Card, TextInput, Modal, Portal, PaperProvider, Button, Avatar } from 'react-native-paper';
+import { Text, Card, TextInput, Modal, Portal, PaperProvider, Button, Avatar, RadioButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAccount } from '../context/AccountProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -48,6 +48,8 @@ const Profile: React.FC = () => {
     userInfo();
   }, [])
 
+
+  const [language, setLanguage] = useState('en'); // default to English
 
   const handleLogout = async () => {
     try {
@@ -388,71 +390,45 @@ const Profile: React.FC = () => {
 
             <Portal>
               <Modal visible={languageModal} onDismiss={hideLangugeModal} contentContainerStyle={styles.modalBottomContainer}>
-                <Text style={styles.sectionTitleModal}>Select Language</Text>
+  <Text style={styles.sectionTitleModal}>Select Language</Text>
 
-                <View style={styles.formGroupModal}>
-                  <TextInput
-                    placeholder="Enter Old Password"
-                    style={styles.inputModal}
-                    placeholderTextColor="#ccc"
-                    textColor="#fff"
-                    secureTextEntry={secureOld}
-                    value={oldPassword}
-                    onChangeText={setOldPassword}
-                    error={!!errors.old}
-                    theme={{ colors: { primary: '#FF5400' } }}
-                  />
-                  <TouchableOpacity onPress={() => setSecureOld(prev => !prev)} style={styles.passwordIcon}>
-                    <Icon name={secureOld ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
-                  </TouchableOpacity>
-                  {!!errors.old && <Text style={{ color: 'red' }}>{errors.old}</Text>}
-                </View>
+  <RadioButton.Group
+  onValueChange={newValue => setLanguage(newValue)}
+  value={language}
+>
+  <TouchableOpacity
+    style={styles.radioOption}
+    onPress={() => setLanguage('en')}
+  >
+    <RadioButton value="en" color="#ff5200" />
+    <Text
+      style={[
+        styles.radioText,
+        language === 'en' && styles.radioTextSelected,
+      ]}
+    >
+      English
+    </Text>
+  </TouchableOpacity>
 
-                <View style={styles.formGroupModal}>
-                  <TextInput
-                    placeholder="Enter New Password"
-                    style={styles.inputModal}
-                    placeholderTextColor="#ccc"
-                    textColor="#fff"
-                    secureTextEntry={secureNew}
-                    value={newPassword}
-                    onChangeText={setNewPassword}
-                    error={!!errors.new}
-                    theme={{ colors: { primary: '#FF5400' } }}
-                  />
-                  <TouchableOpacity onPress={() => setSecureNew(prev => !prev)} style={styles.passwordIcon}>
-                    <Icon name={secureNew ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
-                  </TouchableOpacity>
-                  {!!errors.new && <Text style={{ color: 'red' }}>{errors.new}</Text>}
-                </View>
+  <TouchableOpacity
+    style={styles.radioOption}
+    onPress={() => setLanguage('ur')}
+  >
+    <RadioButton value="ur" color="#ff5200" />
+    <Text
+      style={[
+        styles.radioText,
+        language === 'ur' && styles.radioTextSelected,
+      ]}
+    >
+      Urdu
+    </Text>
+  </TouchableOpacity>
+</RadioButton.Group>
 
-                <View style={styles.formGroupModal}>
-                  <TextInput
-                    placeholder="Confirm New Password"
-                    style={styles.inputModal}
-                    placeholderTextColor="#ccc"
-                    textColor="#fff"
-                    secureTextEntry={secureConfirm}
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                    error={!!errors.confirm}
-                    theme={{ colors: { primary: '#FF5400' } }}
-                  />
-                  <TouchableOpacity onPress={() => setSecureConfirm(prev => !prev)} style={styles.passwordIcon}>
-                    <Icon name={secureConfirm ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
-                  </TouchableOpacity>
-                  {!!errors.confirm && <Text style={{ color: 'red' }}>{errors.confirm}</Text>}
-                </View>
-
-                <View style={styles.buttonRow}>
-                  <Button mode="contained" onPress={hideLangugeModal} style={styles.closeButton} textColor="#000">
-                    Close
-                  </Button>
-                  <Button mode="contained" onPress={handlechangepassword} buttonColor="#FF5A00" style={styles.applyButton}>
-                    Apply
-                  </Button>
-                </View>
-              </Modal>
+  
+</Modal>
             </Portal>
 
             <TouchableOpacity style={styles.profileBt} onPress={handleLogout}>
@@ -470,6 +446,18 @@ export default Profile;
 
 
 const styles = StyleSheet.create({
+   radioOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 5,
+  },
+  radioText: {
+    fontSize: 15,
+    color: '#fff',
+  },
+  
+  
+ 
   footerAbsolute: {
     position: 'absolute',
     bottom: 0,
