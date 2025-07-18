@@ -48,8 +48,6 @@ const Profile: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({ old: '', new: '', confirm: '' });
-  const [country, setCountry] = useState('1');
-  
 
   console.log('accounts', accounts);
   console.log('accounts full', full);
@@ -165,17 +163,23 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handleLanuageModal = async () => {
-    await AsyncStorage.setItem('appLanguage', language);
-    await i18n.changeLanguage(language);
+  const handleLanuageModal = async  (value: any) => {
+    console.log(value);
+    setLanguage(value);
+    await AsyncStorage.setItem('appLanguage',value);
+    await i18n.changeLanguage(value);
     hideLangugeModal();
   };
+
+  useEffect(()=>{
+    console.log(language,"language change")
+  },[language])
 
   useEffect(() => {
     const loadLanguage = async () => {
       const savedLang = await AsyncStorage.getItem('appLanguage');
       if (savedLang) {
-        setCountry(savedLang === 'ar' ? '2' : '1');
+        setLanguage(savedLang);
         await i18n.changeLanguage(savedLang);
       }
     };
@@ -424,45 +428,43 @@ const Profile: React.FC = () => {
 
             <Portal>
               <Modal visible={languageModal} onDismiss={hideLangugeModal} contentContainerStyle={styles.modalBottomContainer}>
-  <Text style={styles.sectionTitleModal}>{t('profile.select_language')}</Text>
+                <Text style={styles.sectionTitleModal}>{t('profile.select_language')}</Text>
 
-  <RadioButton.Group
-  onValueChange={newValue => setLanguage(newValue)}
-  value={language}
->
-  <TouchableOpacity
-    style={styles.radioOption}
-    onPress={() => setLanguage('en')}
-  >
-    <RadioButton value="en" color="#ff5200" />
-    <Text
-      style={[
-        styles.radioText,
-        language === 'en' && styles.radioTextSelected,
-      ]}
-    >
-      {t('profile.english')}
-    </Text>
-  </TouchableOpacity>
+                <RadioButton.Group
+                  onValueChange={value => handleLanuageModal(value)}
+                  value={language}
+                >
+                  <TouchableOpacity
+                    style={styles.radioOption}
+                  >
+                    <RadioButton value="en" color="#ff5200" />
+                    <Text
+                      style={[
+                        styles.radioText,
+                        language === 'en' && styles.radioTextSelected,
+                      ]}
+                    >
+                      {t('profile.english')}
+                    </Text>
+                  </TouchableOpacity>
 
-  <TouchableOpacity
-    style={styles.radioOption}
-    onPress={() => setLanguage('ar')}
-  >
-    <RadioButton value="ar" color="#ff5200" />
-    <Text
-      style={[
-        styles.radioText,
-        language === 'ar' && styles.radioTextSelected,
-      ]}
-    >
-      {t('profile.arabic')}
-    </Text>
-  </TouchableOpacity>
-</RadioButton.Group>
+                  <TouchableOpacity
+                    style={styles.radioOption}
+                  >
+                    <RadioButton value="ar" color="#ff5200" />
+                    <Text
+                      style={[
+                        styles.radioText,
+                        language === 'ar' && styles.radioTextSelected,
+                      ]}
+                    >
+                      {t('profile.arabic')}
+                    </Text>
+                  </TouchableOpacity>
+                </RadioButton.Group>
 
-  
-</Modal>
+
+              </Modal>
             </Portal>
 
             <TouchableOpacity style={styles.profileBt} onPress={handleLogout}>

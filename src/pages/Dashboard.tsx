@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Button, Text, Badge, Avatar, Card, ActivityIndicator } from 'react-native-paper';
 import { SelectCountry } from 'react-native-element-dropdown';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused  } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -63,6 +63,7 @@ const Dashboard: React.FC = () => {
 
 
     const { t } = useTranslation();
+    const isFocused = useIsFocused();
 
 
     useEffect(() => {
@@ -116,6 +117,24 @@ const Dashboard: React.FC = () => {
         };
         loadLanguage();
     }, []);
+
+    useEffect(() => {
+  if (isFocused) {
+    console.log("focused");
+    
+    const updateLanguage = async () => {
+   
+      const lang = await AsyncStorage.getItem('appLanguage');
+      console.log(lang,"1");
+      console.log(i18n.language,"2")
+      setCountry(lang === 'ar' ? '2' : '1');
+      if (lang && i18n.language !== lang) {
+        await i18n.changeLanguage(lang);
+      }
+    };
+    updateLanguage();
+  }
+}, [isFocused]);
 
 
     const todaysTrips = async (accountId: number) => {
