@@ -246,7 +246,18 @@ const Statements: React.FC = () => {
                     <View
                         style={styles.MainScrollbar}
                         onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
-                    >                    
+                    >            
+                      <View style={styles.searchBlock}>
+                                    <TextInput
+                                        style={styles.searchFormInput}
+                                        placeholder={t('common.search')}
+                                        value={search}
+                                        onChangeText={setSearch}
+                                        mode='outlined'
+                                        theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
+                                    />
+                                    <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
+                                </View>        
                     <FlatList
                             data={statementData}
                             keyExtractor={(item, index) => `${item.DocumentTypeId}-${index}`}
@@ -258,19 +269,6 @@ const Statements: React.FC = () => {
                                                         )}
                                                         scrollEventThrottle={16}
                                                         onContentSizeChange={(_, height) => setContentHeight(height)}
-                            ListHeaderComponent={
-                                <View style={styles.searchBlock}>
-                                    <TextInput
-                                        style={styles.searchFormInput}
-                                        placeholder={t('common.search')}
-                                        value={search}
-                                        onChangeText={setSearch}
-                                        mode='outlined'
-                                        theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
-                                    />
-                                    <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
-                                </View>
-                            }
                             ListFooterComponent={
                                 loading && !refreshing ? (
                                     <View style={{ padding: 16 }}>

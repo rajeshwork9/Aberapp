@@ -55,7 +55,14 @@ const Profile: React.FC = () => {
 
 
   const toggleSecureEntry = () => setSecureText(!secureText);
-  const showModal = () => setVisible(true);
+  const showModal = () => {  setOldPassword('');
+  setNewPassword('');
+  setConfirmPassword('');
+  setErrors({});
+  setSecureOld(true);
+  setSecureNew(true);
+  setSecureConfirm(true);
+  setVisible(true);}
   const hideModal = () => setVisible(false);
   const showDetailModal = () => setViewDetailModal(true);
   const hideDetailModal = () => setViewDetailModal(false);
@@ -340,7 +347,7 @@ const Profile: React.FC = () => {
                 </View>
 
                 <View style={styles.buttonRow}>
-                  <Button mode="contained" onPress={hideModal} style={styles.closeButton} textColor="#000">
+                  <Button mode="contained" onPress={hideModal } style={styles.closeButton} textColor="#000">
                     {t('common.close')}
                   </Button>
                   <Button mode="contained" onPress={handlechangepassword} buttonColor="#FF5A00" style={styles.applyButton}>

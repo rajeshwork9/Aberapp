@@ -197,6 +197,18 @@ const Vehicles: React.FC = () => {
             style={styles.MainScrollbar}
             onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
           >
+             <View style={styles.searchBlock}>
+                  <TextInput
+                    style={styles.searchFormInput}
+                    placeholder={t('common.search')}
+                    placeholderTextColor="#7B8994"
+                    value={search}
+                    onChangeText={setSearch}
+                    mode="outlined"
+                    theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
+                  />
+                  <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
+                </View>
             <FlatList
               data={vehiclesList}
               keyExtractor={(item, index) => `${item.AssetId}-${index}`}
@@ -209,20 +221,6 @@ const Vehicles: React.FC = () => {
               scrollEventThrottle={16}
               onContentSizeChange={(_, height) => setContentHeight(height)}
               style={{ flex: 1 }}
-              ListHeaderComponent={
-                <View style={styles.searchBlock}>
-                  <TextInput
-                    style={styles.searchFormInput}
-                    placeholder={t('common.search')}
-                    placeholderTextColor="#7B8994"
-                    value={search}
-                    onChangeText={setSearch}
-                    mode="outlined"
-                    theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
-                  />
-                  <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
-                </View>
-              }
               renderItem={({ item }) => (
                 <Card style={styles.cardItemMain} onPress={() => navigation.navigate('VehicleDetails')}>
                   <View style={styles.cardContentInner}>

@@ -315,6 +315,17 @@ const Cases: React.FC = () => {
                         style={styles.MainScrollbar}
                         onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
                     >
+                        <View style={styles.searchBlock}>
+                            <TextInput
+                                style={styles.searchFormInput}
+                                placeholder='search'
+                                value={search}
+                                onChangeText={setSearch}
+                                mode='outlined'
+                                theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
+                            />
+                            <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
+                        </View>
                         <FlatList
                             data={casesData}
                             keyExtractor={(item, index) => `${item.CaseId}-${index}`}
@@ -326,19 +337,6 @@ const Cases: React.FC = () => {
                             )}
                             scrollEventThrottle={16}
                             onContentSizeChange={(_, height) => setContentHeight(height)}
-                            ListHeaderComponent={
-                                <View style={styles.searchBlock}>
-                                    <TextInput
-                                        style={styles.searchFormInput}
-                                        placeholder='search'
-                                        value={search}
-                                        onChangeText={setSearch}
-                                        mode='outlined'
-                                        theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
-                                    />
-                                    <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
-                                </View>
-                            }
                             renderItem={({ item }) => (
 
                                 <Card style={styles.cardItemMain}>

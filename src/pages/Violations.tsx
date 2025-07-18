@@ -260,19 +260,8 @@ const Violations: React.FC = () => {
                     <View
                         style={styles.MainScrollbar}
                         onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
-                    ><FlatList
-                            data={violationData}
-                            keyExtractor={(item, index) => `${item.AccountId}-${index}`}
-                            contentContainerStyle={[styles.container, { paddingBottom: 100 }]}
-                            showsVerticalScrollIndicator={false}
-                            onScroll={Animated.event(
-                                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                                { useNativeDriver: false }
-                            )}
-                            scrollEventThrottle={16}
-                            onContentSizeChange={(_, height) => setContentHeight(height)}
-                            ListHeaderComponent={
-                                <View style={styles.searchBlock}>
+                    >
+                         <View style={styles.searchBlock}>
                                     <TextInput
                                         style={styles.searchFormInput}
                                         placeholder={t('common.search')}
@@ -283,7 +272,17 @@ const Violations: React.FC = () => {
                                     />
                                     <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
                                 </View>
-                            }
+                        <FlatList
+                            data={violationData}
+                            keyExtractor={(item, index) => `${item.AccountId}-${index}`}
+                            contentContainerStyle={[styles.container, { paddingBottom: 100 }]}
+                            showsVerticalScrollIndicator={false}
+                            onScroll={Animated.event(
+                                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                                { useNativeDriver: false }
+                            )}
+                            scrollEventThrottle={16}
+                            onContentSizeChange={(_, height) => setContentHeight(height)}
                             renderItem={({ item }) => (
                                 <Card style={styles.cardItemMain} onPress={() => navigation.navigate('ViolationsDetails')}>
                                     <View style={styles.cardContentInner}>
