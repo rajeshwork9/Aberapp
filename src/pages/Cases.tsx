@@ -78,7 +78,7 @@ const Cases: React.FC = () => {
     const [showToPicker, setShowToPicker] = useState(false);
     const [filterEnabled, setFilterEnabled] = useState(false);
     const [clearFilterRequested, setClearFilterRequested] = useState(false);
-    const PAGE_SIZE = 10;
+    const PAGE_SIZE = 7;
     const [visibleHeight, setVisibleHeight] = useState(1);
     const [contentHeight, setContentHeight] = useState(1)
     const scrollY = useRef(new Animated.Value(0)).current;

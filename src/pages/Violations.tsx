@@ -66,10 +66,6 @@ const Violations: React.FC = () => {
         }
     }, [accountDetails]);
 
-    const navigateTo = (path: keyof MainStackParamList) => {
-        navigation.navigate(path)
-    }
-
     const getViolationsData = async (accountId: number, pageNumber: number, isRefresh = false, fromDate?: Date, toDate?: Date) => {
         try {
             isRefresh ? setRefreshing(true) : setLoading(true);
@@ -117,6 +113,8 @@ const Violations: React.FC = () => {
     const handleClearFilter = () => {
         setFilterEnabled(false);
         getViolationsData(accountDetails.AccountId, 1, true, dayjs().subtract(7, 'day').toDate(), new Date());
+        setFromDate(dayjs().subtract(7,'day').toDate());
+        setToDate(new Date());
     }
 
     const getTypes = async () => {
@@ -293,7 +291,7 @@ const Violations: React.FC = () => {
                                             <View style={styles.leftTextCard}>
                                                 <Text style={styles.textCard}>{item.VRM}</Text>
                                                 <Text style={styles.textCard}>{item.LocationName}</Text>
-                                                <Text style={styles.textCard}>{t('violataion.transaction_id')}: {item.TransactionId}</Text>
+                                                <Text style={styles.textCard}>{t('violation.transaction_id')}: {item.TransactionId}</Text>
                                                 <Text style={styles.textCard}>{dayjs(item.TransactionDate).format('YYYY-MM-DD HH:mm')}</Text>
                                             </View>
                                         </View>

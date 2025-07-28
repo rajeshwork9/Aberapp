@@ -254,7 +254,7 @@ const Profile: React.FC = () => {
                       </Card>
                       <View style={styles.leftTextCard}>
                         <Text style={styles.textCard}>{account.AccountName}</Text>
-                        <Text style={styles.smallLabel}>{t('accounts.customer_id')}</Text>
+                        <Text style={styles.smallLabel}>{t('profile.customer_id')}</Text>
                         <Text style={styles.smallTextCard}>{account.AccountCode}</Text>
                       </View>
                     </View>

@@ -287,7 +287,7 @@ const Dashboard: React.FC = () => {
                         </View>
                         <View style={styles.rightDiv}>
                             <Button onPress={() => navigateTo('Topup')} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
-                            >Topup</Button>
+                            >{t('dashboard.top_up')}</Button>
                         </View>
                     </View>
 

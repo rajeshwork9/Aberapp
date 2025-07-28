@@ -28,6 +28,15 @@ export const getVehiclesList = async (body: any) => {
   }
 };
 
+export const searchVehicle = async (body: any) => {
+  try {
+    const response = await api.post('assets/account', body);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getCustomerTypes = async () => {
   try {
     const response = await api.get('masterTables/CustomerTypes');

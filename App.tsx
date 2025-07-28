@@ -76,7 +76,7 @@ type MainStackParamList = {
   Trips: undefined;
   TripsDetails: undefined;
   Vehicles: undefined;
-  VehicleDetails: undefined;
+  VehicleDetails: { state: any };
   Violations: undefined;
   ViolationsDetails: undefined;
   AddVehicle:undefined;

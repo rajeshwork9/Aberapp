@@ -76,6 +76,7 @@
     "search":"Search",
     "loading_more":"Loading more...",
     "no_more_data_to_load":"No more data to load",
-    "clear_filter":"Clear Filter"
+    "clear_filter":"Clear Filter",
+    "no_results_found":"No Results Found"
   }
 }

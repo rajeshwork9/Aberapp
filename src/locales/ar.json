@@ -53,7 +53,8 @@
     "search":"يبحث",
     "loading_more":"جارٍ تحميل المزيد...",
     "no_more_data_to_load":"لا مزيد من البيانات لتحميلها",
-    "clear_filter":"مسح التصفية"
+    "clear_filter":"مسح التصفية",
+    "no_results_found":"لم يتم العثور على نتائج"
   },
   "profile": {
     "title": "الملف الشخصي",

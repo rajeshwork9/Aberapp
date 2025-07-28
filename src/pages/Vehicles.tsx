@@ -11,6 +11,7 @@ import {
   FlatList,
   RefreshControl,
   Animated,
+  Keyboard,
 } from 'react-native';
 import {
   Text,
@@ -22,18 +23,37 @@ import {
   Button,
   IconButton
 } from 'react-native-paper';
-import { getVehiclesList, getOverallClasses } from '../services/common';
+import { getVehiclesList, getOverallClasses, searchVehicle } from '../services/common';
 import { useAccount } from '../context/AccountProvider';
 import { usePaginatedList } from '../hooks/usePaginatedList';
 import { useTranslation } from 'react-i18next';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-const Vehicles: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+type VehicleItem = {
+  AssetId: number;
+  AssetIdentifier: string;
+  OverallClassId: number;
+  ValidFromDate: string;
+  Vehicle?: {
+    UnloadedWeight?: number;
+    [key: string]: any;
+  };
+  [key: string]: any;
+};
+
+
+type VehicleScreenNavigationProp = StackNavigationProp<
+  MainStackParamList,
+  'Vehicles'
+>;
+type Props = { navigation: VehicleScreenNavigationProp };
+const Vehicles: React.FC<Props> = ({ navigation }) => {
+  // const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const containerStyle = { backgroundColor: 'white', padding: 100 };
 
   const [search, setSearch] = useState('');
   const [visible, setVisible] = useState(false);
-  const [vehiclesList, setVehiclesList] = useState<any[]>([]);
+  const [vehiclesList, setVehiclesList] = useState<VehicleItem[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
@@ -48,9 +68,7 @@ const Vehicles: React.FC = () => {
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
-  const navigateTo = (path: keyof MainStackParamList) => {
-    navigation.navigate(path);
-  };
+
   const { t } = useTranslation()
 
   const { accounts, activeId, selectAccount, full } = useAccount();
@@ -110,6 +128,39 @@ const Vehicles: React.FC = () => {
     }
   };
 
+  const handleDetailsPage = async (data: any) => {
+    console.log(data, "hadle details");
+    navigation.navigate('VehicleDetails', { state: data })
+  }
+
+  const handleVehicleSearch = async (searchtext: string) => {
+    setSearch(searchtext);
+    console.log(searchtext.length)
+    if (search && searchtext.length > 2) {
+      try {
+        let payload = {
+          accountId: full.AccountId,
+          Identifier: searchtext
+        }
+        console.log(payload);
+
+        const response = await searchVehicle(payload);
+        console.log(response);
+        setVehiclesList(response || []);
+        setHasMoreData(false);
+      }
+      catch (error) {
+        console.error(error);
+      }
+      finally {
+
+      }
+    }
+    else {
+      getVehicles(1, true);
+    }
+  }
+
   return (
     <PaperProvider>
 
@@ -128,7 +179,7 @@ const Vehicles: React.FC = () => {
             </View>
 
             <View style={styles.headerRightBlock}>
-              <TouchableOpacity onPress={() => navigateTo('AddVehicle')} style={[styles.btHeader, { marginRight: 12 }]}>
+              <TouchableOpacity onPress={() => navigation.navigate('AddVehicle')} style={[styles.btHeader, { marginRight: 12 }]}>
                 <Text style={styles.btHeaderText}>{t('vehicles.add_vehicles')}</Text>
               </TouchableOpacity>
 
@@ -197,18 +248,24 @@ const Vehicles: React.FC = () => {
             style={styles.MainScrollbar}
             onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
           >
-             <View style={styles.searchBlock}>
-                  <TextInput
-                    style={styles.searchFormInput}
-                    placeholder={t('common.search')}
-                    placeholderTextColor="#7B8994"
-                    value={search}
-                    onChangeText={setSearch}
-                    mode="outlined"
-                    theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
-                  />
-                  <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
-                </View>
+            <View style={styles.searchBlock}>
+              <TextInput
+                style={styles.searchFormInput}
+                placeholder={t('common.search')}
+                placeholderTextColor="#7B8994"
+                value={search}
+                onChangeText={(text) => handleVehicleSearch(text)}
+                mode="outlined"
+                theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
+              />
+              <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
+              {search.length > 0 && (
+                <TouchableOpacity onPress={() => { setSearch(''); getVehicles(1, true); Keyboard.dismiss(); }} style={styles.clearIcon}>
+                  <Image source={require('../../assets/images/close-icon.png')} style={{ width: 16, height: 16 }} />
+                </TouchableOpacity>
+              )}
+            </View>
+
             <FlatList
               data={vehiclesList}
               keyExtractor={(item, index) => `${item.AssetId}-${index}`}
@@ -222,7 +279,7 @@ const Vehicles: React.FC = () => {
               onContentSizeChange={(_, height) => setContentHeight(height)}
               style={{ flex: 1 }}
               renderItem={({ item }) => (
-                <Card style={styles.cardItemMain} onPress={() => navigation.navigate('VehicleDetails')}>
+                <Card style={styles.cardItemMain} onPress={() => handleDetailsPage(item)}>
                   <View style={styles.cardContentInner}>
                     <View style={styles.leftCardCont}>
                       <Card style={styles.cardWithIcon}>
@@ -243,7 +300,7 @@ const Vehicles: React.FC = () => {
                       </View>
                     </View>
                     <View style={styles.rightTextCard}>
-                      <Text style={styles.largeTextRCard}> {typesData.find((data: any) => item.OverallClassId == data.ItemId)?.ItemName} </Text>
+                      <Text style={styles.largeTextRCard}> {String(typesData.find((data: any) => item.OverallClassId == data.ItemId)?.ItemName ?? '')} </Text>
 
                     </View>
                   </View>
@@ -258,17 +315,30 @@ const Vehicles: React.FC = () => {
               refreshing={refreshing}
               onRefresh={() => getVehicles(1, true)}
               ListFooterComponent={
-                loading && !refreshing ? (
-                  <View style={{ paddingVertical: 20 }}>
-                    <Text style={{ textAlign: 'center', color: '#fff' }}>{t('common.loading_more')}</Text>
-                  </View>
-                ) : !hasMoreData ? (
-                  <View style={{ paddingVertical: 20 }}>
-                    <Text style={{ textAlign: 'center', color: '#aaa' }}>{t('common.no_more_data_to_load')}</Text>
+                vehiclesList.length > 0 ? (
+                  loading && !refreshing ? (
+                    <View style={{ paddingVertical: 20 }}>
+                      <Text style={{ textAlign: 'center', color: '#fff' }}>{t('common.loading_more')}</Text>
+                    </View>
+                  ) : !hasMoreData ? (
+                    <View style={{ paddingVertical: 20 }}>
+                      <Text style={{ textAlign: 'center', color: '#aaa' }}>
+                        {t('common.no_more_data_to_load')}
+                      </Text>
+                    </View>
+                  ) : null
+                ) : null
+              }
+              ListEmptyComponent={
+                !loading ? (
+                  <View style={{ alignItems: 'center', marginTop: 100 }}>
+                    <Text style={{ color: '#aaa', fontSize: 16 }}>{t('common.no_results_found')}</Text>
                   </View>
                 ) : null
               }
+
             />  </View>
+
           {contentHeight > visibleHeight && (
             <Animated.View
               style={{
@@ -366,6 +436,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     marginBottom: 15,
     height: 50,
+    position: 'relative',
 
   },
 
@@ -583,5 +654,12 @@ const styles = StyleSheet.create({
     top: 8,
     right: 8,
     zIndex: 10,
+  },
+  clearIcon: {
+    position: 'absolute',
+    right: 40,
+    top: '50%',
+    transform: [{ translateY: -8 }],
+    zIndex: 1,
   },
 });

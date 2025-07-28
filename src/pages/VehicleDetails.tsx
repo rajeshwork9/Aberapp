@@ -1,17 +1,40 @@
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
-import { Text, Card, Icon, TextInput, Modal, PaperProvider, Button, IconButton  } from 'react-native-paper';
-import { Animated} from 'react-native';
+import { Text } from 'react-native-paper';
+import { MainStackParamList } from '../../App';
+import dayjs from 'dayjs';
+import { getOverallClasses } from '../services/common';
+
+type VehicleDetailsRouteProp = RouteProp<MainStackParamList, 'VehicleDetails'>;
 
 const VehicleDetails: React.FC = () => {
+    const route = useRoute<VehicleDetailsRouteProp>();
+    const vehicleDetails = route.params.state;
+    const grams = vehicleDetails.Vehicle?.UnloadedWeight || 0;
+    const kilograms = grams / 1000;
     const navigation = useNavigation();
 
-//     // modal popup useset
-//    const [visible, setVisible] = React.useState(false);
-//        const showModal = () => setVisible(true);
-//        const hideModal = () => setVisible(false);
+    const [typesData, setTypesData] = useState<any[]>([]);
 
+    useEffect(()=>{
+        getTypes();
+    },[])
+
+    const getTypes = async () => {
+        try {
+            const response = await getOverallClasses();
+            console.log(response);
+            setTypesData(response);
+        }
+        catch (error: any) {
+            console.error(error);
+        }
+        finally {
+            console.log('api comopleted');
+
+        }
+    };
 
     return (
 
@@ -22,7 +45,7 @@ const VehicleDetails: React.FC = () => {
             <View style={styles.container}>
                 <View style={styles.headerMain}>
                     <View style={styles.headerLeftBlock} >
-                        <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
+                        <TouchableOpacity style={[{ marginRight: 12, }]} onPress={() => navigation.goBack()}>
                             <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
                         </TouchableOpacity>
                         <Text style={styles.headerTitle}>Vehicle Details</Text>
@@ -31,60 +54,73 @@ const VehicleDetails: React.FC = () => {
                 <View style={styles.containerInner}>
                     <View style={styles.Box}>
                         <View style={styles.leftDiv}>
-                        <Text style={styles.LabelText}>Identifier</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_a</Text>
+                        <Text style={styles.LabelText}>License Plate Number</Text>
+                        <Text style={styles.LabelValue}> {vehicleDetails.AssetIdentifier ? vehicleDetails.AssetIdentifier : '-'} </Text>
                         </View>
                         <View>
-                        <Text style={styles.LabelText}>Date & Time</Text>
-                        <Text style={styles.LabelValue}>2025/01/03, 09:27 AM</Text>
+                        <Text style={styles.LabelText}>Make/Model</Text>
+                        <Text style={styles.LabelValue}>{vehicleDetails.Vehicle?.Make ? vehicleDetails.Vehicle?.Make : '-'}/{vehicleDetails.Vehicle?.Model ? vehicleDetails.Vehicle?.Model : '-'}</Text>
                         </View>
                     </View>
                     <View style={styles.Box}>
                         <View style={styles.leftDiv}>
-                        <Text style={styles.LabelText}>Trip ID</Text>
-                        <Text style={styles.LabelValue}>1234567</Text>
+                        <Text style={styles.LabelText}>Linked With</Text>
+                        <Text style={styles.LabelValue}>{vehicleDetails.RelatedAssetIdentifier ? vehicleDetails.RelatedAssetIdentifier : '-'}</Text>
                         </View>
                         <View>
-                        <Text style={styles.LabelText}>Entry Location</Text>
-                        <Text style={styles.LabelValue}>G3 - AL Kadrah</Text>
+                        <Text style={styles.LabelText}>State</Text>
+                        <Text style={styles.LabelValue}>{vehicleDetails.Vehicle?.State ? vehicleDetails.Vehicle?.State : '-'}</Text>
                         </View>
                     </View>
                     <View style={styles.Box}>
                         <View style={styles.leftDiv}>
-                        <Text style={styles.LabelText}>36487-AE-UQ-PRI_A</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_A</Text>
+                        <Text style={styles.LabelText}>Country</Text>
+                        <Text style={styles.LabelValue}>{vehicleDetails.Vehicle?.CountryCode ? vehicleDetails.Vehicle?.CountryCode : '-'}</Text>
                         </View>
                         <View>
-                        <Text style={styles.LabelText}>36487-AE-UQ-PRI_A</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_A</Text>
+                        <Text style={styles.LabelText}>Year</Text>
+                        <Text style={styles.LabelValue}>{vehicleDetails.Vehicle?.Year ? vehicleDetails.Vehicle?.Year : '-'}</Text>
                         </View>
                     </View>
                     <View style={styles.Box}>
                         <View style={styles.leftDiv}>
-                        <Text style={styles.LabelText}>36487-AE-UQ-PRI_A</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_A</Text>
+                        <Text style={styles.LabelText}>Class</Text>
+                        <Text style={styles.LabelValue}>{String(typesData.find((data: any) => vehicleDetails.OverallClassId == data.ItemId)?.ItemName ?? '-')}</Text>
                         </View>
                         <View>
-                        <Text style={styles.LabelText}>36487-AE-UQ-PRI_A</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_A</Text>
+                        <Text style={styles.LabelText}>License Plate Type</Text>
+                        <Text style={styles.LabelValue}>-</Text>
                         </View>
                     </View>
                     <View style={styles.Box}>
                         <View style={styles.leftDiv}>
-                        <Text style={styles.LabelText}>36487-AE-UQ-PRI_A</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_A</Text>
+                        <Text style={styles.LabelText}>Metalized Windshield</Text>
+                        <Text style={styles.LabelValue}>-</Text>
                         </View>
                         <View>
-                        <Text style={styles.LabelText}>36487-AE-UQ-PRI_A</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_A</Text>
+                        <Text style={styles.LabelText}>Color</Text>
+                        <Text style={styles.LabelValue}>{vehicleDetails.Vehicle?.Color ? vehicleDetails.Vehicle?.Color :'-'}</Text>
                         </View>
                     </View>
                     <View style={styles.Box}>
                         <View style={styles.leftDiv}>
-                        <Text style={styles.LabelText}>36487-AE-UQ-PRI_A</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_A</Text>
+                        <Text style={styles.LabelText}>Valid From</Text>
+                        <Text style={styles.LabelValue}>{vehicleDetails.ValidFromDate ? dayjs(vehicleDetails.ValidFromDate).format('DD MMM YYYY') : '-'}</Text>
                         </View>
-                        
+                        <View>
+                        <Text style={styles.LabelText}>Valid To</Text>
+                        <Text style={styles.LabelValue}>{vehicleDetails.ValidToDate ? dayjs(vehicleDetails.ValidToDate).format('DD MMM YYYY') : '-'}</Text>
+                        </View>    
+                    </View>
+                    <View style={styles.Box}>
+                        <View style={styles.leftDiv}>
+                        <Text style={styles.LabelText}>UW(Kg)</Text>
+                        <Text style={styles.LabelValue}>{vehicleDetails.Vehicle?.UnloadedWeight}</Text>
+                        </View>
+                        <View>
+                        <Text style={styles.LabelText}>Status</Text>
+                        <Text style={styles.LabelValue}>{vehicleDetails.StatusId}</Text>
+                        </View>    
                     </View>
                    
                    

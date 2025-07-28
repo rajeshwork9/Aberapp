@@ -4,22 +4,13 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../App';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image, } from 'react-native';
 import { Button, TextInput, Modal, Portal, Text, Badge, Avatar, Card, IconButton, PaperProvider } from 'react-native-paper';
-import { Dropdown } from 'react-native-element-dropdown';
 
 const TransactionHistory: React.FC = () => {
     const [search, setSearch] = React.useState('');
-
     const [visible, setVisible] = React.useState(false);
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
-
-
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
-    const navigateTo = (path: keyof MainStackParamList) => {
-        navigation.navigate(path)
-    }
-     const [value, setValue] = useState(null);
-
     return (
 
         <ImageBackground
