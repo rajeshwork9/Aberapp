@@ -1,18 +1,102 @@
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
-import { Text, Card, Icon, TextInput, Modal, Portal, PaperProvider, Button, IconButton  } from 'react-native-paper';
-import { Animated} from 'react-native';
+import { Text, Card, Icon, TextInput, Modal, Portal, PaperProvider, Button, IconButton } from 'react-native-paper';
+import { Animated } from 'react-native';
+import { MainStackParamList } from '../../App';
+import { getLicenceNumber, getTodaysTrips, getOverallClasses , getTransactionStatus} from '../services/common';
+
+
+type TripDetailsRouteProp = RouteProp<MainStackParamList, 'TripsDetails'>;
+
+interface LPN {
+    label: string;
+    value: string;
+    AssetIdentifier: string;
+    OverallClassId: number;
+}
 
 const TripsDetails: React.FC = () => {
     const navigation = useNavigation();
-
+    const route = useRoute<TripDetailsRouteProp>();
+    const tripDetails = route.params.state;
     // modal popup useset
-   const [visible, setVisible] = React.useState(false);
-       const showModal = () => setVisible(true);
-       const hideModal = () => setVisible(false);
+    const [visible, setVisible] = React.useState(false);
+    const [lpnData, setLpnData] = useState<LPN[] | any>([]);
+    const [typesData, setTypesData] = useState<any[]>([]);
+    const [statusData, setStatusData] = useState<any[]>([]);
 
 
+    const showModal = () => setVisible(true);
+    const hideModal = () => setVisible(false);
+
+    useEffect(() => {
+        if (tripDetails.AccountId) {
+            licenceNumber(tripDetails.AccountId);
+            getTypes();
+            getTransactionStatusData();
+        }
+    }, [tripDetails]);
+    const getTypes = async () => {
+        try {
+            const response = await getOverallClasses();
+            console.log(response);
+            setTypesData(response);
+        }
+        catch (error: any) {
+            console.error(error);
+        }
+        finally {
+            console.log('api comopleted');
+
+        }
+    };
+    const licenceNumber = async (accountId: any) => {
+        try {
+            let payload = {
+                accountId: accountId,
+                assetTypeId: 2 //static
+            }
+            const response = await getLicenceNumber(payload);
+            const formatted = response.map((item: any) => ({
+                ...item,
+                label: item.AssetIdentifier,
+                value: item.AccountUnitId
+            }));
+
+            setLpnData(formatted);
+            console.log(lpnData, "lpn data");
+
+        }
+        catch (error) {
+            console.error('License fetch failed:', error);
+        }
+        finally {
+
+        }
+    }
+    const getClassNameFromVRM = (vrm: string) => {
+        const lpnMatch = lpnData.find((d: any) => d.AssetIdentifier === vrm);
+        if (!lpnMatch) return '—';
+        const classId = lpnMatch.OverallClassId;
+        const className = typesData.find((t: any) => t.ItemId === classId)?.ItemName;
+        return className ?? '—';
+    };
+
+    const getTransactionStatusData = async () => {
+        try {
+            const response = await getTransactionStatus();
+            console.log(response);
+            setStatusData(response);
+        }
+        catch (error: any) {
+            console.error(error);
+        }
+        finally {
+            console.log('api comopleted');
+
+        }
+    }
     return (
 
         <ImageBackground
@@ -31,67 +115,67 @@ const TripsDetails: React.FC = () => {
                 <View style={styles.containerInner}>
                     <View style={styles.Box}>
                         <View style={styles.leftDiv}>
-                        <Text style={styles.LabelText}>Identifier</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_a</Text>
+                            <Text style={styles.LabelText}>Identifier</Text>
+                            <Text style={styles.LabelValue}>{tripDetails.VRM ? tripDetails.VRM : '-'}</Text>
                         </View>
                         <View>
-                        <Text style={styles.LabelText}>Date & Time</Text>
-                        <Text style={styles.LabelValue}>2025/01/03, 09:27 AM</Text>
+                            <Text style={styles.LabelText}>Date & Time</Text>
+                            <Text style={styles.LabelValue}>{tripDetails.TransactionDate}</Text>
                         </View>
                     </View>
                     <View style={styles.Box}>
                         <View style={styles.leftDiv}>
-                        <Text style={styles.LabelText}>Trip ID</Text>
-                        <Text style={styles.LabelValue}>1234567</Text>
+                            <Text style={styles.LabelText}>Trip ID</Text>
+                            <Text style={styles.LabelValue}>{tripDetails.tripId ? tripDetails.tripId : '-'}</Text>
                         </View>
                         <View>
-                        <Text style={styles.LabelText}>Entry Location</Text>
-                        <Text style={styles.LabelValue}>G3 - AL Kadrah</Text>
+                            <Text style={styles.LabelText}>Entry Location</Text>
+                            <Text style={styles.LabelValue}> {tripDetails.LocationName ? tripDetails.LocationName : '-'} </Text>
                         </View>
                     </View>
                     <View style={styles.Box}>
                         <View style={styles.leftDiv}>
-                        <Text style={styles.LabelText}>36487-AE-UQ-PRI_A</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_A</Text>
+                            <Text style={styles.LabelText}>Transaction ID</Text>
+                            <Text style={styles.LabelValue}> {tripDetails.TransactionId ? tripDetails.TransactionId : '-'} </Text>
                         </View>
                         <View>
-                        <Text style={styles.LabelText}>36487-AE-UQ-PRI_A</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_A</Text>
+                            <Text style={styles.LabelText}>Financial</Text>
+                            <Text style={styles.LabelValue}> {tripDetails.Finincal ? tripDetails.Financial : '-'} </Text>
                         </View>
                     </View>
                     <View style={styles.Box}>
                         <View style={styles.leftDiv}>
-                        <Text style={styles.LabelText}>36487-AE-UQ-PRI_A</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_A</Text>
+                            <Text style={styles.LabelText}>Class</Text>
+                            <Text style={styles.LabelValue}>{getClassNameFromVRM(tripDetails.VRM)}</Text>
                         </View>
                         <View>
-                        <Text style={styles.LabelText}>36487-AE-UQ-PRI_A</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_A</Text>
+                            <Text style={styles.LabelText}>Status</Text>
+                            <Text style={styles.LabelValue}>{statusData.find((data: any) => tripDetails.StatusId == data.ItemId)?.ItemName}</Text>
                         </View>
                     </View>
                     <View style={styles.Box}>
                         <View style={styles.leftDiv}>
-                        <Text style={styles.LabelText}>36487-AE-UQ-PRI_A</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_A</Text>
+                            <Text style={styles.LabelText}>Amount(AED)</Text>
+                            <Text style={styles.LabelValue}>{tripDetails.AmountFinal ? tripDetails.AmountFinal : '-'}</Text>
                         </View>
                         <View>
-                        <Text style={styles.LabelText}>36487-AE-UQ-PRI_A</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_A</Text>
+                            <Text style={styles.LabelText}>Weight</Text>
+                            <Text style={styles.LabelValue}>{tripDetails.weight ? tripDetails.weight : '-'}</Text>
                         </View>
                     </View>
                     <View style={styles.Box}>
                         <View style={styles.leftDiv}>
-                        <Text style={styles.LabelText}>36487-AE-UQ-PRI_A</Text>
-                        <Text style={styles.LabelValue}>36487-AE-UQ-PRI_A</Text>
+                            <Text style={styles.LabelText}>RFID</Text>
+                            <Text style={styles.LabelValue}>{tripDetails.rfid ? tripDetails.rfid : '-'} </Text>
                         </View>
-                        
+
                     </View>
-                   
+
                     <Button mode="contained" style={styles.orangeButton} onPress={() => showModal()}>
-                    <Image style={{ width: 16, height: 16, }}  source={require('../../assets/images/chat-icon.png')}/> Dispute Trip
+                        <Image style={{ width: 16, height: 16, }} source={require('../../assets/images/chat-icon.png')} /> Dispute Trip
                     </Button>
 
-                    
+
 
                     <Portal>
                         <Modal
@@ -125,7 +209,7 @@ const TripsDetails: React.FC = () => {
                                     <Image style={{ width: 16, height: 16, marginVertical: 4 }} source={require('../../assets/images/chat-icon.png')} />
                                 </View>
                             </View>
-                             <View style={styles.formGroup}>
+                            <View style={styles.formGroup}>
                                 <View style={styles.inputWrapper}>
                                     <TextInput
                                         style={styles.formControl}
@@ -143,7 +227,7 @@ const TripsDetails: React.FC = () => {
                                     <Text style={styles.minText}>Min 240 Characters</Text>
                                 </View>
 
-                                                            </View>
+                            </View>
 
                             {/* Buttons */}
                             <View style={styles.buttonRow}>
@@ -160,7 +244,7 @@ const TripsDetails: React.FC = () => {
                         </Modal>
                     </Portal>
 
-   
+
                 </View>
             </View>
         </ImageBackground>
@@ -170,30 +254,30 @@ const TripsDetails: React.FC = () => {
 export default TripsDetails;
 
 const styles = StyleSheet.create({
-   //--- Header
+    //--- Header
 
     wrapper: {
-    width: 100,
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  ring: {
-    position: 'absolute',
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 4,
-    borderStyle: 'dotted', // Could be 'solid' for star pattern illusion
-    borderColor: '#FF5400',
-    backgroundColor: '#fff',
-    paddingHorizontal: 5,
-    paddingVertical: 5,
-  },
-  image: {
-    width: 40,
-    height: 40,
-  },
+        width: 100,
+        height: 100,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    ring: {
+        position: 'absolute',
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        borderWidth: 4,
+        borderStyle: 'dotted', // Could be 'solid' for star pattern illusion
+        borderColor: '#FF5400',
+        backgroundColor: '#fff',
+        paddingHorizontal: 5,
+        paddingVertical: 5,
+    },
+    image: {
+        width: 40,
+        height: 40,
+    },
     backgroundImage: {
         flex: 1,
         width: '100%',
@@ -206,7 +290,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
 
     },
-     containerInner: {
+    containerInner: {
         marginHorizontal: 15,
         marginTop: 30,
         // backgroundColor: 'rgba(0, 0, 0, 0.6)',
@@ -214,7 +298,7 @@ const styles = StyleSheet.create({
         // paddingHorizontal: 15,
         // paddingVertical: 15,
     },
-     headerMain: {
+    headerMain: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -224,24 +308,24 @@ const styles = StyleSheet.create({
         marginTop: 12,
     },
     Box: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    marginBottom:25
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        marginBottom: 25
     },
-    leftDiv:{
-         width: '55%',
+    leftDiv: {
+        width: '55%',
     },
     LabelText: {
         fontSize: 12,
         color: '#fff',
-        paddingVertical:4
+        paddingVertical: 4
     },
-    LabelValue:{
+    LabelValue: {
         fontSize: 13,
         color: '#fff',
-        fontWeight:'bold'
+        fontWeight: 'bold'
     },
-    
+
     headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', },
     headerRightBlock: { flexDirection: 'row', justifyContent: 'flex-end', },
     headerIcon: { width: 18, height: 18, },
@@ -262,34 +346,34 @@ const styles = StyleSheet.create({
         fontSize: 13,
         marginHorizontal: 0,
         backgroundColor: '#FF5A00',
-        flexDirection: 'row', 
+        flexDirection: 'row',
         justifyContent: 'center',
-        height:50
+        height: 50
 
     },
 
-     cardContentInner: {
+    cardContentInner: {
         marginTop: 0,
         borderRadius: 50,
         paddingVertical: 10,
         flexDirection: 'row', alignItems: 'flex-start',
         justifyContent: 'space-between',
     },
-     leftCardCont: {
+    leftCardCont: {
         paddingRight: 10,
         flexDirection: 'row',
         justifyContent: 'flex-start',
         width: '71%',
     },
-     textCard: {
+    textCard: {
         fontSize: 13,
         color: '#fff',
         paddingBottom: 2,
-        lineHeight:20
+        lineHeight: 20
     },
     GreenText: {
- color: '#06F547',
- fontSize: 12,
+        color: '#06F547',
+        fontSize: 12,
     },
 
     deateCard: {
@@ -310,7 +394,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
 
     },
-   formGroup: { marginTop: 10, marginBottom: 15, },
+    formGroup: { marginTop: 10, marginBottom: 15, },
     formControl: {
         paddingHorizontal: 0,
         height: 38,
@@ -322,16 +406,16 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     inputWrapper: {
-    position: 'relative',
-    marginBottom: 24,
-  },
-  minText: {
-    position: 'absolute',
-    bottom: -22,        // push below input
-    right: 0,           // align to right
-    fontSize: 12,
-    color: '#9F9F9F',
-  },
+        position: 'relative',
+        marginBottom: 24,
+    },
+    minText: {
+        position: 'absolute',
+        bottom: -22,        // push below input
+        right: 0,           // align to right
+        fontSize: 12,
+        color: '#9F9F9F',
+    },
 
     // modal popup css
     modalBottomContainer: {
@@ -357,7 +441,7 @@ const styles = StyleSheet.create({
 
     formGroupModal: { marginTop: 10, marginBottom: 15, },
     inputModal: {
-        paddingHorizontal:0,
+        paddingHorizontal: 0,
         height: 38,
         borderBottomColor: '#FCFCFC',
         borderBottomWidth: 1,
@@ -369,8 +453,8 @@ const styles = StyleSheet.create({
 
     labelModal: { color: '#fff', fontSize: 13, marginBottom: 10, },
 
-        calendarInputModal:{
-         paddingHorizontal:40,
+    calendarInputModal: {
+        paddingHorizontal: 40,
         height: 38,
         borderBottomColor: '#FCFCFC',
         borderBottomWidth: 1,
@@ -379,20 +463,20 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         backgroundColor: 'transparent',
     },
-    calendarIcon:{position:'absolute', left:5, bottom:11, width:20, height:20,},
+    calendarIcon: { position: 'absolute', left: 5, bottom: 11, width: 20, height: 20, },
 
-    
-     selectDropdown: {
+
+    selectDropdown: {
         width: '100%',
         marginHorizontal: 0,
-        height:40,
+        height: 40,
         backgroundColor: '#000000',
         borderRadius: 0,
         color: '#fff',
-        paddingHorizontal:0,
-        paddingVertical:0,
-        borderWidth:1,
-        borderBottomColor:'#fff',
+        paddingHorizontal: 0,
+        paddingVertical: 0,
+        borderWidth: 1,
+        borderBottomColor: '#fff',
     },
 
     placeholderSelect: {
@@ -405,22 +489,23 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
 
-    dropdownList : {       
-       backgroundColor:'#222',
+    dropdownList: {
+        backgroundColor: '#222',
         borderColor: '#222',
         borderRadius: 4,
-         paddingVertical:6,
+        paddingVertical: 6,
 
-        
-        
+
+
     },
 
-    listSelectGroup:{backgroundColor:'#222', 
-        paddingVertical:10,
-        paddingHorizontal:15,
+    listSelectGroup: {
+        backgroundColor: '#222',
+        paddingVertical: 10,
+        paddingHorizontal: 15,
     },
-    itemTextSelect:{
-        backgroundColor:'transparent',
+    itemTextSelect: {
+        backgroundColor: 'transparent',
         color: '#fff',
     },
 
@@ -456,9 +541,11 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
     },
     modalCloseIcon: {
-  position: 'absolute',
-  top: 8,
-  right: 8,
-  zIndex: 10,
-},
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        zIndex: 10,
+    },
+    backBt: {},
+    leftTextCard: {}
 });

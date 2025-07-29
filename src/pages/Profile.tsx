@@ -693,8 +693,6 @@ const styles = StyleSheet.create({
 
 
   leftTextCard: {
-    // paddingRight: 10,
-    // width:'55%',
 
   },
 

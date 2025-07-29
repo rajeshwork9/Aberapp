@@ -289,13 +289,18 @@ const Statements: React.FC = () => {
                                             </Card>
 
                                             <View style={styles.leftTextCard}>
-                                                <Text style={[styles.textCard, { fontFamily: 'Poppins-SemiBold' }]}>{item.ReferenceNumber}</Text>
+                                                <Text style={[styles.textCard, { fontFamily: 'Poppins-SemiBold' }]}>Statement  {item.FinancialDocumentID}</Text>
                                                 <View style={[styles.textCard, { flexDirection: 'row', alignItems: 'center' }]}>
                                                     <Image
                                                         style={[styles.calenderIcon, { marginRight: 6 }]}
                                                         source={require('../../assets/images/calendar-icon.png')}
                                                     />
-                                                    <Text style={styles.textCard}>{dayjs(item.IssueDate).format('YYYY-MM-DD HH:mm')}</Text>
+                                                    <Text style={styles.textCard}>{dayjs(item.PeriodFrom).format('YYYY-MM-DD')} </Text>
+                                                      <Image
+                                                        style={[styles.calenderIcon, { marginLeft: 6 }]}
+                                                        source={require('../../assets/images/calendar-icon.png')}
+                                                    />
+                                                    <Text style={styles.textCard}> {dayjs(item.PeriodTo).format('YYYY-MM-DD')}</Text>
                                                 </View>
                                             </View>
                                         </View>

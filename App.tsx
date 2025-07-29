@@ -74,7 +74,7 @@ type MainStackParamList = {
   Dashboard: undefined;
   Topup: undefined;
   Trips: undefined;
-  TripsDetails: undefined;
+  TripsDetails: {state: any};
   Vehicles: undefined;
   VehicleDetails: { state: any };
   Violations: undefined;

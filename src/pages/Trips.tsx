@@ -7,7 +7,7 @@ import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image,
 import { Button, TextInput, Modal, Portal, Text, Card, PaperProvider, IconButton, } from 'react-native-paper';
 import { Dropdown } from 'react-native-element-dropdown';
 import dayjs from 'dayjs';
-import { getLicenceNumber, getTodaysTrips, getOverallClasses } from '../services/common';
+import { getLicenceNumber, getTodaysTrips, getOverallClasses, getTransactionStatus } from '../services/common';
 import { useAccount } from '../context/AccountProvider';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +19,7 @@ interface Trip {
   TransactionId: string;
   TransactionDate: string;
   AmountFinal: string;
+  StatusId: number
 }
 
 interface LPN {
@@ -53,7 +54,8 @@ const Trips: React.FC = () => {
   const [clearFilterRequested, setClearFilterRequested] = useState(false);
   const { t } = useTranslation();
   const [visibleHeight, setVisibleHeight] = useState(1);
-  const [contentHeight, setContentHeight] = useState(1)
+  const [contentHeight, setContentHeight] = useState(1);
+  const [statusData, setStatusData] = useState<any[]>([]);
   const scrollY = useRef(new Animated.Value(0)).current;
 
 
@@ -71,6 +73,7 @@ const Trips: React.FC = () => {
       getTrips(accountDetails.AccountId, 1, true);
       licenceNumber(accountDetails.AccountId);
       getTypes();
+      getTransactionStatusData();
     }
   }, [accountDetails]);
 
@@ -188,6 +191,36 @@ const Trips: React.FC = () => {
     const className = typesData.find((t: any) => t.ItemId === classId)?.ItemName;
     return className ?? '—';
   };
+
+  const handleDetailsPage = async (data: any) => {
+    console.log(data, "hadle details");
+    navigation.navigate('TripsDetails', { state: data });
+  }
+
+  const getTransactionStatusData = async () => {
+    try {
+      const response = await getTransactionStatus();
+      console.log(response);
+      setStatusData(response);
+    }
+    catch (error: any) {
+      console.error(error);
+    }
+    finally {
+      console.log('api comopleted');
+
+    }
+  }
+
+    const statusColors: Record<number, string> = {
+        2: '#808080',  // Closed - Gray
+        1: '#FFA500',  // Pending - Orange
+        3: '#28A745',  // Active - Green
+        17: '#17A2B8',  // In Progress - Blue
+        100: '#b394ecff',  // Assigned - Purple
+        101: '#FFC107',  // Reopened - Amber
+        102: '#DC3545',  // Escalated - Red
+    };
 
 
   return (
@@ -318,16 +351,16 @@ const Trips: React.FC = () => {
             onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
           >
             <View style={styles.searchBlock}>
-                  <TextInput
-                    style={styles.searchFormInput}
-                    placeholder="Search"
-                    value={search}
-                    onChangeText={setSearch}
-                    mode="outlined"
-                    theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
-                  />
-                  <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
-                </View>
+              <TextInput
+                style={styles.searchFormInput}
+                placeholder="Search"
+                value={search}
+                onChangeText={setSearch}
+                mode="outlined"
+                theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
+              />
+              <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
+            </View>
             <FlatList
               data={tripsData}
               keyExtractor={(item, index) => `${item.AssetId}-${index}`}
@@ -341,7 +374,7 @@ const Trips: React.FC = () => {
               onContentSizeChange={(_, height) => setContentHeight(height)}
 
               renderItem={({ item }) => (
-                <Card style={styles.cardItemMain} onPress={() => navigation.navigate('TripsDetails')}>
+                <Card style={styles.cardItemMain} onPress={() => handleDetailsPage(item)}>
                   <View style={styles.cardContentInner}>
                     <View style={styles.leftCardCont}>
                       <Card style={styles.cardWithIcon}>
@@ -358,8 +391,8 @@ const Trips: React.FC = () => {
                       <Text style={styles.largeTextRCard}>{getClassNameFromVRM(item.VRM)}</Text>
                       <Image style={{ width: 16, height: 16, marginVertical: 4 }} source={require('../../assets/images/chat-icon.png')} />
                       <Text style={styles.statusTextCard}>
-                        <Text style={[styles.statusText, { fontWeight: 'normal' }]}>{t('trips.paid')}: </Text>
-                        <Text style={[styles.statusText, { fontWeight: 'bold' }]}>{item.AmountFinal}</Text>
+                        <Text style={[styles.statusText, { fontWeight: 'normal', color: statusColors[item.StatusId] }]}> {statusData.find((data: any) => item.StatusId == data.ItemId)?.ItemName} : </Text>
+                        <Text style={[styles.statusText, { fontWeight: 'bold', color: statusColors[item.StatusId] }]}>{item.AmountFinal}</Text>
                       </Text>
                     </View>
                   </View>
