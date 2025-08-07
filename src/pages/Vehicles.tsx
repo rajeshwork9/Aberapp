@@ -183,9 +183,9 @@ const Vehicles: React.FC<Props> = ({ navigation }) => {
                 <Text style={styles.btHeaderText}>{t('vehicles.add_vehicles')}</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.roundedIconBt} onPress={showModal}>
+              {/* <TouchableOpacity style={styles.roundedIconBt} onPress={showModal}>
                 <Image style={styles.roundedIcon} source={require('../../assets/images/filter-icon.png')} />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
 
               <Portal>
                 <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>

@@ -4,7 +4,7 @@ import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image 
 import { Text } from 'react-native-paper';
 import { MainStackParamList } from '../../App';
 import dayjs from 'dayjs';
-import { getOverallClasses } from '../services/common';
+import { getOverallClasses, getAssetStatus } from '../services/common';
 
 type VehicleDetailsRouteProp = RouteProp<MainStackParamList, 'VehicleDetails'>;
 
@@ -16,9 +16,11 @@ const VehicleDetails: React.FC = () => {
     const navigation = useNavigation();
 
     const [typesData, setTypesData] = useState<any[]>([]);
+    const [assetStatus, setAssetStatus] = useState<any[]>([]);
 
     useEffect(()=>{
         getTypes();
+        getStatus();
     },[])
 
     const getTypes = async () => {
@@ -35,6 +37,21 @@ const VehicleDetails: React.FC = () => {
 
         }
     };
+
+    const getStatus = async () => {
+        try {
+            const response = await getAssetStatus();
+            console.log(response);
+            setAssetStatus(response);
+        }
+        catch (error: any) {
+            console.error(error);
+        }
+        finally {
+            console.log('api comopleted');
+
+        }
+    }
 
     return (
 
@@ -119,7 +136,7 @@ const VehicleDetails: React.FC = () => {
                         </View>
                         <View>
                         <Text style={styles.LabelText}>Status</Text>
-                        <Text style={styles.LabelValue}>{vehicleDetails.StatusId}</Text>
+                        <Text style={styles.LabelValue}>{assetStatus.find((data: any) =>vehicleDetails.StatusId == data.ItemId)?.ItemName ?? '--' }</Text>
                         </View>    
                     </View>
                    

@@ -4,7 +4,7 @@ import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image 
 import { Text, Card, Icon, TextInput, Modal, Portal, PaperProvider, Button, IconButton } from 'react-native-paper';
 import { Animated } from 'react-native';
 import { MainStackParamList } from '../../App';
-import { getLicenceNumber, getTodaysTrips, getOverallClasses , getTransactionStatus} from '../services/common';
+import { getLicenceNumber, getTodaysTrips, getOverallClasses, getTransactionStatus } from '../services/common';
 
 
 type TripDetailsRouteProp = RouteProp<MainStackParamList, 'TripsDetails'>;
@@ -20,6 +20,8 @@ const TripsDetails: React.FC = () => {
     const navigation = useNavigation();
     const route = useRoute<TripDetailsRouteProp>();
     const tripDetails = route.params.state;
+    console.log(tripDetails);
+
     // modal popup useset
     const [visible, setVisible] = React.useState(false);
     const [lpnData, setLpnData] = useState<LPN[] | any>([]);
@@ -126,7 +128,7 @@ const TripsDetails: React.FC = () => {
                     <View style={styles.Box}>
                         <View style={styles.leftDiv}>
                             <Text style={styles.LabelText}>Trip ID</Text>
-                            <Text style={styles.LabelValue}>{tripDetails.tripId ? tripDetails.tripId : '-'}</Text>
+                            <Text style={styles.LabelValue}> {tripDetails.TransactionId ? tripDetails.TransactionId : '-'} </Text>
                         </View>
                         <View>
                             <Text style={styles.LabelText}>Entry Location</Text>
@@ -134,13 +136,14 @@ const TripsDetails: React.FC = () => {
                         </View>
                     </View>
                     <View style={styles.Box}>
+
                         <View style={styles.leftDiv}>
-                            <Text style={styles.LabelText}>Transaction ID</Text>
-                            <Text style={styles.LabelValue}> {tripDetails.TransactionId ? tripDetails.TransactionId : '-'} </Text>
-                        </View>
-                        <View>
                             <Text style={styles.LabelText}>Financial</Text>
                             <Text style={styles.LabelValue}> {tripDetails.Finincal ? tripDetails.Financial : '-'} </Text>
+                        </View>
+                        <View >
+                            <Text style={styles.LabelText}>RFID</Text>
+                            <Text style={styles.LabelValue}>{tripDetails.rfid ? tripDetails.rfid : '-'} </Text>
                         </View>
                     </View>
                     <View style={styles.Box}>
@@ -149,29 +152,28 @@ const TripsDetails: React.FC = () => {
                             <Text style={styles.LabelValue}>{getClassNameFromVRM(tripDetails.VRM)}</Text>
                         </View>
                         <View>
-                            <Text style={styles.LabelText}>Status</Text>
-                            <Text style={styles.LabelValue}>{statusData.find((data: any) => tripDetails.StatusId == data.ItemId)?.ItemName}</Text>
+                            <Text style={styles.LabelText}>Weight</Text>
+                            <Text style={styles.LabelValue}>{tripDetails.weight ? tripDetails.weight : '-'}</Text>
                         </View>
+
                     </View>
                     <View style={styles.Box}>
                         <View style={styles.leftDiv}>
                             <Text style={styles.LabelText}>Amount(AED)</Text>
-                            <Text style={styles.LabelValue}>{tripDetails.AmountFinal ? tripDetails.AmountFinal : '-'}</Text>
+                            <Text style={styles.LabelValue}>{tripDetails.AmountFinal}</Text>
                         </View>
                         <View>
-                            <Text style={styles.LabelText}>Weight</Text>
-                            <Text style={styles.LabelValue}>{tripDetails.weight ? tripDetails.weight : '-'}</Text>
+                            <Text style={styles.LabelText}>Status</Text>
+                            <Text style={styles.LabelValue}>{statusData.find((data: any) => tripDetails.StatusId == data.ItemId)?.ItemName}</Text>
                         </View>
+
                     </View>
                     <View style={styles.Box}>
-                        <View style={styles.leftDiv}>
-                            <Text style={styles.LabelText}>RFID</Text>
-                            <Text style={styles.LabelValue}>{tripDetails.rfid ? tripDetails.rfid : '-'} </Text>
-                        </View>
+
 
                     </View>
 
-                    <Button mode="contained" style={styles.orangeButton} onPress={() => showModal()}>
+                    <Button mode="contained" style={styles.orangeButton} > {/*onPress={() => showModal()} */}
                         <Image style={{ width: 16, height: 16, }} source={require('../../assets/images/chat-icon.png')} /> Dispute Trip
                     </Button>
 

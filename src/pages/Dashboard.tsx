@@ -103,7 +103,7 @@ const Dashboard: React.FC = () => {
         }
     }, [accountDetails]);
 
-    const navigateTo = (path: keyof MainStackParamList) => {
+    const navigateTo = (path: keyof MainStackParamList | any) => {
         navigation.navigate(path);
     };
 
@@ -265,7 +265,7 @@ const Dashboard: React.FC = () => {
                         />
 
                         <View style={styles.notification}>
-                            <Badge size={19} style={styles.badgeNotifi}>4</Badge>
+                            {/* <Badge size={19} style={styles.badgeNotifi}>4</Badge> */}
                             <Image style={styles.imgNotifi} source={require('../../assets/images/notification-icon.png')} />
                             {/* <Button onPress={() => handleLogout()} mode="contained" style={styles.topupBtn} labelStyle={{ fontSize: 12 }}
                         >Logout</Button> */}

@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../App';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image } from 'react-native';
-import { ActivityIndicator, Card, PaperProvider, SegmentedButtons, Text } from 'react-native-paper';
+import { Button, TextInput, Modal, Portal, Text, Card, PaperProvider, ActivityIndicator, SegmentedButtons } from 'react-native-paper';
 import dayjs from 'dayjs';
 import { BarChart, LineChart } from 'react-native-gifted-charts';
 import { getLicenceNumber, getTodaysTrips, getOverallClasses, getVehiclesList } from '../services/common';
@@ -14,23 +14,25 @@ interface Trip {
   VRM: string;
   LocationName: string;
   TransactionId: string;
-  TransactionDate: string;
+  TransactionDate: string; // ISO string
   AmountFinal: string;
   StatusId: number;
 }
+
 interface LPN {
   label: string;
   value: string;
   AssetIdentifier: string;
   OverallClassId: number;
 }
+
 interface VehicleItem {
   AssetIdentifier: string;
   AssetTypeId: number;
   AccountUnitId: number;
   StatusId: number;
-  OverallClassId: number; // 0 => Unknown
-  ValidFromDate: string;   // ISO
+  OverallClassId: number;
+  ValidFromDate: string;   // ISO string
   ValidToDate: string | null;
   Vehicle?: any;
   RelatedAssetIdentifier?: string;
@@ -40,7 +42,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 
 const getClassColor = (className: string) => {
   switch (className) {
-    case 'Unknown': return '#5AA9FF';
+    case 'Unknown': return '#5AA9FF'; 
     case '2XL': return '#4E95F7';
     case '3XL': return '#276DCB';
     case '6 Wheels': return '#3EDC7E';
@@ -52,6 +54,7 @@ const getClassColor = (className: string) => {
   }
 };
 
+
 const DashboardPage: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const { full } = useAccount();
@@ -59,6 +62,7 @@ const DashboardPage: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const isFetchingMore = useRef(false);
 
   const [lpnValue, setLpnValue] = useState<any>(0);
   const [tripsData, setTripsData] = useState<Trip[]>([]);
@@ -67,25 +71,27 @@ const DashboardPage: React.FC = () => {
   const [lpnData, setLpnData] = useState<LPN[]>([]);
   const [typesData, setTypesData] = useState<any[]>([]);
   const [viewMode, setViewMode] = useState<'monthly' | 'yearly'>('monthly');
-  const [seriesPage, setSeriesPage] = useState(0);
+  const [vehicleClassId, setVehicleClassId] = useState<number | 'all'>('all');
+  
 
-  // ==== Legends ====
+  /** Legend: always from getTypes (all classes) */
   const legendItems = useMemo(
     () => (typesData || []).map((t: any) => ({ label: t.ItemName, color: getClassColor(t.ItemName) })),
     [typesData]
   );
 
   const vehicleLegendItems = useMemo(() => {
-    const base = (typesData || []).map((t: any) => ({
-      classId: t.ItemId,
-      label: t.ItemName,
-      color: getClassColor(t.ItemName),
-    }));
-    const hasUnknown = (vehiclesData || []).some(v => (v.OverallClassId ?? 0) === 0);
-    return hasUnknown
-      ? [{ classId: 0, label: 'Unknown', color: getClassColor('Unknown') }, ...base]
-      : base;
-  }, [typesData, vehiclesData]);
+  const base = (typesData || []).map((t: any) => ({
+    classId: t.ItemId,
+    label: t.ItemName,
+    color: getClassColor(t.ItemName),
+  }));
+
+  const hasUnknown = (vehiclesData || []).some(v => v.OverallClassId === 0);
+  return hasUnknown
+    ? [{ classId: 0, label: 'Unknown', color: getClassColor('Unknown') }, ...base]
+    : base;
+}, [typesData, vehiclesData]);
 
   useEffect(() => setAccountDetails(full), [full]);
 
@@ -93,13 +99,13 @@ const DashboardPage: React.FC = () => {
     if (!accountDetails) return;
     const load = async () => {
       try {
-        setLoading(true);
         const [typesRes, lpnRes] = await Promise.all([
           getOverallClasses(),
           getLicenceNumber({ accountId: accountDetails.AccountId, assetTypeId: 2 }),
         ]);
         setTypesData(typesRes || []);
-
+        console.log("types data", typesData);
+        
         const lpnFormatted = (lpnRes || []).map((item: any) => ({
           ...item,
           label: item.AssetIdentifier,
@@ -110,8 +116,6 @@ const DashboardPage: React.FC = () => {
         await Promise.all([getTrips(), getVehicles()]);
       } catch (e) {
         console.error('Init load failed:', e);
-      } finally {
-        setLoading(false);
       }
     };
     load();
@@ -129,13 +133,18 @@ const DashboardPage: React.FC = () => {
         accountId: accountDetails.AccountId,
         AccountUnitId: lpnValue ? lpnValue : 0,
         GantryId: 0,
-        fromDate: `${dayjs().subtract(5, 'year').year()}-01-01`,
+        fromDate: `${dayjs().subtract(5, 'year').year()}-01-01`,   // current year only
         toDate: toDatetime,
         PageNumber: 1,
         PageSize: 1000,
       };
+      console.log("payload", payload);
+
       const response = await getTodaysTrips(payload);
       const trips = response?.TransactionsList || [];
+
+      console.log('📦 Raw Trips from API:', trips);
+
       setTripsData(trips);
     } catch (e) {
       console.error('Trips fetch error:', e);
@@ -148,16 +157,27 @@ const DashboardPage: React.FC = () => {
   const getVehicles = async () => {
     try {
       setLoading(true);
+
       const payload = {
         accountId: accountDetails.AccountId,
         AssetTypeId: 0,
         PageNumber: 1,
         PageSize: 1000,
       };
+
       const res = await getVehiclesList(payload);
-      // Accept either { List: [...] } or [...]
-      const list: VehicleItem[] = Array.isArray(res?.List) ? res.List : (Array.isArray(res) ? res : []);
-      setVehiclesData(list);
+      console.log(res, 'vehicle');
+       // Build a set of valid class IDs from getTypes
+    const validClassIds = new Set((typesData || []).map((t: any) => t.ItemId));
+    // Keep only vehicles whose OverallClassId is in types
+    const filtered = res.List.filter((v: any) => validClassIds.has(v.OverallClassId));
+
+      setVehiclesData(res.List);
+      const monthly = buildVehiclesMonthlySeries(filtered, vehicleClassId);
+       const yearly  = buildVehiclesYearlySeries(filtered, vehicleClassId);
+       console.log('📈 Vehicles Monthly series (for LineChart data=…):', monthly);
+    console.log('📈 Vehicles Yearly series (for LineChart data=…):', yearly);
+
     } catch (err) {
       console.error('Vehicle fetch error:', err);
     } finally {
@@ -166,18 +186,25 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  // ===== TRIPS: Monthly (existing logic) =====
+
+  /**
+   * Build monthly counts for ALL 12 months of the CURRENT YEAR and for ALL classes from getTypes.
+   * Months with no trips are zero-padded so the x-axis is stable (Jan..Dec).
+   */
   const barsToRender = useMemo(() => {
     if (!typesData.length) return [];
 
-    const months = [...MONTHS];
+    const months = [...MONTHS]; // Jan..Dec
     const classOrder: string[] = typesData.map((t: any) => t.ItemName);
-    const colorsByClass: Record<string, string> =
-      Object.fromEntries(classOrder.map(c => [c, getClassColor(c)]));
+    const colorsByClass: Record<string, string> = Object.fromEntries(
+      classOrder.map(c => [c, getClassColor(c)])
+    );
 
+    // 1) init month -> class -> count
     const counts: Record<string, Record<string, number>> = {};
     months.forEach(m => (counts[m] = {}));
 
+    // 2) fill counts
     tripsData.forEach(t => {
       const m = dayjs(t.TransactionDate).format('MMM');
       const lpn = lpnData.find(v => v.AssetIdentifier === t.VRM);
@@ -187,13 +214,15 @@ const DashboardPage: React.FC = () => {
       counts[m][className] = (counts[m][className] ?? 0) + 1;
     });
 
+    // 3) keep only months that have any data
     const monthsWithData = months.filter(m =>
       Object.values(counts[m] ?? {}).some(v => (v || 0) > 0)
     );
     if (!monthsWithData.length) return [];
 
-    const INTRA_SPACING = 8;
-    const GROUP_SPACING = 28;
+    // 4) build flat bars: only non-zero classes; fixed gap within month vs after month
+    const INTRA_SPACING = 8;   // gap between bars inside the same month
+    const GROUP_SPACING = 28;  // gap after the last bar of a month
 
     const flatBars: any[] = [];
     monthsWithData.forEach(m => {
@@ -207,13 +236,15 @@ const DashboardPage: React.FC = () => {
 
         flatBars.push({
           value: val,
-          label: isFirst ? m : undefined,
-          spacing: isLast ? GROUP_SPACING : INTRA_SPACING,
+          label: isFirst ? m : undefined,                       // month label once
+          spacing: isLast ? GROUP_SPACING : INTRA_SPACING,      // consistent month gap
           labelWidth: isFirst ? 30 : undefined,
           labelTextStyle: isFirst ? { color: 'gray' } : undefined,
           frontColor: colorsByClass[cls],
           topLabelComponent: () => (
-            <Text style={{ fontSize: 10, color: '#333', fontWeight: '600' }}>{val}</Text>
+            <Text style={{ fontSize: 10, color: '#333', fontWeight: '600' }}>
+              {val}
+            </Text>
           ),
         });
       });
@@ -222,23 +253,25 @@ const DashboardPage: React.FC = () => {
     return flatBars;
   }, [tripsData, lpnData, typesData]);
 
-  // ===== TRIPS: Yearly (last 5 years) =====
+  /** Yearly view: last 5 calendar years including current (e.g., 2021–2025) */
   const barsToRenderYearly = useMemo(() => {
     if (!typesData.length) return [];
 
     const currentYear = dayjs().year();
-    const years: number[] = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i);
-    // const years: number[] = [2021, 2022, 2023, 2024, 2025];
+    const years: number[] = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i); // [Y-4..Y]
     const classOrder: string[] = typesData.map((t: any) => t.ItemName);
-    const colorsByClass: Record<string, string> =
-      Object.fromEntries(classOrder.map(c => [c, getClassColor(c)]));
+    const colorsByClass: Record<string, string> = Object.fromEntries(
+      classOrder.map(c => [c, getClassColor(c)])
+    );
 
+    // init year -> class -> count
     const counts: Record<number, Record<string, number>> = {};
     years.forEach(y => (counts[y] = {}));
 
+    // aggregate
     tripsData.forEach(t => {
       const y = Number(dayjs(t.TransactionDate).format('YYYY'));
-      if (!years.includes(y)) return;
+      if (!years.includes(y)) return; // only last 5 years window
       const lpn = lpnData.find(v => v.AssetIdentifier === t.VRM);
       const classId = lpn?.OverallClassId;
       const className = typesData.find((x: any) => x.ItemId === classId)?.ItemName ?? 'Others';
@@ -246,13 +279,17 @@ const DashboardPage: React.FC = () => {
       counts[y][className] = (counts[y][className] ?? 0) + 1;
     });
 
+    // ALWAYS show all 5 years on x-axis (even if zero)
     const INTRA_SPACING = 8;
     const GROUP_SPACING = 28;
 
     const flatBars: any[] = [];
     years.forEach(y => {
-      const active = classOrder.filter(cls => (counts[y]?.[cls] ?? 0) > 0);
-      if (!active.length) {
+      // classes with data this year
+      const activeClasses = classOrder.filter(cls => (counts[y]?.[cls] ?? 0) > 0);
+
+      // If no data for the year at all, still emit a zero bar to keep the label visible
+      if (activeClasses.length === 0) {
         flatBars.push({
           value: 0,
           label: String(y),
@@ -264,10 +301,11 @@ const DashboardPage: React.FC = () => {
         });
         return;
       }
-      active.forEach((cls, idx) => {
+
+      activeClasses.forEach((cls, idx) => {
         const val = counts[y][cls] ?? 0;
         const isFirst = idx === 0;
-        const isLast = idx === active.length - 1;
+        const isLast = idx === activeClasses.length - 1;
 
         flatBars.push({
           value: val,
@@ -286,160 +324,169 @@ const DashboardPage: React.FC = () => {
     return flatBars;
   }, [tripsData, lpnData, typesData]);
 
-  // ===== Bind Trips to single switch =====
+  /** Auto y-axis max for nicer grid */
   const selectedBars = viewMode === 'monthly' ? barsToRender : barsToRenderYearly;
-  const tripsMaxValue = useMemo(() => {
+  const maxValue = useMemo(() => {
     const max = Math.max(1, ...selectedBars.map(b => Number(b.value) || 0));
-    const padded = Math.ceil(max * 1.15);
-    const step = padded <= 50 ? 5 : padded <= 100 ? 10 : 20;
+    const padded = Math.ceil(max * 1.15);                    // 15% headroom
+    const step = padded <= 50 ? 5 : padded <= 100 ? 10 : 20; // nice ticks
     return Math.ceil(padded / step) * step;
   }, [selectedBars]);
 
-  // ========= VEHICLES (ONE LINE PER CLASS) =========
-
-  // Monthly per class (sparse months only)
-  const vehicleSeriesMonthlyByClass = useMemo(() => {
-    if (!vehiclesData?.length || !vehicleLegendItems.length) return [];
-
-    // classId -> [12] month counts
-    const countsByClass = new Map<number, number[]>();
-    vehicleLegendItems.forEach(li => countsByClass.set(li.classId, Array(12).fill(0)));
-
-    vehiclesData.forEach(v => {
-      const d = dayjs(v.ValidFromDate);
-      if (!d.isValid()) return;
-      const cid = (v.OverallClassId ?? 0);
-      if (!countsByClass.has(cid)) countsByClass.set(cid, Array(12).fill(0));
-      countsByClass.get(cid)![d.month()] += 1;
-    });
-
-    // Which months have ANY data across classes
-    const monthTotals = Array(12).fill(0);
-    countsByClass.forEach(arr => arr.forEach((val, m) => (monthTotals[m] += val)));
-    const monthsWithData = monthTotals.map((v, i) => (v > 0 ? i : -1)).filter(i => i >= 0);
-
-    const series = vehicleLegendItems.map(li => {
-      const arr = countsByClass.get(li.classId) || Array(12).fill(0);
-      const data = monthsWithData.map(mIdx => ({
-        value: arr[mIdx] ?? 0,
-        label: MONTHS[mIdx],
-        dataPointText: String(arr[mIdx] ?? 0),
-      }));
-      return { classId: li.classId, label: li.label, color: li.color, data };
-    });
-
-    console.log('🚗 Vehicles Monthly (per class series):', series);
-    return series;
-  }, [vehiclesData, vehicleLegendItems]);
-
-  // Yearly per class (all years found in data)
-  const vehicleSeriesYearlyByClass = useMemo(() => {
-    if (!vehiclesData?.length || !vehicleLegendItems.length) return [];
-
-    // Build year set
-    const yearsSet = new Set<number>();
-    vehiclesData.forEach(v => {
-      const d = dayjs(v.ValidFromDate);
-      if (d.isValid()) yearsSet.add(d.year());
-    });
-    const currentYear = dayjs().year();
-const years = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i);
-
-    // classId -> (year -> count)
-    const counts = new Map<number, Map<number, number>>();
-    vehicleLegendItems.forEach(li => counts.set(li.classId, new Map()));
-
-    vehiclesData.forEach(v => {
-      const d = dayjs(v.ValidFromDate);
-      if (!d.isValid()) return;
-      const y = d.year();
-      const cid = (v.OverallClassId ?? 0);
-      if (!counts.has(cid)) counts.set(cid, new Map());
-      const m = counts.get(cid)!;
-      m.set(y, (m.get(y) ?? 0) + 1);
-    });
-
-    const series = vehicleLegendItems.map(li => {
-      const m = counts.get(li.classId) || new Map<number, number>();
-      const data = years.map(y => ({
-        value: m.get(y) ?? 0,
-        label: String(y),
-        dataPointText: String(m.get(y) ?? 0),
-      }));
-      return { classId: li.classId, label: li.label, color: li.color, data };
-    });
-
-    console.log('🚗 Vehicles Yearly (per class series):', series);
-    return series;
-  }, [vehiclesData, vehicleLegendItems]);
-
-  // Bind Vehicles to the SAME single switch
-  const vehicleSeriesByClass = viewMode === 'monthly'
-    ? vehicleSeriesMonthlyByClass
-    : vehicleSeriesYearlyByClass;
-
-  // Split into chunks of 5 lines per chart (gifted-charts supports data..data5)
-  const chunk = <T,>(arr: T[], size: number) =>
-    arr.reduce<T[][]>((acc, _, i) => (i % size ? acc : [...acc, arr.slice(i, i + size)]), []);
-
-  const vehicleSeriesChunks = useMemo(() => chunk(vehicleSeriesByClass, 5), [vehicleSeriesByClass]);
-  const pageSeries = vehicleSeriesChunks[seriesPage] || [];
-  const s = pageSeries
-  // Axis max for vehicles
-  const vehiclesMaxValue = useMemo(
-    () => Math.max(5, ...vehicleSeriesByClass.flatMap(s => s.data.map(p => p.value))),
-    [vehicleSeriesByClass]
-  );
-
-  // Debug logs for what’s sent to charts
-  useEffect(() => {
-    console.log('📊 Trips bars -> BarChart:', selectedBars);
-  }, [selectedBars]);
-  useEffect(() => {
-    console.log(`📈 Vehicles (${viewMode}) series -> LineChart:`, vehicleSeriesByClass);
-  }, [vehicleSeriesByClass, viewMode]);
-
-  /** All-vehicles monthly series (Jan..Dec across all years, zeros padded) */
-  const vehiclesAllMonthly = useMemo(() => {
+  const vehiclesLineDataMonthly = useMemo(() => {
     if (!vehiclesData?.length) return [];
 
-    // 12 buckets for Jan..Dec
-    const byMonth = Array(12).fill(0);
+    // group by YYYY-MM across all years
+    const buckets = new Map<string, number>();
 
-    vehiclesData.forEach(v => {
+    vehiclesData.forEach((v: any) => {
       const d = dayjs(v.ValidFromDate);
       if (!d.isValid()) return;
-      byMonth[d.month()] += 1;               // month(): 0..11
+      if (vehicleClassId !== 'all' && v.OverallClassId !== vehicleClassId) return;
+
+      const key = d.format('YYYY-MM'); // stable sort key
+      buckets.set(key, (buckets.get(key) ?? 0) + 1);
     });
 
-    // Build Jan..Dec, always 12 labels
-    return MONTHS.map((m, idx) => ({
-      value: byMonth[idx],
-      label: m,
-      dataPointText: String(byMonth[idx]),
-    }));
-  }, [vehiclesData]);
+    const orderedKeys = Array.from(buckets.keys()).sort(); // chronological
+    return orderedKeys.map(k => {
+      const count = buckets.get(k) ?? 0;
+      const label = dayjs(k + '-01').format('MMM'); // e.g., "Jan 21"
+      return {
+        value: count,
+        label,               // x-axis label
+        dataPointText: String(count), // number above point
+      };
+    });
+  }, [vehiclesData, vehicleClassId]);
 
-  /** All-vehicles yearly series (each year found in data, ascending) */
-  const vehiclesAllYearly = useMemo(() => {
+  const vehiclesLineDataYearly = useMemo(() => {
     if (!vehiclesData?.length) return [];
+    const byYear = new Map<number, number>();
 
-    const map = new Map<number, number>();
-    vehiclesData.forEach(v => {
+    vehiclesData.forEach((v: any) => {
       const d = dayjs(v.ValidFromDate);
       if (!d.isValid()) return;
+      if (vehicleClassId !== 'all' && v.OverallClassId !== vehicleClassId) return;
+
       const y = d.year();
-      map.set(y, (map.get(y) ?? 0) + 1);
+      byYear.set(y, (byYear.get(y) ?? 0) + 1);
     });
 
-    const years = Array.from(map.keys()).sort((a, b) => a - b);
+    const years = Array.from(byYear.keys()).sort((a, b) => a - b);
     return years.map(y => ({
-      value: map.get(y) ?? 0,
+      value: byYear.get(y) ?? 0,
       label: String(y),
-      dataPointText: String(map.get(y) ?? 0),
+      dataPointText: String(byYear.get(y) ?? 0),
     }));
-  }, [vehiclesData]);
+  }, [vehiclesData, vehicleClassId]);
 
+
+  const vehicleLineData = viewMode === 'monthly'
+    ? vehiclesLineDataMonthly
+    : vehiclesLineDataYearly;
+
+  const vehicleMaxValue = useMemo(() => {
+    const max = Math.max(1, ...vehicleLineData.map(p => Number(p.value) || 0));
+    // light headroom for line chart
+    const padded = Math.ceil(max * 1.15);
+    const step = padded <= 50 ? 5 : padded <= 100 ? 10 : 20;
+    return Math.ceil(padded / step) * step;
+  }, [vehicleLineData]);
+  console.log("vehiceldata", vehicleLineData);
+  
+
+const buildVehiclesMonthlySeries = (
+  vehicles: any[],
+  classFilter: number | 'all'
+) => {
+  // group by YYYY-MM across all years
+  const buckets = new Map<string, number>();
+
+  vehicles.forEach(v => {
+    if (classFilter !== 'all' && v.OverallClassId !== classFilter) return;
+    const d = dayjs(v.ValidFromDate);
+    if (!d.isValid()) return;
+    const key = d.format('YYYY-MM'); // stable sort key
+    buckets.set(key, (buckets.get(key) ?? 0) + 1);
+  });
+
+  const orderedKeys = Array.from(buckets.keys()).sort(); // chronological
+  return orderedKeys.map(k => {
+    const count = buckets.get(k) ?? 0;
+    const label = dayjs(k + '-01').format('MMM YY'); // e.g., "Jan 21"
+    return {
+      value: count,
+      label,
+      dataPointText: String(count),
+    };
+  });
+};
+
+const buildVehiclesYearlySeries = (
+  vehicles: any[],
+  classFilter: number | 'all'
+) => {
+  const byYear = new Map<number, number>();
+
+  vehicles.forEach(v => {
+    if (classFilter !== 'all' && v.OverallClassId !== classFilter) return;
+    const d = dayjs(v.ValidFromDate);
+    if (!d.isValid()) return;
+    const y = d.year();
+    byYear.set(y, (byYear.get(y) ?? 0) + 1);
+  });
+
+  const years = Array.from(byYear.keys()).sort((a, b) => a - b);
+  return years.map(y => ({
+    value: byYear.get(y) ?? 0,
+    label: String(y),
+    dataPointText: String(byYear.get(y) ?? 0),
+  }));
+};
+
+
+// Months that appear in ANY class (e.g., Jan, Jul) — not fixed Jan..Dec.
+// To switch to fixed Jan..Dec, set monthsWithAnyDataIdx = [0..11].
+const vehicleSeriesByClass = useMemo(() => {
+  if (!vehiclesData?.length || !vehicleLegendItems.length) return [];
+
+  // Count per class x monthIndex (0..11)
+  const countsByClass = new Map<number, number[]>();
+  vehicleLegendItems.forEach(li => countsByClass.set(li.classId, Array(12).fill(0)));
+
+  vehiclesData.forEach((v: any) => {
+    const d = dayjs(v.ValidFromDate);
+    if (!d.isValid()) return;
+    const cid = v.OverallClassId ?? 0;
+    if (!countsByClass.has(cid)) countsByClass.set(cid, Array(12).fill(0));
+    countsByClass.get(cid)![d.month()] += 1;
+  });
+
+  // Determine which months have any data across all classes
+  const monthTotals = Array(12).fill(0);
+  countsByClass.forEach(arr => arr.forEach((val, m) => (monthTotals[m] += val)));
+  const monthsWithAnyDataIdx = monthTotals
+    .map((val, idx) => (val > 0 ? idx : -1))
+    .filter(idx => idx >= 0);
+
+  // Build series (aligned labels & order = legend order)
+  return vehicleLegendItems.map(li => {
+    const arr = countsByClass.get(li.classId) || Array(12).fill(0);
+    const data = monthsWithAnyDataIdx.map(mIdx => ({
+      value: arr[mIdx] ?? 0,
+      label: MONTHS[mIdx],               // 'Jan', 'Jul', ...
+      dataPointText: String(arr[mIdx] ?? 0),
+    }));
+    return { classId: li.classId, label: li.label, color: li.color, data };
+  });
+}, [vehiclesData, vehicleLegendItems]);
+
+const chunk = (arr:any[], size:number) => arr.reduce((acc,_,i)=> (i%size? acc : [...acc, arr.slice(i,i+size)]), [] as any[]);
+
+const vehicleSeriesChunks = useMemo(() => chunk(vehicleSeriesByClass, 5), [vehicleSeriesByClass]);
+
+  console.log("selectedBars", selectedBars);
   return (
     <ImageBackground
       source={require('../../assets/images/background.png')}
@@ -457,47 +504,25 @@ const years = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i);
 
         <ScrollView>
           <View style={styles.containerInner}>
-            <View style={styles.flexBox}>
-              <Text style={styles.PageTitle}>Most Recent Metrics  </Text><Image style={[styles.roundedIcon, ]} source={require('../../assets/images/trips-icon.png')} />
-            </View>
-
-            {/* ===== Single switch for BOTH charts ===== */}
-            <View style={{ marginBottom: 8 }}>
-              <SegmentedButtons
-                value={viewMode}
-                onValueChange={(v) => setViewMode(v as 'monthly' | 'yearly')}
-                buttons={[
-                  {
-                    value: 'monthly',
-                    label: 'Monthly',
-                    style: {
-                      backgroundColor: viewMode === 'monthly' ? '#ff5200' : '#fff', // Active: darker blue
-                    },
-                    labelStyle: {
-                      color: viewMode === 'monthly' ? '#fff' : '#000', // Active: white text
-                    },
-                  },
-                  {
-                    value: 'yearly',
-                    label: 'Yearly',
-                    style: {
-                      backgroundColor: viewMode === 'yearly' ? '#ff5200' : '#fff', // Active: darker green
-                    },
-                    labelStyle: {
-                      color: viewMode === 'yearly' ? '#fff' : '#000', // Active: white text
-                    },
-                  },
-                ]}
-                density="regular"
-              />
-
-            </View>
-
-            {/* ===== Trips ===== */}
-           
+            <Text style={styles.PageTitle}>Most Recent Metrics</Text>
+            <Image style={[styles.roundedIcon, { marginLeft: 0 }]} source={require('../../assets/images/trips-icon.png')} />
+    <View style={{ marginBottom: 8 }}>
+                  <SegmentedButtons
+                    value={viewMode}
+                    onValueChange={(v) => setViewMode(v as 'monthly' | 'yearly')}
+                    buttons={[
+                      { value: 'monthly', label: 'Monthly' },
+                      { value: 'yearly', label: 'Yearly' },
+                    ]}
+                    density="regular"
+                  />
+                </View>
             <Card style={styles.cardItemMain}>
               <View style={{ paddingVertical: 20, paddingHorizontal: 10 }}>
+                {/* VIEW MODE SWITCH */}
+                
                 <View style={styles.chartWrapper}>
+                  {/* BAR CHART */}
                   <BarChart
                     data={
                       selectedBars.length
@@ -515,6 +540,7 @@ const years = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i);
                         ]
                     }
                     barWidth={12}
+                    // spacing={24}
                     roundedTop
                     roundedBottom
                     hideRules
@@ -522,7 +548,7 @@ const years = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i);
                     yAxisThickness={0}
                     yAxisTextStyle={{ color: 'gray' }}
                     noOfSections={5}
-                    maxValue={tripsMaxValue}
+                    maxValue={maxValue}
                   />
                   {loading && (
                     <View style={styles.loadingOverlay}>
@@ -532,7 +558,8 @@ const years = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i);
                   )}
                 </View>
 
-                {/* Legend from getTypes */}
+
+                {/* LEGEND (below the bar chart) – shows ALL classes from getTypes */}
                 <View style={styles.legendContainer}>
                   {legendItems.map((item, index) => (
                     <View key={index} style={styles.legendItem}>
@@ -544,72 +571,61 @@ const years = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i);
               </View>
             </Card>
 
-            {/* ===== Vehicles ===== */}
+            {/* VEHICLES */}
             <Card style={styles.cardItemMain}>
               <View style={{ paddingVertical: 20, paddingHorizontal: 10 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 }}>
-                  {/* <Image style={[styles.roundedIcon, { marginLeft: 0 }]} source={require('../../assets/images/vehicles-icon.png')} /> */}
-                  {/* <Text style={[styles.PageTitle, { marginBottom: 0 }]}>
-                    Vehicles Added (by {viewMode === 'monthly' ? 'Month' : 'Year'})
-                  </Text> */}
+                  <Image style={[styles.roundedIcon, { marginLeft: 0 }]} source={require('../../assets/images/vehicles-icon.png')} />
+                  <Text style={[styles.PageTitle, { marginBottom: 0 }]}>Vehicles Added (by {viewMode === 'monthly' ? 'Month' : 'Year'})</Text>
                 </View>
 
-                <View style={styles.chartWrapper}>
-                  <LineChart
-                    data={pageSeries[0]?.data}
-                    data2={pageSeries[1]?.data}
-                    data3={pageSeries[2]?.data}
-                    data4={pageSeries[3]?.data}
-                    data5={pageSeries[4]?.data}
-                    color={pageSeries[0]?.color}
-                    color2={pageSeries[1]?.color}
-                    color3={pageSeries[2]?.color}
-                    color4={pageSeries[3]?.color}
-                    color5={pageSeries[4]?.color}
-                    curved
-                    thickness={2}
-                    noOfSections={5}
-                    height={220}
-                    maxValue={vehiclesMaxValue}
-                    showDataPoint
-                    yAxisColor="#ccc"
-                    yAxisTextStyle={{ color: '#888' }}
-                    xAxisColor="#ccc"
-                    xAxisLabelTextStyle={{ color: '#000', fontWeight: '600' }}
-                    areaChart={false}
-                  />
-                  <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
-                    <TouchableOpacity
-                      onPress={() => setSeriesPage((prev) => Math.max(prev - 1, 0))}
-                      disabled={seriesPage === 0}
-                      style={{ marginHorizontal: 10, opacity: seriesPage === 0 ? 0.4 : 1 }}
-                    >
-                      <Text>⬅ Prev</Text>
-                    </TouchableOpacity>
+ <View style={styles.chartWrapper}>
+  {vehicleSeriesChunks.map((grp, gi) => {
+    const s = grp; // s[0]..s[4]
+    return (
+      <LineChart
+        key={gi}
+        data={s[0]?.data}
+        data2={s[1]?.data}
+        data3={s[2]?.data}
+        data4={s[3]?.data}
+        data5={s[4]?.data}
+        color={s[0]?.color}
+        color2={s[1]?.color}
+        color3={s[2]?.color}
+        color4={s[3]?.color}
+        color5={s[4]?.color}
+        curved
+        thickness={2}
+        noOfSections={5}
+        maxValue={Math.max(5, ...vehicleSeriesByClass.flatMap(x => x.data.map(p => p.value)))}
+        showDataPoint
+        yAxisColor="#ccc"
+        yAxisTextStyle={{ color: '#888' }}
+        xAxisColor="#ccc"
+        xAxisLabelTextStyle={{ color: '#000', fontWeight: '600' }}
+        areaChart={false}      // cleaner for multi-line
+        // Make stacked charts overlay perfectly:
+        hideRules={gi > 0}
+        yAxisThickness={gi > 0 ? 0 : 1}
+        xAxisThickness={gi > 0 ? 0 : 1}
+        initialSpacing={gi > 0 ? 0 : undefined}
+      />
+    );
+  })}
 
-                    <Text>Page {seriesPage + 1} of {vehicleSeriesChunks.length}</Text>
+  {loading && (
+    <View style={styles.loadingOverlay}>
+      <ActivityIndicator animating />
+      <Text style={{ marginTop: 8, color: '#333' }}>Loading…</Text>
+    </View>
+  )}
+</View>
 
-                    <TouchableOpacity
-                      onPress={() => setSeriesPage((prev) => Math.min(prev + 1, vehicleSeriesChunks.length - 1))}
-                      disabled={seriesPage >= vehicleSeriesChunks.length - 1}
-                      style={{ marginHorizontal: 10, opacity: seriesPage >= vehicleSeriesChunks.length - 1 ? 0.4 : 1 }}
-                    >
-                      <Text>Next ➡</Text>
-                    </TouchableOpacity>
-                  </View>
-
-
-                  {loading && (
-                    <View style={styles.loadingOverlay}>
-                      <ActivityIndicator animating />
-                      <Text style={{ marginTop: 8, color: '#333' }}>Loading…</Text>
-                    </View>
-                  )}
-                </View>
-
-                {/* Vehicles legend (includes Unknown if present) */}
-                <View style={styles.legendContainer}>
-                  {vehicleLegendItems.map((item, idx) => (
+                {/* Optional: quick legend/filter by class */}
+                {/* Example: show class dots only; wire a selector later if needed */}
+                <View style={[styles.legendContainer, { marginTop: 10 }]}>
+                  {legendItems.map((item, idx) => (
                     <View key={idx} style={styles.legendItem}>
                       <View style={[styles.dot, { backgroundColor: item.color }]} />
                       <Text style={styles.legendLabel}>{item.label}</Text>
@@ -619,7 +635,6 @@ const years = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i);
               </View>
             </Card>
 
-
           </View>
         </ScrollView>
       </PaperProvider>
@@ -628,10 +643,6 @@ const years = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i);
 };
 
 export default DashboardPage;
-
-// NOTE: styles assumed present elsewhere in your file/module
-
-
 
 const styles = StyleSheet.create({
   cardItemMain: {
@@ -670,11 +681,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15, paddingVertical: 6, backgroundColor: 'transparent', marginTop: 12,
   },
   backBt: {},
-  flexBox:{flexDirection: 'row'},
   headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start' },
   headerIcon: { width: 18, height: 18 },
   headerTitle: { fontSize: 15, fontWeight: 'bold', color: '#fff' },
-  PageTitle: { fontSize: 15, fontWeight: 'bold', color: '#fff', marginBottom: 10, paddingLeft: 8, marginTop: 5 },
+  PageTitle: { fontSize: 15, fontWeight: 'bold', color: '#fff', marginBottom: 10, paddingLeft: 8, marginTop: 10 },
   chartWrapper: {
     position: 'relative',
     minHeight: 220, // ensures overlay area is tappable/visible; adjust to your chart height
@@ -703,6 +713,5 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
   },
-  
 
 });

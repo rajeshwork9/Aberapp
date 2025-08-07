@@ -259,7 +259,7 @@ const Violations: React.FC = () => {
                         style={styles.MainScrollbar}
                         onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
                     >
-                         <View style={styles.searchBlock}>
+                         {/* <View style={styles.searchBlock}>
                                     <TextInput
                                         style={styles.searchFormInput}
                                         placeholder={t('common.search')}
@@ -269,7 +269,7 @@ const Violations: React.FC = () => {
                                         theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
                                     />
                                     <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
-                                </View>
+                                </View> */}
                         <FlatList
                             data={violationData}
                             keyExtractor={(item, index) => `${item.AccountId}-${index}`}
@@ -282,7 +282,7 @@ const Violations: React.FC = () => {
                             scrollEventThrottle={16}
                             onContentSizeChange={(_, height) => setContentHeight(height)}
                             renderItem={({ item }) => (
-                                <Card style={styles.cardItemMain} onPress={() => navigation.navigate('ViolationsDetails')}>
+                                <Card style={styles.cardItemMain} onPress={() => navigation.navigate('ViolationsDetails', {state:item})}>
                                     <View style={styles.cardContentInner}>
                                         <View style={styles.leftCardCont}>
                                             <Card style={styles.cardWithIcon}>
@@ -291,7 +291,7 @@ const Violations: React.FC = () => {
                                             <View style={styles.leftTextCard}>
                                                 <Text style={styles.textCard}>{item.VRM}</Text>
                                                 <Text style={styles.textCard}>{item.LocationName}</Text>
-                                                <Text style={styles.textCard}>{t('violation.transaction_id')}: {item.TransactionId}</Text>
+                                                <Text style={styles.textCard}>{t('violation.violation_id')}: {item.TransactionId}</Text>
                                                 <Text style={styles.textCard}>{dayjs(item.TransactionDate).format('YYYY-MM-DD HH:mm')}</Text>
                                             </View>
                                         </View>

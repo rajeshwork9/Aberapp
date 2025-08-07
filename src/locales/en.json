@@ -33,7 +33,8 @@
     "trips":"Trips",
     "trip_filters":"Trip Filters",
     "licence_plate_number":"Licence Plate Number",
-    "paid":"Paid"
+    "paid":"Paid",
+    "trip_id":"Trip ID"
   },
   "statements":{
     "statements":"Statements",
@@ -48,7 +49,8 @@
   "violation":{
     "violations":"Violations",
     "violtion_filters":"Violation Filters",
-    "transaction_id":"Transaction ID"
+    "transaction_id":"Transaction ID",
+    "violation_id":"Violation ID"
   },
   "profile": {
     "profile":"Profile",

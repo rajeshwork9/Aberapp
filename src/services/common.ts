@@ -82,6 +82,17 @@ export const getLicenceNumber = async (body: any) => {
   }
 };
 
+export const getAssetStatus = async () => {
+  try {
+    const response = await api.get('masterTables/AssetStatus');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+ 
+
 // violation start
 export const getViolations = async (body: any) => {
   try {

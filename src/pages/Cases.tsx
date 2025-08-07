@@ -180,7 +180,7 @@ const Cases: React.FC = () => {
     };
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
-    const navigateTo = (path: keyof MainStackParamList) => {
+    const navigateTo = (path: keyof MainStackParamList | any) => {
         navigation.navigate(path);
     };
 
@@ -194,6 +194,9 @@ const Cases: React.FC = () => {
         setClearFilterRequested(true);
     }
 
+    const handleCaseDetail = (data : any) => {
+        navigation.navigate('CasesDetails', { state: data })
+    }
     return (
         <PaperProvider>
             <ImageBackground
@@ -315,7 +318,7 @@ const Cases: React.FC = () => {
                         style={styles.MainScrollbar}
                         onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
                     >
-                        <View style={styles.searchBlock}>
+                        {/* <View style={styles.searchBlock}>
                             <TextInput
                                 style={styles.searchFormInput}
                                 placeholder='search'
@@ -325,7 +328,7 @@ const Cases: React.FC = () => {
                                 theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
                             />
                             <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
-                        </View>
+                        </View> */}
                         <FlatList
                             data={casesData}
                             keyExtractor={(item, index) => `${item.CaseId}-${index}`}
@@ -339,14 +342,14 @@ const Cases: React.FC = () => {
                             onContentSizeChange={(_, height) => setContentHeight(height)}
                             renderItem={({ item }) => (
 
-                                <Card style={styles.cardItemMain}>
+                                <Card style={styles.cardItemMain} onPress={() => handleCaseDetail(item)}>
                                     <View style={styles.cardContentInner}>
                                         <View style={styles.leftCardCont}>
                                             <Card style={styles.cardWithIcon}>
                                                 <Image style={styles.cardIconImg} source={require('../../assets/images/cases-icon.png')} />
                                             </Card>
                                             <View style={styles.leftTextCard}>
-                                                <Text style={styles.textCard}>Registration Center</Text>
+                                                <Text style={styles.textCard}>Responsible Area: {item.ResponsibleArea} </Text>
                                                 <Text style={styles.textCard}>Case ID : {item.CaseId} </Text>
                                                 <Text style={styles.textCard}>Case Type : {item.CaseType}</Text>
                                                 <Text style={styles.textCard}>Description : {item.ShortDescription}</Text>

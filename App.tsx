@@ -31,6 +31,8 @@ import Statements from './src/pages/Statements';
 import DashboardPage from './src/pages/DashboardPage';
 import './src/i18n';
 import { I18nManager } from 'react-native';
+import CasesDetail from './src/pages/CasesDetail';
+import StatetmentDetails from './src/pages/StatetmentDetails';
 
 if (I18nManager.isRTL) {
   I18nManager.allowRTL(false);
@@ -78,7 +80,7 @@ type MainStackParamList = {
   Vehicles: undefined;
   VehicleDetails: { state: any };
   Violations: undefined;
-  ViolationsDetails: undefined;
+  ViolationsDetails: {state: any};
   AddVehicle:undefined;
   AddCases:undefined;
   Cases:undefined;
@@ -87,6 +89,8 @@ type MainStackParamList = {
   DashboardPage: undefined;
   Splash:undefined;
   TransactionHistory:undefined;
+  CasesDetails: {state: any};
+  StatementDetails: {state: any};
 };
 
 export type { AuthStackParamList, MainStackParamList };
@@ -184,7 +188,7 @@ export const MainStack = React.memo(() => (
       }} 
       />
      
-           <MainStackNav.Screen 
+      <MainStackNav.Screen 
       name="Violations" 
       component={Violations} 
       options={{ 
@@ -192,7 +196,7 @@ export const MainStack = React.memo(() => (
       }} 
       />
 
-       <MainStackNav.Screen 
+      <MainStackNav.Screen 
       name="ViolationsDetails" 
       component={ViolationsDetails} 
       options={{ 
@@ -203,7 +207,7 @@ export const MainStack = React.memo(() => (
       }} 
       />
 
-                 <MainStackNav.Screen 
+      <MainStackNav.Screen 
       name="AddVehicle" 
       component={AddVehicle} 
       options={{ 
@@ -227,7 +231,7 @@ export const MainStack = React.memo(() => (
       }} 
       />
 
-          <MainStackNav.Screen 
+      <MainStackNav.Screen 
       name="Splash" 
       component={Splash} 
       options={{ 
@@ -256,6 +260,26 @@ export const MainStack = React.memo(() => (
         // headerTransparent: true, 
         // headerTintColor: '#fff', 
         // headerTitle: 'Transaction History', 
+      }} 
+      />
+      <MainStackNav.Screen 
+      name="CasesDetails" 
+      component={CasesDetail} 
+      options={{ 
+        headerShown: false, 
+        headerTransparent: true, 
+        headerTintColor: '#fff', 
+        headerTitle: 'Case Details', 
+      }} 
+      />
+      <MainStackNav.Screen 
+      name="StatementDetails" 
+      component={StatetmentDetails} 
+      options={{ 
+        headerShown: false, 
+        headerTransparent: true, 
+        headerTintColor: '#fff', 
+        headerTitle: 'Statement Details', 
       }} 
       />
       

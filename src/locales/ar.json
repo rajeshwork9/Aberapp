@@ -33,7 +33,8 @@
     "trips":"رحلات",
     "trip_filters":"مرشحات الرحلة",
     "licence_plate_number":"رقم لوحة الترخيص",
-    "paid":"مدفوع"
+    "paid":"مدفوع",
+    "trip_id":"Trip ID"
   },
   "transaction":{
     "transaction_history":"تاريخ المعاملات",
@@ -43,7 +44,8 @@
   "violation":{
     "violations":"المخالفات",
     "violtion_filters":"مرشحات الانتهاكات",
-    "transaction_id":"معرف المعاملة"
+    "transaction_id":"معرف المعاملة",
+    "violation_id":"Violation ID"
   },
   "common":{
     "from_date":"من تاريخ",

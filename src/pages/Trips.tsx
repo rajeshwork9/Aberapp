@@ -32,6 +32,8 @@ interface LPN {
 const Trips: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const { full } = useAccount();
+  const { t } = useTranslation();
+  
 
   const [search, setSearch] = useState('');
   const [tripsData, setTripsData] = useState<Trip[]>([]);
@@ -52,7 +54,6 @@ const Trips: React.FC = () => {
   const [hasMoreData, setHasMoreData] = useState(true);
   const isFetchingMore = useRef(false);
   const [clearFilterRequested, setClearFilterRequested] = useState(false);
-  const { t } = useTranslation();
   const [visibleHeight, setVisibleHeight] = useState(1);
   const [contentHeight, setContentHeight] = useState(1);
   const [statusData, setStatusData] = useState<any[]>([]);
@@ -350,7 +351,7 @@ const Trips: React.FC = () => {
             style={styles.MainScrollbar}
             onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
           >
-            <View style={styles.searchBlock}>
+            {/* <View style={styles.searchBlock}>
               <TextInput
                 style={styles.searchFormInput}
                 placeholder="Search"
@@ -360,7 +361,7 @@ const Trips: React.FC = () => {
                 theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
               />
               <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
-            </View>
+            </View> */}
             <FlatList
               data={tripsData}
               keyExtractor={(item, index) => `${item.AssetId}-${index}`}
@@ -383,7 +384,7 @@ const Trips: React.FC = () => {
                       <View style={styles.leftTextCard}>
                         <Text style={styles.textCard}>{item.VRM}</Text>
                         <Text style={styles.textCard}>{item.LocationName}</Text>
-                        <Text style={styles.textCard}>Transaction ID: {item.TransactionId}</Text>
+                        <Text style={styles.textCard}>{t('trips.trip_id')}: {item.TransactionId}</Text>
                         <Text style={styles.textCard}>{dayjs(item.TransactionDate).format('YYYY-MM-DD HH:mm')}</Text>
                       </View>
                     </View>

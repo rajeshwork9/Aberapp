@@ -103,10 +103,6 @@ const Statements: React.FC = () => {
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
 
-    const navigateTo = (path: keyof MainStackParamList) => {
-        navigation.navigate(path)
-    }
-
     const handleDownload = async (base64Data: string, filename = 'statement.pdf') => {
         try {
             if (Platform.OS === 'android') {
@@ -148,7 +144,9 @@ const Statements: React.FC = () => {
 
     const yearOptions = getYearOptions(2015);
 
-
+    const handleStatetmentDetail = (data: any) => {
+        navigation.navigate('StatementDetails', {state: data});
+    }
 
     return (
         <PaperProvider>
@@ -247,7 +245,7 @@ const Statements: React.FC = () => {
                         style={styles.MainScrollbar}
                         onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
                     >            
-                      <View style={styles.searchBlock}>
+                      {/* <View style={styles.searchBlock}>
                                     <TextInput
                                         style={styles.searchFormInput}
                                         placeholder={t('common.search')}
@@ -257,7 +255,7 @@ const Statements: React.FC = () => {
                                         theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
                                     />
                                     <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} />
-                                </View>        
+                                </View>         */}
                     <FlatList
                             data={statementData}
                             keyExtractor={(item, index) => `${item.DocumentTypeId}-${index}`}
@@ -281,7 +279,7 @@ const Statements: React.FC = () => {
                                 ) : (<View style={{ height: 60 }} />)
                             }
                             renderItem={({ item }) => (
-                                <Card style={styles.cardItemMain}>
+                                <Card style={styles.cardItemMain} onPress={() => handleStatetmentDetail(item)}>
                                     <View style={styles.cardContentInner}>
                                         <View style={styles.leftCardCont}>
                                             <Card style={styles.cardWithIcon}>

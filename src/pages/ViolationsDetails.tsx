@@ -1,15 +1,24 @@
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image, Linking } from 'react-native';
 import { Text, Card, Icon, TextInput, Modal, PaperProvider, Button, IconButton  } from 'react-native-paper';
 import { Animated} from 'react-native';
+import { MainStackParamList } from '../../App';
+import dayjs from 'dayjs';
+import { useAccount } from '../context/AccountProvider';
+
+
+type ViolationsDetailsProp = RouteProp<MainStackParamList, 'ViolationsDetails'>
 
 const ViolationsDetails: React.FC = () => {
     const navigation = useNavigation();
-
-  const handlePress = () => {
-    Linking.openURL('https://aber.rak.ae/');
-  };
+    const route = useRoute<ViolationsDetailsProp>();
+    const violationDetails = route.params.state;
+    const handlePress = () => {
+        Linking.openURL('https://aber.rak.ae/');
+    };
+    const { full, loadingFull } = useAccount();
+    
 
     return (
 
@@ -23,21 +32,25 @@ const ViolationsDetails: React.FC = () => {
                         <TouchableOpacity style={styles.backBt} onPress={() => navigation.goBack()}>
                             <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
                         </TouchableOpacity>
-                        <Text style={styles.headerTitle}>VVRAQ0000012</Text>
+                        <Text style={styles.headerTitle}>{violationDetails.TransactionId}</Text>
                     </View>
 
                     <View style={styles.headerRightBlock}>
-                        <Text style={styles.btHeaderText}>07 Mar 2025</Text>
+                        <Text style={styles.btHeaderText}>{dayjs(violationDetails.TransactionDate).format('DD MMM YYYY')}</Text>
                     </View>
                 </View>
                
                 <View style={styles.containerInner}>
                     <Text style={styles.smallText}>Dear Sir</Text>
-                    <Text style={styles.BoldText}>ALALKEEM ALZAABI HASAN AHMED</Text>
+                    <Text style={styles.BoldText}>{full.AccountName}</Text>
                     <Text style={styles.smallText}>Please note that your current Account Balance is below the Low Balance Threshold of AED and if the situtation persists your account can be subject to Suspension.</Text>
-                    <Text style={styles.BoldText}>0.00 AED</Text>
+                    <Text style={styles.BoldText}>{(violationDetails.AmountFinal)} AED</Text>
                     <Text style={[styles.smallText, { textDecorationLine: 'underline' }]}>Your current account Balance :</Text>
-                    <Text style={styles.BoldText}>-200.00 AED</Text>
+                    <Text style={styles.BoldText}>{new Intl.NumberFormat('en-US', {
+                                    style: 'decimal',
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                }).format(full.Balance)} AED</Text>
                     <Text style={styles.smallText}>Please perform a payment as soon as possible to replenish your account balance. For further information please visit our web site</Text>
                
                

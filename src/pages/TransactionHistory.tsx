@@ -109,14 +109,14 @@ const TransactionHistory: React.FC = () => {
 
                 <ScrollView style={styles.container}>
                     <View>
-                        <View style={styles.searchBlock}>
+                        {/* <View style={styles.searchBlock}>
                             <TextInput style={styles.searchFormInput} placeholder="Search" placeholderTextColor="#7B8994"
                                 value={search} onChangeText={setSearch}
                                 mode="outlined"
                                 theme={{ roundness: 100, colors: { text: '#000', primary: '#000', background: '#fff' } }}
                             />
                             <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} ></Image>
-                        </View>
+                        </View> */}
 
                         <Card style={styles.cardItemMain}>
                             <View style={styles.cardContentInner}>
