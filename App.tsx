@@ -33,6 +33,8 @@ import './src/i18n';
 import { I18nManager } from 'react-native';
 import CasesDetail from './src/pages/CasesDetail';
 import StatetmentDetails from './src/pages/StatetmentDetails';
+import HostedCheckoutScreen from './src/pages/HostedCheckoutScreen';
+import PaymentScreen from './src/pages/PaymentScreen';
 
 if (I18nManager.isRTL) {
   I18nManager.allowRTL(false);
@@ -69,6 +71,7 @@ export const useAuth = () => {
 // ------- Param Lists -------
 type AuthStackParamList = {
 Login: undefined;
+AddVehicle:undefined;
 
 };
 
@@ -91,6 +94,8 @@ type MainStackParamList = {
   TransactionHistory:undefined;
   CasesDetails: {state: any};
   StatementDetails: {state: any};
+  Payment: undefined,
+  AberPayment: undefined
 };
 
 export type { AuthStackParamList, MainStackParamList };
@@ -103,7 +108,16 @@ const screenOptions: NativeStackNavigationOptions = { headerShown: false };
 export const AuthStack = React.memo(() => (
   <AuthStackNav.Navigator screenOptions={screenOptions}>
     <AuthStackNav.Screen name="Login" component={Login} />
-  
+    <AuthStackNav.Screen 
+      name="AddVehicle" 
+      component={AddVehicle} 
+      options={{ 
+        headerShown: false, 
+        headerTransparent: true, 
+        headerTintColor: '#fff', 
+        headerTitle: 'AddVehicle', 
+      }} 
+      />
   </AuthStackNav.Navigator>
 ));
 
@@ -207,7 +221,7 @@ export const MainStack = React.memo(() => (
       }} 
       />
 
-      <MainStackNav.Screen 
+      {/* <MainStackNav.Screen 
       name="AddVehicle" 
       component={AddVehicle} 
       options={{ 
@@ -216,7 +230,7 @@ export const MainStack = React.memo(() => (
         headerTintColor: '#fff', 
         headerTitle: 'AddVehicle', 
       }} 
-      />
+      /> */}
       
         
 
@@ -280,6 +294,26 @@ export const MainStack = React.memo(() => (
         headerTransparent: true, 
         headerTintColor: '#fff', 
         headerTitle: 'Statement Details', 
+      }} 
+      />
+      <MainStackNav.Screen 
+      name="Payment" 
+      component={HostedCheckoutScreen} 
+      options={{ 
+        headerShown: false, 
+        headerTransparent: true, 
+        headerTintColor: '#fff', 
+        headerTitle: 'Payment Details', 
+      }} 
+      />
+      <MainStackNav.Screen 
+      name="AberPayment" 
+      component={PaymentScreen} 
+      options={{ 
+        headerShown: false, 
+        headerTransparent: true, 
+        headerTintColor: '#fff', 
+        headerTitle: 'Payment Details', 
       }} 
       />
       

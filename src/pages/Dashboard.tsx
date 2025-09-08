@@ -342,6 +342,13 @@ const Dashboard: React.FC = () => {
                             </Card>
                             <Text style={styles.iconLabel}>{t('dashboard.transaction_history')}</Text>
                         </View>
+                        
+                        <View style={styles.iconItem}>
+                            <Card style={styles.imgGridItem} onPress={() => navigateTo('AberPayment')}>
+                                <Image style={styles.imgGItem} source={require('../../assets/images/transaction-history-icon.png')} />
+                            </Card>
+                            <Text style={styles.iconLabel}>{t('dashboard.transaction_history')}</Text>
+                        </View>
                     </View>
 
                     <View>

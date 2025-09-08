@@ -47,18 +47,7 @@
     "transaction_id":"معرف المعاملة",
     "violation_id":"Violation ID"
   },
-  "common":{
-    "from_date":"من تاريخ",
-    "to_date":"حتى الآن",
-    "close":"يغلق",
-    "apply":"يتقدم",
-    "search":"يبحث",
-    "loading_more":"جارٍ تحميل المزيد...",
-    "no_more_data_to_load":"لا مزيد من البيانات لتحميلها",
-    "clear_filter":"مسح التصفية",
-    "no_results_found":"لم يتم العثور على نتائج"
-  },
-  "profile": {
+    "profile": {
     "title": "الملف الشخصي",
     "profile":"حساب تعريفي",
     "accounts":"الحسابات",
@@ -76,5 +65,25 @@
     "logout":"تسجيل الخروج",
     "english":"إنجليزي",
     "arabic":"عربي"
+  },
+    "cases": {
+    "add_new_cases":"Add New Cases",
+    "account_id":"Account Id",
+    "case_type":"Case Type",
+    "title":"Title",
+    "message":"Message"
+  },
+  "common":{
+    "from_date":"من تاريخ",
+    "to_date":"حتى الآن",
+    "close":"يغلق",
+    "apply":"يتقدم",
+    "search":"يبحث",
+    "loading_more":"جارٍ تحميل المزيد...",
+    "no_more_data_to_load":"لا مزيد من البيانات لتحميلها",
+    "clear_filter":"مسح التصفية",
+    "no_results_found":"لم يتم العثور على نتائج",
+    "add":"Add"
   }
+
 }

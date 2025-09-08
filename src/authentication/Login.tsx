@@ -4,7 +4,7 @@ import { Button, Text, Checkbox } from 'react-native-paper';
 import { SelectCountry } from 'react-native-element-dropdown';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { useAuth } from '../../App';
+import { AuthStackParamList, useAuth } from '../../App';
 import { login } from '../services/auth'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -13,6 +13,9 @@ import Loader from '../components/Loader';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n'; 
 import { I18nManager } from 'react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+
 
 const local_data = [
   {
@@ -35,8 +38,9 @@ const LoginSchema = Yup.object({
   password: Yup.string().required('Required'),
   captcha: Yup.string().required('Required'),
 });
-
+type LoginNav = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
 const Login: React.FC = () => {
+  const navigation = useNavigation<LoginNav>();
   const { setLoggedIn } = useAuth();
   const [checked, setChecked] = useState(false);
   const [country, setCountry] = useState('1');
@@ -78,13 +82,13 @@ const Login: React.FC = () => {
   }, []);
 
 
-const formik = useFormik({
+  const formik = useFormik({
     initialValues: { email: savedEmail, password: savedPassword, captcha: '' },
     validationSchema: LoginSchema,
     onSubmit: async (values, { setSubmitting, setErrors, setFieldError }) => {
       setLoading(true);
       try {
-        if(captcha != values.captcha){
+        if (captcha != values.captcha) {
           setFieldError('captcha', 'Captcha does not match');
           generateCaptcha();
           return;
@@ -106,15 +110,34 @@ const formik = useFormik({
         }
         else {
           await AsyncStorage.multiRemove(['email', 'password']);
-          
+
         }
         setLoggedIn(true);
       } catch (e: any) {
         console.error('Login failed', e);
-        // Basic error surface – adapt as needed
-        ToastService.error('Invalid credentials', 'Please try again');
-        generateCaptcha();
-        setErrors({ password: 'Invalid credentials' });
+
+        if (e.response) {
+          // API responded with an error status
+          const status = e.response.status;
+
+          if (status === 400 || status === 401 || status === 403) {
+            // Wrong email/password
+            setFieldError('password', 'Invalid credentials');
+            ToastService.error('Invalid credentials', 'Please try again');
+          } else if (status === 500) {
+            // Server issue
+            ToastService.error('Server error', 'Something went wrong on our side. Please try later.');
+          } else {
+            // Other response errors
+            ToastService.error('Error', e.response.data?.message || 'Unexpected error occurred');
+          }
+        } else if (e.request) {
+          // No response at all (network error, timeout, etc.)
+          ToastService.error('Network error', 'Unable to reach server. Please check your connection.');
+        } else {
+          // Something else happened
+          ToastService.error('Error', e.message || 'Unexpected error occurred');
+        }
       } finally {
         setSubmitting(false);
         setLoading(false);
@@ -248,7 +271,11 @@ const formik = useFormik({
           <Button mode="contained" style={styles.primaryBt} onPress={()=>formik.handleSubmit()}>
             {t('login.submit')}
           </Button>
+
         </View>
+                   <Button mode="contained" style={styles.primaryBt}  onPress={() => navigation.navigate('AddVehicle')}>
+            add vehicle
+          </Button>
 
        
      

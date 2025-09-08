@@ -1,5 +1,11 @@
 import api from './api';
 import axios from 'axios';
+import {btoa } from 'react-native-quick-base64'
+
+
+import { API_ADDVEHICLE_URL } from '../utils/environment';
+import { ADDVEHICLE_USERNAME } from '../utils/environment';
+import { ADDVEHICLE_PASSWORD } from '../utils/environment';
 
 export const getAccountName = async () => {
   try {
@@ -177,7 +183,27 @@ export const getTransactionStatus = async () => {
   }
 };
 
+//add vehicle
 
+const authtoken = btoa(`${ADDVEHICLE_USERNAME}:${ADDVEHICLE_PASSWORD}`)
+
+export const addVehicle = async (body : any) => {
+  try {
+    const response = await axios.post(
+      API_ADDVEHICLE_URL + 'ProcessRegistration', 
+      body,
+      {
+        headers:{
+          Authorization:`Basic ${authtoken}`,
+          "Content-Type": "application/json"
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
 
 
 

@@ -10,6 +10,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../App';
+import { useTranslation } from 'react-i18next';
 
 
 interface CaseTypes {
@@ -28,6 +29,7 @@ const AddCases: React.FC = () => {
     type NavigationProp = NativeStackNavigationProp<MainStackParamList, 'AddCases'>;
     const navigation = useNavigation<NavigationProp>();
     const { full } = useAccount();
+    const {t} = useTranslation();
     const [value, setValue] = useState(null);
     const [accountDetails, setAccountDetails] = useState<any>();
     const [caseTypes, setCaseTypes] = useState<CaseTypes[]>([]);
@@ -90,7 +92,7 @@ const AddCases: React.FC = () => {
                             <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
                                 <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
                             </TouchableOpacity>
-                            <Text style={styles.headerTitle}>Add New Cases</Text>
+                            <Text style={styles.headerTitle}>{t("cases.add_new_cases")}</Text>
                         </View>
                     </View>
 
@@ -117,7 +119,7 @@ const AddCases: React.FC = () => {
                             <ScrollView >
                                 <View style={styles.containerInner}>
                                     <View style={styles.formGroupModal}>
-                                        <Text style={styles.labelModal}>Account Id</Text>
+                                        <Text style={styles.labelModal}>{t("cases.account_id")}</Text>
                                         {full?.AccountId && (
                                             <TextInput
                                                 style={styles.formControl}
@@ -134,7 +136,7 @@ const AddCases: React.FC = () => {
                                         )}
                                     </View>
                                     <View style={styles.formGroupModal}>
-                                        <Text style={styles.labelModal}>Case Type *</Text>
+                                        <Text style={styles.labelModal}>{t("cases.case_type")} *</Text>
                                         <Dropdown
                                             style={styles.selectDropdown}
                                             placeholderStyle={styles.placeholderSelect}
@@ -158,7 +160,7 @@ const AddCases: React.FC = () => {
                                         )}
                                     </View>
                                     <View style={styles.formGroupModal}>
-                                        <Text style={styles.labelModal}>Title *</Text>
+                                        <Text style={styles.labelModal}>{t("cases.title")} *</Text>
                                         <TextInput
                                             style={styles.formControl}
                                             placeholder="Enter your Title here"
@@ -180,7 +182,7 @@ const AddCases: React.FC = () => {
                                         )}
                                     </View>
                                     <View style={styles.formGroupModal}>
-                                        <Text style={styles.labelModal}>Message *</Text>
+                                        <Text style={styles.labelModal}>{t("cases.message")} *</Text>
                                         <TextInput
                                             style={styles.formControl}
                                             placeholder="Enter your Message here"
@@ -208,7 +210,7 @@ const AddCases: React.FC = () => {
                                             textColor="#000"
                                             onPress={() => navigation.goBack()}
                                         >
-                                            Close
+                                            {t("common.close")}
                                         </Button>
 
                                         <Button
@@ -218,7 +220,7 @@ const AddCases: React.FC = () => {
                                             style={styles.applyButton}
                                             onPress={() => handleSubmit()}
                                         >
-                                            Add
+                                             {t("common.add")}
                                         </Button>
                                     </View>
 
