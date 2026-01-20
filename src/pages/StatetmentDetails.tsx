@@ -8,6 +8,7 @@ import RNFS from 'react-native-fs';
 import { Alert, Platform, PermissionsAndroid } from 'react-native';
 import { ToastService } from '../utils/ToastService';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 type StatementDetailsProp = RouteProp<MainStackParamList, 'StatementDetails'>;
@@ -16,7 +17,7 @@ const StatetmentDetails: React.FC = () => {
     const route = useRoute<StatementDetailsProp>();
     const statetmentDetails = route.params.state;
     const navigation = useNavigation();
-
+    const insets = useSafeAreaInsets();
         const handleDownload = async (base64Data: string, filename = 'statement.pdf') => {
             try {
                 if (Platform.OS === 'android') {
@@ -53,6 +54,7 @@ const StatetmentDetails: React.FC = () => {
             source={require('../../assets/images/background.png')}
             style={styles.backgroundImage}
             resizeMode="cover">
+            <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
             <View style={styles.container}>
                 <View style={styles.headerMain}>
                     <View style={styles.headerLeftBlock} >
@@ -91,6 +93,7 @@ const StatetmentDetails: React.FC = () => {
 
                 </View>
             </View>
+            </SafeAreaView>
         </ImageBackground>
     )
 }
@@ -126,7 +129,9 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-
+    safeArea: {
+        flex: 1,
+    },
     container: {
         flex: 1,
         marginHorizontal: 5,
@@ -148,7 +153,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 6,
         backgroundColor: 'transparent',
-        marginTop: 5,
     },
     Box: {
         flexDirection: 'row',

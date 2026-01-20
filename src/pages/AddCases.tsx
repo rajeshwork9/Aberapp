@@ -11,7 +11,7 @@ import * as Yup from 'yup';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../App';
 import { useTranslation } from 'react-i18next';
-
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface CaseTypes {
     AdditionalData: string,
@@ -30,6 +30,7 @@ const AddCases: React.FC = () => {
     const navigation = useNavigation<NavigationProp>();
     const { full } = useAccount();
     const {t} = useTranslation();
+    const insets = useSafeAreaInsets();
     const [value, setValue] = useState(null);
     const [accountDetails, setAccountDetails] = useState<any>();
     const [caseTypes, setCaseTypes] = useState<CaseTypes[]>([]);
@@ -85,6 +86,7 @@ const AddCases: React.FC = () => {
             source={require('../../assets/images/background.png')}
             style={styles.backgroundImage}
             resizeMode="cover">
+            <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
             <View style={styles.container}>
                 <PaperProvider>
                     <View style={styles.headerMain}>
@@ -230,6 +232,7 @@ const AddCases: React.FC = () => {
                     </Formik>
                 </PaperProvider>
             </View>
+            </SafeAreaView>
         </ImageBackground>
     );
 };
@@ -243,7 +246,9 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-
+    safeArea: {
+        flex: 1,
+    },
     container: {
         flex: 1,
         marginHorizontal: 5,
@@ -264,7 +269,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 6,
         backgroundColor: 'transparent',
-        marginTop: 12,
+        
 
     },
     backBt: {},

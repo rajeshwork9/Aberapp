@@ -28,6 +28,7 @@ import {
 } from 'react-native-paper';
 import { useAccount } from '../context/AccountProvider';
 import dayjs from 'dayjs';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import utc from 'dayjs/plugin/utc';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
@@ -203,7 +204,7 @@ const Cases: React.FC = () => {
                 source={require('../../assets/images/background.png')}
                 style={styles.backgroundImage}
                 resizeMode="cover">
-
+                <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
                 <View style={{ flex: 1 }}>
 
                     {/* header section */}
@@ -408,6 +409,7 @@ const Cases: React.FC = () => {
                         />
                     )}
                 </View>
+                </SafeAreaView>
             </ImageBackground>
         </PaperProvider>
 
@@ -423,6 +425,9 @@ const styles = StyleSheet.create({
     },
     //--- Header
     backgroundImage: {
+        flex: 1,
+    },
+    safeArea: {
         flex: 1,
     },
 
@@ -446,9 +451,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 0,
         backgroundColor: 'transparent',
-        marginTop: 15,
-
-
     },
     backBt: {},
     headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', marginTop: -6 },

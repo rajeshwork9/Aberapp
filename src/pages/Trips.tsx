@@ -11,6 +11,7 @@ import { getLicenceNumber, getTodaysTrips, getOverallClasses, getTransactionStat
 import { useAccount } from '../context/AccountProvider';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Trip {
   AssetId: string;
@@ -33,6 +34,7 @@ const Trips: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const { full } = useAccount();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   
 
   const [search, setSearch] = useState('');
@@ -71,8 +73,12 @@ const Trips: React.FC = () => {
     if (accountDetails) {
       console.log(accountDetails);
 
-      getTrips(accountDetails.AccountId, 1, true);
-      licenceNumber(accountDetails.AccountId);
+      // Load licence numbers first, then get trips with the correct AccountUnitId
+      const loadData = async () => {
+        await licenceNumber(accountDetails.AccountId);
+        getTrips(accountDetails.AccountId, 1, true);
+      };
+      loadData();
       getTypes();
       getTransactionStatusData();
     }
@@ -112,14 +118,15 @@ const Trips: React.FC = () => {
         fromDate: fromDatetime,
         toDate: toDatetime,
         PageNumber: pageNumber,
-        PageSize: 10,
+        PageSize:50,
       };
       console.log("paylod", payload);
 
 
       const response = await getTodaysTrips(payload);
-      const newList = response.TransactionsList || [];
-
+      const newList = response?.TransactionsList || []; // old
+      console.log("response trips", response);
+      //  const newList = response || [];
       const total = response.TotalRows || 0;
       const updatedList = isRefresh || pageNumber === 1 ? newList : [...tripsData, ...newList];
 
@@ -136,6 +143,13 @@ const Trips: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    console.log(lpnData, "lpn data updated");
+    // If lpnData is populated and we haven't loaded trips yet, or if trips data is empty, reload trips with correct AccountUnitId
+    if (lpnData && lpnData.length > 0 && accountDetails && tripsData.length === 0 && !lpnValue) {
+      getTrips(accountDetails.AccountId, 1, true);
+    }
+  }, [lpnData]);
 
   const licenceNumber = async (accountId: any) => {
     try {
@@ -144,6 +158,7 @@ const Trips: React.FC = () => {
         assetTypeId: 2 //static
       }
       const response = await getLicenceNumber(payload);
+      console.log(response, "license plate number response");
       const formatted = response.map((item: any) => ({
         ...item,
         label: item.AssetIdentifier,
@@ -151,7 +166,7 @@ const Trips: React.FC = () => {
       }));
 
       setLpnData(formatted);
-      console.log(lpnData, "lpn data");
+       return formatted;
 
     }
     catch (error) {
@@ -161,6 +176,8 @@ const Trips: React.FC = () => {
 
     }
   }
+
+
 
   const handleClearFilter = () => {
     setFilterEnabled(false);
@@ -186,6 +203,7 @@ const Trips: React.FC = () => {
   };
 
   const getClassNameFromVRM = (vrm: string) => {
+    if (!lpnData.length || !typesData.length) return '—';
     const lpnMatch = lpnData.find((d: any) => d.AssetIdentifier === vrm);
     if (!lpnMatch) return '—';
     const classId = lpnMatch.OverallClassId;
@@ -227,6 +245,7 @@ const Trips: React.FC = () => {
   return (
     <PaperProvider>
       <ImageBackground source={require('../../assets/images/background.png')} style={styles.backgroundImage}>
+        <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
         <View style={{ flex: 1 }}>
           {/* Header */}
           <View style={styles.headerMain}>
@@ -255,7 +274,7 @@ const Trips: React.FC = () => {
 
           {/* Filter Modal */}
           <Portal>
-            <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
+            <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={[styles.modalBottomContainer, { paddingBottom: 20 + insets.bottom }]}>
               {/* Close Icon */}
               <IconButton
                 icon="close"
@@ -444,6 +463,7 @@ const Trips: React.FC = () => {
             />
           )}
         </View>
+        </SafeAreaView>
       </ImageBackground>
     </PaperProvider>
   );
@@ -465,9 +485,11 @@ const styles = StyleSheet.create({
 
   container: {
     marginHorizontal: 10,
-    marginTop: 20,
+    marginTop: 10,
   },
-
+  safeArea: {
+    flex: 1,
+  },
   headerMain: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -475,8 +497,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 6,
     backgroundColor: 'transparent',
-    marginTop: 12,
-
   },
   backBt: {},
   headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', },
@@ -655,12 +675,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 0,
     borderRadius: 20,
     position: 'absolute',
-    bottom: -10,
+    bottom: 0,
     left: 0,
     right: 0,
     color: '#fff',
     paddingTop: 15,
-    paddingBottom: 65,
   },
 
   sectionTitleModal: {

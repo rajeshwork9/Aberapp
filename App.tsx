@@ -35,6 +35,7 @@ import CasesDetail from './src/pages/CasesDetail';
 import StatetmentDetails from './src/pages/StatetmentDetails';
 import HostedCheckoutScreen from './src/pages/HostedCheckoutScreen';
 import PaymentScreen from './src/pages/PaymentScreen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 if (I18nManager.isRTL) {
   I18nManager.allowRTL(false);
@@ -221,7 +222,7 @@ export const MainStack = React.memo(() => (
       }} 
       />
 
-      {/* <MainStackNav.Screen 
+      <MainStackNav.Screen 
       name="AddVehicle" 
       component={AddVehicle} 
       options={{ 
@@ -230,7 +231,7 @@ export const MainStack = React.memo(() => (
         headerTintColor: '#fff', 
         headerTitle: 'AddVehicle', 
       }} 
-      /> */}
+      />
       
         
 
@@ -372,16 +373,17 @@ const App: React.FC = () => {
 
   return (
     <AuthContext.Provider value={authCtx}>
-      <PaperProvider theme={theme}>
-        <NavigationContainer ref={navigationRef}>
-          {isLoggedIn ?             <AccountProvider>
+      <SafeAreaProvider>
+        <PaperProvider theme={theme}>
+          <NavigationContainer ref={navigationRef}>
+            {isLoggedIn ? <AccountProvider>
               <MainStack />
             </AccountProvider> : <AuthStack />}
-        </NavigationContainer>
-      </PaperProvider>
-        <Toast />
+          </NavigationContainer>
+        </PaperProvider>
+      </SafeAreaProvider>
+      <Toast />
     </AuthContext.Provider>
-    
   );
 };
 

@@ -6,6 +6,8 @@ import { Animated} from 'react-native';
 import { MainStackParamList } from '../../App';
 import dayjs from 'dayjs';
 import { useAccount } from '../context/AccountProvider';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 
 type ViolationsDetailsProp = RouteProp<MainStackParamList, 'ViolationsDetails'>
@@ -26,6 +28,7 @@ const ViolationsDetails: React.FC = () => {
             source={require('../../assets/images/background.png')}
             style={styles.backgroundImage}
             resizeMode="cover">
+            <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
             <View style={styles.container}>
                 <View style={styles.headerMain}>
                     <View style={styles.headerLeftBlock} >
@@ -87,6 +90,7 @@ const ViolationsDetails: React.FC = () => {
                
                 
             </View>
+            </SafeAreaView>
         </ImageBackground>
 
     );
@@ -114,6 +118,9 @@ linkText: {
         width: '100%',
         height: '100%',
     },
+    safeArea: {
+        flex: 1,
+    },
 
     container: {
         flex: 1,
@@ -136,7 +143,7 @@ linkText: {
         paddingHorizontal: 15,
         paddingVertical: 6,
         backgroundColor: 'transparent',
-        marginTop: 12,
+       
     },
    
     

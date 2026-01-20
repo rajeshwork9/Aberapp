@@ -1,22 +1,124 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../App';
 import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image, } from 'react-native';
 import { Button, TextInput, Modal, Portal, Text, Badge, Avatar, Card, IconButton, PaperProvider } from 'react-native-paper';
-
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getTransactionHistory } from '../services/common';
+const PAGE_SIZE = 10;
 const TransactionHistory: React.FC = () => {
+    const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+    const insets = useSafeAreaInsets();
+
     const [search, setSearch] = React.useState('');
     const [visible, setVisible] = React.useState(false);
+    const [transactions, setTransactions] = useState<any[]>([]);
+    const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [filters, setFilters] = useState({
+        DateFrom: '2024-11-18',
+        DateTo: '2025-11-19',
+        AmountFrom: 100,
+        AmountTo: 5000,
+        OperationType: '0'
+    });
+
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
-    const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
-    return (
 
+    const fetchTransactions = async (pageNumber = 1, reset = false) => {
+    if (loading || (!hasMore && !reset)) return;
+
+    setLoading(true);
+
+    try {
+      const body = {
+        AccountId: 12345, // replace with dynamic accountId
+        OperationType: filters.OperationType,
+        DateFrom: filters.DateFrom,
+        DateTo: filters.DateTo,
+        AmountFrom: filters.AmountFrom,
+        AmountTo: filters.AmountTo,
+        PageSize: PAGE_SIZE,
+        PageNumber: pageNumber
+      };
+
+      const response = await getTransactionHistory(body);
+
+      const newData = response?.data || response || [];
+
+      setHasMore(newData.length === PAGE_SIZE);
+
+      setTransactions(prev =>
+        reset ? newData : [...prev, ...newData]
+      );
+
+      setPage(pageNumber);
+    } catch (error) {
+      console.log('Transaction Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+    useEffect(()=>{
+        fetchTransactions(1, true);
+    },[]);
+
+    const loadMore = () => {
+    if (!loading && hasMore) {
+      fetchTransactions(page + 1);
+    }
+  };
+
+  const applyFilters = () => {
+    hideModal();
+    setHasMore(true);
+    fetchTransactions(1, true);
+  };
+
+  const renderItem = ({ item }: any) => (
+    <Card style={styles.cardItemMain}>
+      <View style={styles.cardContentInner}>
+        <View style={styles.leftCardCont}>
+          <Card style={styles.cardWithIcon}>
+            <Image
+              style={styles.cardIconImg}
+              source={require('../../assets/images/transaction-icon.png')}
+            />
+          </Card>
+
+          <View style={styles.leftTextCard}>
+            <Text style={[styles.textCard, { fontFamily: 'Poppins-SemiBold' }]}>
+              Transaction ID - {item.transactionId}
+            </Text>
+            <Text style={styles.textCard}>
+              {item.transactionDate}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.rightTextCard}>
+          <Image
+            style={styles.tranupIcon}
+            source={require('../../assets/images/tranup-icon.png')}
+          />
+          <Text style={[styles.statusText, { fontFamily: 'Poppins-SemiBold' }]}>
+            {item.amount}
+          </Text>
+        </View>
+      </View>
+    </Card>
+  );
+
+    return (
         <ImageBackground
             source={require('../../assets/images/background.png')}
             style={styles.backgroundImage}
             resizeMode="cover">
+            <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
             <PaperProvider>
 
                 <View style={styles.headerMain}>
@@ -31,79 +133,48 @@ const TransactionHistory: React.FC = () => {
                         <TouchableOpacity style={styles.roundedIconBt} onPress={() => showModal()}>
                             <Image style={styles.roundedIcon} source={require('../../assets/images/filter-icon.png')} />
                         </TouchableOpacity>
+<Portal>
+            <Modal
+              visible={visible}
+              onDismiss={hideModal}
+              contentContainerStyle={[
+                styles.modalBottomContainer,
+                { paddingBottom: 20 + insets.bottom }
+              ]}
+            >
+              <IconButton
+                icon="close"
+                size={24}
+                onPress={hideModal}
+                style={styles.modalCloseIcon}
+                iconColor="#fff"
+              />
 
-                        <Portal>
-                            <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
-                                {/* Close Icon */}
-                                <IconButton
-                                    icon="close"
-                                    size={24}
-                                    onPress={hideModal}
-                                    style={styles.modalCloseIcon}
-                                    iconColor="#fff"
-                                />
-                                <Text style={styles.sectionTitleModal}>Transaction Filters</Text>
-                                       
-                                <View style={styles.formGroupModal}>
-                                    <Text style={styles.labelModal}>Form Date</Text>
-                                    <TextInput
-                                        mode="flat"
-                                        placeholder='DD-MM-YYYY'
-                                        style={styles.calendarInputModal}
-                                        underlineColor="#fff"
-                                        placeholderTextColor="#707070"
-                                        textColor='#fff'
-                                        theme={{
-                                            colors: {
-                                                primary: '#FF5400',
-                                            },
-                                        }}
-                                    />
-                                    <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} />
-                                </View>
+              <Text style={styles.sectionTitleModal}>
+                Transaction Filters
+              </Text>
 
-                                <View style={styles.formGroupModal}>
-                                    <Text style={styles.labelModal}>To Date</Text>
-                                    <TextInput
-                                        mode="flat"
-                                        style={styles.calendarInputModal}
-                                        underlineColor="#fff"
-                                        placeholder='DD-MM-YYYY'
-                                        placeholderTextColor="#707070"
-                                        textColor='#fff'
-                                        theme={{
-                                            colors: {
-                                                primary: '#FF5400',
-                                            },
-                                        }}
-                                    />
-                                    <Image style={styles.calendarIcon} source={require('../../assets/images/calendar-icon.png')} />
-                                </View>
+              <View style={styles.buttonRow}>
+                <Button
+                  mode="contained"
+                  onPress={hideModal}
+                  style={styles.closeButton}
+                  textColor="#000"
+                >
+                  Close
+                </Button>
 
-                                <View style={styles.buttonRow}>
-                                    <Button
-                                        mode="contained"
-                                        onPress={hideModal}
-                                        style={styles.closeButton}
-                                        textColor="#000"
-                                    >
-                                        Close
-                                    </Button>
-
-                                    <Button
-                                        mode="contained"
-                                        onPress={() => {
-                                            hideModal();
-                                        }}
-                                        buttonColor="#FF5A00"
-                                        style={styles.applyButton}
-                                    >
-                                        Apply
-                                    </Button>
-                                </View>
-
-                            </Modal>
-                        </Portal>
+                <Button
+                  mode="contained"
+                  onPress={applyFilters}
+                  buttonColor="#FF5A00"
+                  style={styles.applyButton}
+                >
+                  Apply
+                </Button>
+              </View>
+            </Modal>
+          </Portal>
                     </View>
                 </View>
 
@@ -140,6 +211,7 @@ const TransactionHistory: React.FC = () => {
 
                 </ScrollView >
             </PaperProvider>
+            </SafeAreaView>
         </ImageBackground>
     );
 };
@@ -152,11 +224,13 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-
+    safeArea: {
+        flex: 1,
+    },
     container: {
         flex: 1,
         marginHorizontal: 10,
-        marginTop: 20,
+        marginTop: 10,
     },
 
     headerMain: {
@@ -166,8 +240,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 6,
         backgroundColor: 'transparent',
-        marginTop: 12,
-
     },
     backBt: {},
     headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', },
@@ -341,12 +413,11 @@ const styles = StyleSheet.create({
         marginHorizontal: 0,
         borderRadius: 20,
         position: 'absolute',
-        bottom: -10,
+        bottom: 0,
         left: 0,
         right: 0,
         color: '#fff',
         paddingTop: 15,
-        paddingBottom: 65,
     },
 
     sectionTitleModal: {

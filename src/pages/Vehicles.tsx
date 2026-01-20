@@ -28,6 +28,7 @@ import { useAccount } from '../context/AccountProvider';
 import { usePaginatedList } from '../hooks/usePaginatedList';
 import { useTranslation } from 'react-i18next';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type VehicleItem = {
   AssetId: number;
@@ -50,6 +51,7 @@ type Props = { navigation: VehicleScreenNavigationProp };
 const Vehicles: React.FC<Props> = ({ navigation }) => {
   // const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const containerStyle = { backgroundColor: 'white', padding: 100 };
+  const insets = useSafeAreaInsets();
 
   const [search, setSearch] = useState('');
   const [visible, setVisible] = useState(false);
@@ -169,6 +171,7 @@ const Vehicles: React.FC<Props> = ({ navigation }) => {
         style={styles.backgroundImage}
         resizeMode="cover"
       >
+        <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
         <View style={{ flex: 1 }}>
           <View style={styles.headerMain}>
             <View style={styles.headerLeftBlock}>
@@ -188,7 +191,7 @@ const Vehicles: React.FC<Props> = ({ navigation }) => {
               </TouchableOpacity> */}
 
               <Portal>
-                <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
+                <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={[styles.modalBottomContainer, { paddingBottom: 20 + insets.bottom }]}>
                   {/* Close Icon */}
                   <IconButton
                     icon="close"
@@ -362,6 +365,7 @@ const Vehicles: React.FC<Props> = ({ navigation }) => {
             />
           )}
         </View>
+        </SafeAreaView>
 
       </ImageBackground>
     </PaperProvider>
@@ -381,10 +385,12 @@ const styles = StyleSheet.create({
     flex: 1,
 
   },
-
+  safeArea: {
+    flex: 1,
+  },
   container: {
     marginHorizontal: 10,
-    marginTop: 20,
+    marginTop: 10,
     paddingBottom: 40,
   },
 
@@ -395,9 +401,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 6,
     backgroundColor: 'transparent',
-    marginTop: 12,
-
-
   },
   backBt: {},
   headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', },
@@ -577,12 +580,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 0,
     borderRadius: 20,
     position: 'absolute',
-    bottom: -10,
+    bottom: 0,
     left: 0,
     right: 0,
     color: '#fff',
     paddingTop: 15,
-    paddingBottom: 65,
   },
 
   sectionTitleModal: {

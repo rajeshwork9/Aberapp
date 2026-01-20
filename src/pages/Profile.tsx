@@ -10,6 +10,7 @@ import { getCustomerTypes, getUserInfo, changePassword } from '../services/commo
 import { ToastService } from '../utils/ToastService';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n'; // adjust based on path
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const local_data = [
     {
@@ -31,7 +32,8 @@ const local_data = [
 const Profile: React.FC = () => {
   const navigation = useNavigation();
   const { setLoggedIn } = useAuth();
-  const {t} = useTranslation(); 
+  const {t} = useTranslation();
+  const insets = useSafeAreaInsets(); 
   const [secureText, setSecureText] = useState(true);
   const [secureOld, setSecureOld] = useState(true);
   const [secureNew, setSecureNew] = useState(true);
@@ -201,6 +203,7 @@ const Profile: React.FC = () => {
       style={styles.backgroundImage}
       resizeMode="cover"
     >
+      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <PaperProvider>
         <View style={styles.headerMain}>
           <View style={styles.headerLeftBlock}>
@@ -289,7 +292,7 @@ const Profile: React.FC = () => {
 
             {/* Modal */}
             <Portal>
-              <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
+              <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={[styles.modalBottomContainer, { paddingBottom: 20 + insets.bottom }]}>
                 <Text style={styles.sectionTitleModal}>{t('profile.change_password')}</Text>
 
                 <View style={styles.formGroupModal}>
@@ -362,7 +365,7 @@ const Profile: React.FC = () => {
               <Modal
                 visible={viewDetailModal}
                 onDismiss={hideDetailModal}
-                contentContainerStyle={styles.modalBottomContainer}
+                contentContainerStyle={[styles.modalBottomContainer, { paddingBottom: 20 + insets.bottom }]}
               >
                 <View style={{ position: 'relative' }}>
                   {/* Header */}
@@ -434,7 +437,7 @@ const Profile: React.FC = () => {
             </TouchableOpacity>
 
             <Portal>
-              <Modal visible={languageModal} onDismiss={hideLangugeModal} contentContainerStyle={styles.modalBottomContainer}>
+              <Modal visible={languageModal} onDismiss={hideLangugeModal} contentContainerStyle={[styles.modalBottomContainer, { paddingBottom: 20 + insets.bottom }]}>
                 <Text style={styles.sectionTitleModal}>{t('profile.select_language')}</Text>
 
                 <RadioButton.Group
@@ -481,6 +484,7 @@ const Profile: React.FC = () => {
           </View>
         </ScrollView>
       </PaperProvider>
+      </SafeAreaView>
     </ImageBackground>
   );
 };
@@ -520,7 +524,9 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     marginHorizontal: 0,
@@ -530,7 +536,7 @@ const styles = StyleSheet.create({
   
 
   innerContainerPad: {
-    paddingBottom: 70,
+    paddingBottom: 20,
     marginHorizontal: 20,
   },
 
@@ -541,8 +547,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 6,
     backgroundColor: 'transparent',
-    marginTop: 12,
-
   },
   backBt: {},
   headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', },
@@ -738,12 +742,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 0,
     borderRadius: 20,
     position: 'absolute',
-    bottom: -10,
+    bottom: 0,
     left: 0,
     right: 0,
     color: '#fff',
     paddingTop: 15,
-    paddingBottom: 65,
   },
 
   sectionTitleModal: {

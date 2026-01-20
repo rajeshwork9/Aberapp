@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import { BarChart, LineChart } from 'react-native-gifted-charts';
 import { getLicenceNumber, getTodaysTrips, getOverallClasses, getVehiclesList } from '../services/common';
 import { useAccount } from '../context/AccountProvider';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Trip {
   AssetId: string;
@@ -445,6 +446,7 @@ const years = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i);
       source={require('../../assets/images/background.png')}
       style={styles.backgroundImage}
       resizeMode="cover">
+      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <PaperProvider>
         <View style={styles.headerMain}>
           <View style={styles.headerLeftBlock}>
@@ -623,6 +625,7 @@ const years = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i);
           </View>
         </ScrollView>
       </PaperProvider>
+      </SafeAreaView>
     </ImageBackground>
   );
 };
@@ -663,11 +666,12 @@ const styles = StyleSheet.create({
   legendLabel: { fontSize: 12, color: '#333' },
 
   backgroundImage: { flex: 1, width: '100%', height: '100%' },
+  safeArea: { flex: 1 },
   containerInner: { marginHorizontal: 25, marginTop: 15 },
 
   headerMain: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingHorizontal: 15, paddingVertical: 6, backgroundColor: 'transparent', marginTop: 12,
+    paddingHorizontal: 15, paddingVertical: 6, backgroundColor: 'transparent',
   },
   backBt: {},
   flexBox:{flexDirection: 'row'},

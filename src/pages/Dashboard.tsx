@@ -23,6 +23,7 @@ import { getTodaysTrips, getOverallClasses, getLicenceNumber } from '../services
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n'; // adjust based on path
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 
@@ -224,6 +225,7 @@ const Dashboard: React.FC = () => {
             source={require('../../assets/images/background.png')}
             style={styles.backgroundImage}
             resizeMode="cover">
+            <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
             {!accountDetails ? (
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' }}>
                     <Loader fullScreen={false} />
@@ -343,12 +345,12 @@ const Dashboard: React.FC = () => {
                             <Text style={styles.iconLabel}>{t('dashboard.transaction_history')}</Text>
                         </View>
                         
-                        <View style={styles.iconItem}>
+                        {/* <View style={styles.iconItem}>
                             <Card style={styles.imgGridItem} onPress={() => navigateTo('AberPayment')}>
                                 <Image style={styles.imgGItem} source={require('../../assets/images/transaction-history-icon.png')} />
                             </Card>
                             <Text style={styles.iconLabel}>{t('dashboard.transaction_history')}</Text>
-                        </View>
+                        </View> */}
                     </View>
 
                     <View>
@@ -400,6 +402,7 @@ const Dashboard: React.FC = () => {
 
 
             </ScrollView >)}
+            </SafeAreaView>
 
             {loadingFull && accountDetails && (
                 <View
@@ -485,10 +488,13 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
+    safeArea: {
+        flex: 1,
+    },
     container: {
         flex: 1,
         marginHorizontal: 10,
-        marginTop: 30,
+        marginTop: 10,
 
     },
 

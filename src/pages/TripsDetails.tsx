@@ -5,6 +5,8 @@ import { Text, Card, Icon, TextInput, Modal, Portal, PaperProvider, Button, Icon
 import { Animated } from 'react-native';
 import { MainStackParamList } from '../../App';
 import { getLicenceNumber, getTodaysTrips, getOverallClasses, getTransactionStatus } from '../services/common';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 
 type TripDetailsRouteProp = RouteProp<MainStackParamList, 'TripsDetails'>;
@@ -105,6 +107,7 @@ const TripsDetails: React.FC = () => {
             source={require('../../assets/images/background.png')}
             style={styles.backgroundImage}
             resizeMode="cover">
+            <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
             <View style={styles.container}>
                 <View style={styles.headerMain}>
                     <View style={styles.headerLeftBlock} >
@@ -249,6 +252,7 @@ const TripsDetails: React.FC = () => {
 
                 </View>
             </View>
+            </SafeAreaView>
         </ImageBackground>
 
     );
@@ -285,6 +289,9 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
+    safeArea: {
+        flex: 1,
+    },
 
     container: {
         flex: 1,
@@ -307,7 +314,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 6,
         backgroundColor: 'transparent',
-        marginTop: 12,
     },
     Box: {
         flexDirection: 'row',

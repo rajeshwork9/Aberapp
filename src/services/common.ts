@@ -205,5 +205,13 @@ export const addVehicle = async (body : any) => {
   }
 }
 
+// transaction history
 
-
+export const getTransactionHistory = async (body: any) => {
+  try {
+    const response = await api.post('accounts/payments', body);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

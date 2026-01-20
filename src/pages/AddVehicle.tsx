@@ -32,6 +32,7 @@ import {
   PaperProvider,
   Button,
 } from 'react-native-paper';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type PickedImage = {
   kind: 'image';
@@ -82,6 +83,7 @@ const validationSchema = Yup.object().shape({
 
 const AddVehicle: React.FC = () => {
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [confirmSubmit, setConfirmSubmit] = useState(false);
   const [lastValues, setLastValues] = useState<FormValues | null>(null);
@@ -261,6 +263,7 @@ const AddVehicle: React.FC = () => {
       style={styles.backgroundImage}
       resizeMode="cover"
     >
+      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <PaperProvider>
         <View style={styles.headerMain}>
           <View style={styles.headerLeftBlock}>
@@ -724,7 +727,7 @@ const AddVehicle: React.FC = () => {
 
               {/* FOOTER & CONFIRM MODAL */}
               {confirmSubmit && (
-                <View style={styles.footerAbsolute}>
+                <View style={[styles.footerAbsolute, { paddingBottom: 10 + insets.bottom }]}>
                   <View style={styles.buttonRow}>
                     <Button
                       mode="contained"
@@ -747,7 +750,7 @@ const AddVehicle: React.FC = () => {
                       <PaperModal
                         visible={confirmVisible}
                         onDismiss={() => setConfirmVisible(false)}
-                        contentContainerStyle={styles.confirmAlert}
+                        contentContainerStyle={[styles.confirmAlert, { paddingBottom: 20 + insets.bottom }]}
                       >
                         <View style={styles.confirmAlert}>
                           <Text
@@ -803,6 +806,7 @@ const AddVehicle: React.FC = () => {
           )}
         </Formik>
       </PaperProvider>
+      </SafeAreaView>
     </ImageBackground>
   );
 };
@@ -832,7 +836,9 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-
+    safeArea: {
+        flex: 1,
+    },
     container: {
         flex: 1,
         marginHorizontal: 20,
@@ -841,7 +847,7 @@ const styles = StyleSheet.create({
     },
 
     innerContainerPad: {
-        paddingBottom: 70,
+        paddingBottom: 20,
     },
 
     headerMain: {
@@ -851,8 +857,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 6,
         backgroundColor: 'transparent',
-        marginTop: 12,
-
     },
     backBt: {},
     headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', },

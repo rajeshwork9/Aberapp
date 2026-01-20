@@ -5,6 +5,8 @@ import { Text } from 'react-native-paper';
 import { MainStackParamList } from '../../App';
 import dayjs from 'dayjs';
 import { getOverallClasses, getAssetStatus } from '../services/common';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 type VehicleDetailsRouteProp = RouteProp<MainStackParamList, 'VehicleDetails'>;
 
@@ -59,6 +61,7 @@ const VehicleDetails: React.FC = () => {
             source={require('../../assets/images/background.png')}
             style={styles.backgroundImage}
             resizeMode="cover">
+            <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
             <View style={styles.container}>
                 <View style={styles.headerMain}>
                     <View style={styles.headerLeftBlock} >
@@ -145,6 +148,7 @@ const VehicleDetails: React.FC = () => {
                 </View>
                 
             </View>
+            </SafeAreaView>
         </ImageBackground>
 
     );
@@ -181,7 +185,9 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-
+    safeArea: {
+        flex: 1,
+    },
     container: {
         flex: 1,
         marginHorizontal: 5,
@@ -203,7 +209,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 6,
         backgroundColor: 'transparent',
-        marginTop: 5,
     },
     Box: {
     flexDirection: 'row',

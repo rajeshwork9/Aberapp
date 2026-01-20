@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, ImageBackground,ScrollView, TextInput, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ImageBackground, ScrollView, TextInput, Image, TouchableOpacity } from 'react-native';
 import { Button, Text, Checkbox } from 'react-native-paper';
 import { SelectCountry } from 'react-native-element-dropdown';
 import { useFormik } from 'formik';
@@ -11,7 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ToastService } from '../utils/ToastService';
 import Loader from '../components/Loader';
 import { useTranslation } from 'react-i18next';
-import i18n from '../i18n'; 
+import i18n from '../i18n';
 import { I18nManager } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
@@ -53,22 +53,22 @@ const Login: React.FC = () => {
 
 
   useEffect(() => {
-  const loadCredentials = async () => {
-    const email = await AsyncStorage.getItem('email');
-    const password = await AsyncStorage.getItem('password');
-    if (email && password) {
-      setSavedEmail(email);
-      setSavedPassword(password);
-      formik.setValues({ email, password, captcha: '' }); // Optional
-      setChecked(true);
-    }
-  };
-  loadCredentials();
+    const loadCredentials = async () => {
+      const email = await AsyncStorage.getItem('email');
+      const password = await AsyncStorage.getItem('password');
+      if (email && password) {
+        setSavedEmail(email);
+        setSavedPassword(password);
+        formik.setValues({ email, password, captcha: '' }); // Optional
+        setChecked(true);
+      }
+    };
+    loadCredentials();
   }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     generateCaptcha();
-  },[]);
+  }, []);
 
   useEffect(() => {
     const loadLanguage = async () => {
@@ -156,9 +156,9 @@ const Login: React.FC = () => {
   };
 
   const changeLanguage = async (lang: 'en' | 'ar') => {
-  await AsyncStorage.setItem('appLanguage', lang); // persist
-  await i18n.changeLanguage(lang);                 // switch immediately
-};
+    await AsyncStorage.setItem('appLanguage', lang); // persist
+    await i18n.changeLanguage(lang);                 // switch immediately
+  };
 
   // if (loading) return <Loader />;
 
@@ -168,9 +168,9 @@ const Login: React.FC = () => {
       style={styles.backgroundImage}
       resizeMode="cover"
     >
-        <ImageBackground source={require('../../assets/images/loginbottom-img.png')} style={styles.loginBottomImg} />
-      {!loading ? (      <ScrollView style={styles.container}>
-      
+      <ImageBackground source={require('../../assets/images/loginbottom-img.png')} style={styles.loginBottomImg} />
+      {!loading ? (<ScrollView style={styles.container}>
+
         {/* Country selector (outside Formik) */}
         <SelectCountry
           style={styles.countryDropdown}
@@ -187,11 +187,11 @@ const Login: React.FC = () => {
           placeholder="Select country"
           containerStyle={styles.dropdownList}
           activeColor="#333333"
-           onChange={e => {
-  setCountry(e.value);
-  const lang = e.value === '2' ? 'ar' : 'en';
-  changeLanguage(lang);
-}}
+          onChange={e => {
+            setCountry(e.value);
+            const lang = e.value === '2' ? 'ar' : 'en';
+            changeLanguage(lang);
+          }}
         />
 
         {/* Main form */}
@@ -228,7 +228,7 @@ const Login: React.FC = () => {
             />
             <ImageBackground source={require('../../assets/images/password-icon.png')} style={styles.formInputIcon} />
             <TouchableOpacity onPress={toggleSecureEntry} style={styles.passwordIcon}>
-             <Icon name={secureText ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
+              <Icon name={secureText ? 'eye-off' : 'eye'} size={20} color="#ffffff" />
             </TouchableOpacity>
             {formik.touched.password && formik.errors.password && <Text style={styles.errorMessage}>{formik.errors.password}</Text>}
           </View>
@@ -239,7 +239,7 @@ const Login: React.FC = () => {
           <View style={styles.formViewGroup}>
             <TextInput
               style={styles.formInput}
-              placeholder= {t('login.enter_captcha')}
+              placeholder={t('login.enter_captcha')}
               placeholderTextColor="#aaa"
               onChangeText={formik.handleChange('captcha')}
               onBlur={formik.handleBlur('captcha')}
@@ -268,19 +268,19 @@ const Login: React.FC = () => {
           </View>
 
           {/* Submit */}
-          <Button mode="contained" style={styles.primaryBt} onPress={()=>formik.handleSubmit()}>
+          <Button mode="contained" style={styles.primaryBt} onPress={() => formik.handleSubmit()}>
             {t('login.submit')}
           </Button>
 
         </View>
-                   <Button mode="contained" style={styles.primaryBt}  onPress={() => navigation.navigate('AddVehicle')}>
-            add vehicle
-          </Button>
+        {/* <Button mode="contained" style={styles.primaryBt} onPress={() => navigation.navigate('AddVehicle')}>
+          add vehicle
+        </Button> */}
 
-       
-     
-     
-      </ScrollView>) : (<Loader />) }
+
+
+
+      </ScrollView>) : (<Loader />)}
 
 
 
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     flex: 1,
     // justifyContent: 'flex-start',
     marginTop: 30,
-    paddingHorizontal:20,
+    paddingHorizontal: 20,
   },
 
   logoImage: {
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     paddingLeft: 10,
     paddingRight: 10,
-    paddingTop:20,
+    paddingTop: 20,
     paddingBottom: 20,
   },
 
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     color: '#fff',
     paddingLeft: 10,
-    fontFamily:'Poppins-Bold',
+    fontFamily: 'Poppins-Bold',
   },
 
   formViewGroup: {
@@ -364,23 +364,23 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 
-  passwordIcon:{  
-   position: 'absolute',
-    top:0,
+  passwordIcon: {
+    position: 'absolute',
+    top: 0,
     right: 0,
-    zIndex:1,
-  
-    height:40,
-    paddingHorizontal:20,
-    paddingTop:10,
+    zIndex: 1,
+
+    height: 40,
+    paddingHorizontal: 20,
+    paddingTop: 10,
   },
 
   errorMessage: {
     color: '#FFACAC',
-        marginTop: 2,
+    marginTop: 2,
     marginBottom: 5,
-    fontSize:13,
-    fontWeight:400,
+    fontSize: 13,
+    fontWeight: 400,
   },
 
   cboxStyle: {

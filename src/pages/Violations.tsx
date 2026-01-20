@@ -10,6 +10,7 @@ import { useAccount } from '../context/AccountProvider';
 import dayjs from 'dayjs';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 
@@ -18,6 +19,7 @@ const Violations: React.FC = () => {
     const containerStyle = { backgroundColor: 'white', padding: 100 };
     const { full } = useAccount();
     const { t } = useTranslation();
+    const insets = useSafeAreaInsets();
 
 
     const statusColors: Record<number, string> = {
@@ -152,7 +154,7 @@ const Violations: React.FC = () => {
                 source={require('../../assets/images/background.png')}
                 style={styles.backgroundImage}
                 resizeMode="cover">
-
+                <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
                 <View style={{ flex: 1 }}>
 
                     <View style={styles.headerMain}>
@@ -176,7 +178,7 @@ const Violations: React.FC = () => {
                             </View>
 
                             <Portal>
-                                <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
+                                <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={[styles.modalBottomContainer, { paddingBottom: 20 + insets.bottom }]}>
                                     {/* Close Icon */}
                                     <IconButton
                                         icon="close"
@@ -349,6 +351,7 @@ const Violations: React.FC = () => {
                         />
                     )}
                 </View>
+                </SafeAreaView>
 
             </ImageBackground>
         </PaperProvider>
@@ -367,11 +370,13 @@ MainScrollbar:{
         width: '100%',
         height: '100%',
     },
-
+    safeArea: {
+        flex: 1,
+    },
     container: {
 
         marginHorizontal: 10,
-        marginTop: 20,
+        marginTop: 10,
     },
 
     headerMain: {
@@ -381,8 +386,6 @@ MainScrollbar:{
         paddingHorizontal: 15,
         paddingVertical: 6,
         backgroundColor: 'transparent',
-        marginTop: 12,
-
     },
     backBt: {},
     headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', },
@@ -580,12 +583,11 @@ MainScrollbar:{
         marginHorizontal: 0,
         borderRadius: 20,
         position: 'absolute',
-        bottom: -10,
+        bottom: 0,
         left: 0,
         right: 0,
         color: '#fff',
         paddingTop: 15,
-        paddingBottom: 65,
     },
 
     sectionTitleModal: {

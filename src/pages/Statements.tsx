@@ -12,6 +12,7 @@ import RNFS from 'react-native-fs';
 import { Alert, Platform, PermissionsAndroid } from 'react-native';
 import { ToastService } from '../utils/ToastService';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 interface Statements {
@@ -32,6 +33,7 @@ const Statements: React.FC = () => {
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
     const { full } = useAccount();
     const { t } = useTranslation();
+    const insets = useSafeAreaInsets();
 
     const [search, setSearch] = React.useState('');
     const [visible, setVisible] = React.useState(false);
@@ -155,6 +157,7 @@ const Statements: React.FC = () => {
                 source={require('../../assets/images/background.png')}
                 style={styles.backgroundImage}
                 resizeMode="cover">
+                <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
                 <View style={{ flex: 1 }}>
                     <View style={styles.headerMain}>
                         <View style={styles.headerLeftBlock} >
@@ -185,7 +188,7 @@ const Statements: React.FC = () => {
                             )}
 
                             <Portal>
-                                <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalBottomContainer}>
+                                <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={[styles.modalBottomContainer, { paddingBottom: 20 + insets.bottom }]}>
                                     {/* Close Icon */}
                                     <IconButton
                                         icon="close"
@@ -352,6 +355,7 @@ const Statements: React.FC = () => {
                         />
                     )}
                 </View>
+                </SafeAreaView>
             </ImageBackground>
         </PaperProvider>
 
@@ -365,15 +369,17 @@ const styles = StyleSheet.create({
     },
     //--- Header
     backgroundImage: {
-   
+        flex: 1,
         width: '100%',
         height: '100%',
     },
-
+    safeArea: {
+        flex: 1,
+    },
     container: {
        
         marginHorizontal: 10,
-        marginTop: 20,
+        marginTop: 10,
     },
 
     headerMain: {
@@ -383,8 +389,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 6,
         backgroundColor: 'transparent',
-        marginTop: 12,
-
     },
     downloadIcon: {
         width: 70,
@@ -577,12 +581,11 @@ const styles = StyleSheet.create({
         marginHorizontal: 0,
         borderRadius: 20,
         position: 'absolute',
-        bottom: -10,
+        bottom: 0,
         left: 0,
         right: 0,
         color: '#fff',
         paddingTop: 15,
-        paddingBottom: 65,
     },
 
     sectionTitleModal: {

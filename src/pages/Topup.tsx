@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, SafeAreaView, ImageBackground, Image } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import { Button, Text, TextInput, Badge, Avatar, Card, PaperProvider } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -8,6 +10,7 @@ import { MainStackParamList } from '../../App';
 
 const Topup: React.FC = () => {
     const [country, setCountry] = useState('1');
+    const insets = useSafeAreaInsets();
 
     const [visible, setVisible] = React.useState(false);
     const showModal = () => setVisible(true);
@@ -24,90 +27,88 @@ const Topup: React.FC = () => {
             source={require('../../assets/images/background.png')}
             style={styles.backgroundImage}
             resizeMode="cover">
-   <PaperProvider>
-
-                <View style={styles.headerMain}>
-                    <View style={styles.headerLeftBlock} >
-                        <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
-                            <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
-                        </TouchableOpacity>
-                        <Text style={styles.headerTitle}>Topup</Text>
-                    </View>
-
-                    <View style={styles.headerRightBlock}>
-                        <TouchableOpacity style={styles.roundedIconBt} onPress={() => navigateTo('TransactionHistory')}>
-                            <Image style={styles.roundedIcon} source={require('../../assets/images/transaction-history-icon.png')} />
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                 <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+            <PaperProvider>
+               
                 
-            <SafeAreaView style={styles.container}>
+                    <View style={styles.headerMain}>
+                        <View style={styles.headerLeftBlock} >
+                            <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
+                                <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
+                            </TouchableOpacity>
+                            <Text style={styles.headerTitle}>Topup</Text>
+                        </View>
 
-
-                <View style={styles.balanceCard}>
-                    <Image style={styles.imgWalletBalance} source={require('../../assets/images/wallet-icon.png')} />
-                    <Card style={styles.balanceContent}>
-                        <Text style={styles.balanceLabel}>1,345.00</Text>
-                        <Text style={styles.textBalance}>Available Balance (AED)</Text>
-                    </Card>
-                </View>
-
-                <View style={styles.bottomCard}>
-                    <Text style={styles.sectionTitle}>Add money to wallet</Text>
-                    <Text style={styles.subTitle}>Amount in AED</Text>
-
-                    <View style={styles.amountRow}>
-                        <TouchableOpacity style={[styles.amountBt,]}>
-                            <Text style={[styles.amountText,]}>
-                                50
-                            </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={[styles.selectedAmountBt,]}>
-                            <Text style={[styles.selectedAmountText,]}>
-                                500
-                            </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={[styles.amountBt,]}>
-                            <Text style={[styles.amountText,]}>
-                                1000
-                            </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={[styles.amountBt,]}>
-                            <Text style={[styles.amountText,]}>
-                                5000
-                            </Text>
-                        </TouchableOpacity>
+                        <View style={styles.headerRightBlock}>
+                            <TouchableOpacity style={styles.roundedIconBt} onPress={() => navigateTo('TransactionHistory')}>
+                                <Image style={styles.roundedIcon} source={require('../../assets/images/transaction-history-icon.png')} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
-                    <Text style={styles.orText}>OR</Text>
+                    <View style={styles.balanceCard}>
+                        <Image style={styles.imgWalletBalance} source={require('../../assets/images/wallet-icon.png')} />
+                        <Card style={styles.balanceContent}>
+                            <Text style={styles.balanceLabel}>1,345.00</Text>
+                            <Text style={styles.textBalance}>Available Balance (AED)</Text>
+                        </Card>
+                    </View>
 
-                    <TextInput
-                        style={styles.amountInput}
-                        placeholder="Enter Custom Value"
-                        placeholderTextColor="#ccc"
-                        keyboardType="numeric"
-                        cursorColor="#fff"
-                        textColor='#fff'
+                    <View style={[styles.bottomCard, { paddingBottom: 20 + insets.bottom }]}>
+                        <Text style={styles.sectionTitle}>Add money to wallet</Text>
+                        <Text style={styles.subTitle}>Amount in AED</Text>
 
-                    />
+                        <View style={styles.amountRow}>
+                            <TouchableOpacity style={[styles.amountBt,]}>
+                                <Text style={[styles.amountText,]}>
+                                    50
+                                </Text>
+                            </TouchableOpacity>
 
-                    <Text style={styles.textMax}>
-                        Max Payment Value is 2,00,000 AED
-                    </Text>
+                            <TouchableOpacity style={[styles.selectedAmountBt,]}>
+                                <Text style={[styles.selectedAmountText,]}>
+                                    500
+                                </Text>
+                            </TouchableOpacity>
 
-                    <Button mode="contained" style={[styles.primaryBt,{backgroundColor:'#FF5400', }]}>
-                        Proceed to add money
-                    </Button>
+                            <TouchableOpacity style={[styles.amountBt,]}>
+                                <Text style={[styles.amountText,]}>
+                                    1000
+                                </Text>
+                            </TouchableOpacity>
 
-                </View>
+                            <TouchableOpacity style={[styles.amountBt,]}>
+                                <Text style={[styles.amountText,]}>
+                                    5000
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
 
+                        <Text style={styles.orText}>OR</Text>
 
+                        <TextInput
+                            style={styles.amountInput}
+                            placeholder="Enter Custom Value"
+                            placeholderTextColor="#ccc"
+                            keyboardType="numeric"
+                            cursorColor="#fff"
+                            textColor='#fff'
 
-            </SafeAreaView >
-    </PaperProvider>
+                        />
+
+                        <Text style={styles.textMax}>
+                            Max Payment Value is 2,00,000 AED
+                        </Text>
+
+                        <Button mode="contained" style={[styles.primaryBt, { backgroundColor: '#FF5400', }]}>
+                            Proceed to add money
+                        </Button>
+
+                    </View>
+
+               
+            </PaperProvider>
+             </SafeAreaView >
         </ImageBackground>
     );
 };
@@ -122,7 +123,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         marginHorizontal: 0,
-        marginTop: 70,
     },
 
     balanceCard: {
@@ -159,12 +159,14 @@ const styles = StyleSheet.create({
 
     bottomCard: {
         position: 'absolute',
-        bottom: -20,
+        bottom: 0,
         width: '100%',
-        marginBottom: 20,
         backgroundColor: '#000',
         padding: 20,
+        paddingTop: 20,
         borderRadius: 16,
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowRadius: 10,
@@ -280,12 +282,11 @@ const styles = StyleSheet.create({
         marginHorizontal: 0,
         borderRadius: 20,
         position: 'absolute',
-        bottom: -10,
+        bottom: 0,
         left: 0,
         right: 0,
         color: '#fff',
         paddingTop: 15,
-        paddingBottom: 65,
     },
 
     sectionTitleModal: {
@@ -329,8 +330,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 6,
         backgroundColor: 'transparent',
-        marginTop: 12,
-
     },
     backBt: {},
     headerLeftBlock: { flexDirection: 'row', justifyContent: 'flex-start', },
