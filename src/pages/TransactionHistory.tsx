@@ -6,6 +6,9 @@ import { StyleSheet, View, TouchableOpacity, ScrollView, ImageBackground, Image,
 import { Button, TextInput, Modal, Portal, Text, Badge, Avatar, Card, IconButton, PaperProvider } from 'react-native-paper';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getTransactionHistory } from '../services/common';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { formatDate } from '../utils/common-functions';
+import Loader from '../components/Loader';
 const PAGE_SIZE = 10;
 const TransactionHistory: React.FC = () => {
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
@@ -29,158 +32,179 @@ const TransactionHistory: React.FC = () => {
     const hideModal = () => setVisible(false);
 
     const fetchTransactions = async (pageNumber = 1, reset = false) => {
-    if (loading || (!hasMore && !reset)) return;
+        if (loading || (!hasMore && !reset)) return;
 
-    setLoading(true);
+        setLoading(true);
 
-    try {
-      const body = {
-        AccountId: 12345, // replace with dynamic accountId
-        OperationType: filters.OperationType,
-        DateFrom: filters.DateFrom,
-        DateTo: filters.DateTo,
-        AmountFrom: filters.AmountFrom,
-        AmountTo: filters.AmountTo,
-        PageSize: PAGE_SIZE,
-        PageNumber: pageNumber
-      };
+        try {
+            const body = {
+                AccountId: await AsyncStorage.getItem('activeAccountId') || 1234, // replace with dynamic accountId
+                OperationType: filters.OperationType,
+                DateFrom: filters.DateFrom,
+                DateTo: filters.DateTo,
+                AmountFrom: filters.AmountFrom,
+                AmountTo: filters.AmountTo,
+                PageSize: PAGE_SIZE,
+                PageNumber: pageNumber
+            };
 
-      const response = await getTransactionHistory(body);
+            const response = await getTransactionHistory(body);
+            console.log("getTransactionHistory", response?.List);
 
-      const newData = response?.data || response || [];
 
-      setHasMore(newData.length === PAGE_SIZE);
+            const newData = response?.List || [];
 
-      setTransactions(prev =>
-        reset ? newData : [...prev, ...newData]
-      );
+            setHasMore(newData.length === PAGE_SIZE);
 
-      setPage(pageNumber);
-    } catch (error) {
-      console.log('Transaction Error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+            setTransactions(prev =>
+                reset ? newData : [...prev, ...newData]
+            );
 
-    useEffect(()=>{
+            setPage(pageNumber);
+        } catch (error) {
+            console.log('Transaction Error:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchTransactions(1, true);
-    },[]);
+    }, []);
 
     const loadMore = () => {
-    if (!loading && hasMore) {
-      fetchTransactions(page + 1);
-    }
-  };
+        if (!loading && hasMore) {
+            fetchTransactions(page + 1);
+        }
+    };
 
-  const applyFilters = () => {
-    hideModal();
-    setHasMore(true);
-    fetchTransactions(1, true);
-  };
+    const applyFilters = () => {
+        hideModal();
+        setHasMore(true);
+        fetchTransactions(1, true);
+    };
 
-  const renderItem = ({ item }: any) => (
-    <Card style={styles.cardItemMain}>
-      <View style={styles.cardContentInner}>
-        <View style={styles.leftCardCont}>
-          <Card style={styles.cardWithIcon}>
-            <Image
-              style={styles.cardIconImg}
-              source={require('../../assets/images/transaction-icon.png')}
-            />
-          </Card>
+    const getStatusStyle = (status: string) => {
+        switch (status?.toLowerCase()) {
+            case 'approved':
+                return { backgroundColor: '#1DB954' };
+            case 'pending':
+                return { backgroundColor: '#FFB020' };
+            case 'failed':
+                return { backgroundColor: '#E53935' };
+            default:
+                return { backgroundColor: '#777' };
+        }
+    };
 
-          <View style={styles.leftTextCard}>
-            <Text style={[styles.textCard, { fontFamily: 'Poppins-SemiBold' }]}>
-              Transaction ID - {item.transactionId}
-            </Text>
-            <Text style={styles.textCard}>
-              {item.transactionDate}
-            </Text>
-          </View>
-        </View>
 
-        <View style={styles.rightTextCard}>
-          <Image
-            style={styles.tranupIcon}
-            source={require('../../assets/images/tranup-icon.png')}
-          />
-          <Text style={[styles.statusText, { fontFamily: 'Poppins-SemiBold' }]}>
-            {item.amount}
-          </Text>
-        </View>
-      </View>
-    </Card>
-  );
+    const renderItem = ({ item }: any) => (
+        <Card style={styles.cardItemMain}>
+            <View style={styles.cardContentInner}>
+                <View style={styles.leftCardCont}>
+                    <Card style={styles.cardWithIcon}>
+                        <Image
+                            style={styles.cardIconImg}
+                            source={require('../../assets/images/transaction-icon.png')}
+                        />
+                    </Card>
+
+                    <View style={styles.leftTextCard}>
+                        <Text style={[styles.textCard, { fontFamily: 'Poppins-SemiBold' }]}>
+                            Transaction ID - {item.transactionId}
+                        </Text>
+                        <Text style={styles.textCard}>
+                            {item.transactionDate}
+                        </Text>
+                    </View>
+                </View>
+
+                <View style={styles.rightTextCard}>
+                    <Image
+                        style={styles.tranupIcon}
+                        source={require('../../assets/images/tranup-icon.png')}
+                    />
+                    <Text style={[styles.statusText, { fontFamily: 'Poppins-SemiBold' }]}>
+                        {item.amount}
+                    </Text>
+                </View>
+            </View>
+        </Card>
+    );
 
     return (
         <ImageBackground
             source={require('../../assets/images/background.png')}
             style={styles.backgroundImage}
             resizeMode="cover">
-            <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-            <PaperProvider>
-
-                <View style={styles.headerMain}>
-                    <View style={styles.headerLeftBlock} >
-                        <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
-                            <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
-                        </TouchableOpacity>
-                        <Text style={styles.headerTitle}>Transaction History</Text>
-                    </View>
-
-                    <View style={styles.headerRightBlock}>
-                        <TouchableOpacity style={styles.roundedIconBt} onPress={() => showModal()}>
-                            <Image style={styles.roundedIcon} source={require('../../assets/images/filter-icon.png')} />
-                        </TouchableOpacity>
-<Portal>
-            <Modal
-              visible={visible}
-              onDismiss={hideModal}
-              contentContainerStyle={[
-                styles.modalBottomContainer,
-                { paddingBottom: 20 + insets.bottom }
-              ]}
-            >
-              <IconButton
-                icon="close"
-                size={24}
-                onPress={hideModal}
-                style={styles.modalCloseIcon}
-                iconColor="#fff"
-              />
-
-              <Text style={styles.sectionTitleModal}>
-                Transaction Filters
-              </Text>
-
-              <View style={styles.buttonRow}>
-                <Button
-                  mode="contained"
-                  onPress={hideModal}
-                  style={styles.closeButton}
-                  textColor="#000"
-                >
-                  Close
-                </Button>
-
-                <Button
-                  mode="contained"
-                  onPress={applyFilters}
-                  buttonColor="#FF5A00"
-                  style={styles.applyButton}
-                >
-                  Apply
-                </Button>
-              </View>
-            </Modal>
-          </Portal>
-                    </View>
+            {loading ? (
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' }}>
+                    <Loader fullScreen={false} />
                 </View>
+            ) : (
+                <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+                    <PaperProvider>
 
-                <ScrollView style={styles.container}>
-                    <View>
-                        {/* <View style={styles.searchBlock}>
+                        <View style={styles.headerMain}>
+                            <View style={styles.headerLeftBlock} >
+                                <TouchableOpacity style={[styles.backBt, { marginRight: 12, }]} onPress={() => navigation.goBack()}>
+                                    <Image style={styles.headerIcon} source={require('../../assets/images/left-arrow.png')} />
+                                </TouchableOpacity>
+                                <Text style={styles.headerTitle}>Transaction History</Text>
+                            </View>
+
+                            <View style={styles.headerRightBlock}>
+                                <TouchableOpacity style={styles.roundedIconBt} onPress={() => showModal()}>
+                                    <Image style={styles.roundedIcon} source={require('../../assets/images/filter-icon.png')} />
+                                </TouchableOpacity>
+                                <Portal>
+                                    <Modal
+                                        visible={visible}
+                                        onDismiss={hideModal}
+                                        contentContainerStyle={[
+                                            styles.modalBottomContainer,
+                                            { paddingBottom: 20 + insets.bottom }
+                                        ]}
+                                    >
+                                        <IconButton
+                                            icon="close"
+                                            size={24}
+                                            onPress={hideModal}
+                                            style={styles.modalCloseIcon}
+                                            iconColor="#fff"
+                                        />
+
+                                        <Text style={styles.sectionTitleModal}>
+                                            Transaction Filters
+                                        </Text>
+
+                                        <View style={styles.buttonRow}>
+                                            <Button
+                                                mode="contained"
+                                                onPress={hideModal}
+                                                style={styles.closeButton}
+                                                textColor="#000"
+                                            >
+                                                Close
+                                            </Button>
+
+                                            <Button
+                                                mode="contained"
+                                                onPress={applyFilters}
+                                                buttonColor="#FF5A00"
+                                                style={styles.applyButton}
+                                            >
+                                                Apply
+                                            </Button>
+                                        </View>
+                                    </Modal>
+                                </Portal>
+                            </View>
+                        </View>
+
+                        <ScrollView style={styles.container}>
+                            <View>
+                                {/* <View style={styles.searchBlock}>
                             <TextInput style={styles.searchFormInput} placeholder="Search" placeholderTextColor="#7B8994"
                                 value={search} onChangeText={setSearch}
                                 mode="outlined"
@@ -189,29 +213,67 @@ const TransactionHistory: React.FC = () => {
                             <Image source={require('../../assets/images/search-icon.png')} style={styles.formInputIcon} ></Image>
                         </View> */}
 
-                        <Card style={styles.cardItemMain}>
-                            <View style={styles.cardContentInner}>
-                                <View style={styles.leftCardCont}>
-                                    <Card style={styles.cardWithIcon}>
-                                        <Image style={styles.cardIconImg} source={require('../../assets/images/transaction-icon.png')} />
+                                {transactions.map((item, index) => (
+                                    <Card key={index} style={styles.cardItemMain}>
+                                        <View style={styles.cardContentInner}>
+
+                                            {/* LEFT */}
+                                            <View style={styles.leftCardCont}>
+                                                <View style={styles.cardWithIcon}>
+                                                    <Image
+                                                        style={styles.cardIconImg}
+                                                        source={require('../../assets/images/transaction-icon.png')}
+                                                    />
+                                                </View>
+
+                                                <View style={styles.leftTextCard}>
+                                                    <Text style={[styles.textCard, styles.boldText]}>
+                                                        Transaction ID - {item?.ReceiptNumber}
+                                                    </Text>
+
+                                                    <Text style={styles.textCard}>
+                                                        Ref - {item?.ReferenceNumber}
+                                                    </Text>
+
+                                                    <Text style={styles.textCard}>
+                                                        {formatDate(item?.DateTimeCreated)}
+                                                    </Text>
+
+                                                    {/* STATUS */}
+                                                    <View
+                                                        style={[
+                                                            styles.statusBadge,
+                                                            getStatusStyle(item?.Status),
+                                                        ]}
+                                                    >
+                                                        <Text style={styles.statusBadgeText}>
+                                                            {item?.Status}
+                                                        </Text>
+                                                    </View>
+                                                </View>
+                                            </View>
+
+                                            {/* RIGHT */}
+                                            <View style={styles.rightTextCard}>
+                                                <Image
+                                                    style={styles.tranupIcon}
+                                                    source={require('../../assets/images/tranup-icon.png')}
+                                                />
+                                                <Text style={styles.amountText}>
+                                                    {item?.Amount}
+                                                </Text>
+                                            </View>
+
+                                        </View>
                                     </Card>
+                                ))}
 
-                                    <View style={styles.leftTextCard}>
-                                        <Text style={[styles.textCard, {fontFamily:'Poppins-SemiBold'}]}>Transaction ID - 157695</Text>
-                                        <Text style={styles.textCard}>07 Mar 2025, 10:50:01</Text>
-                                    </View>
-                                </View>
-                                <View style={styles.rightTextCard}>
-                                         <Image style={styles.tranupIcon} source={require('../../assets/images/tranup-icon.png')} /> 
-                                        <Text style={[styles.statusText, {fontFamily:'Poppins-SemiBold'}]}> 700</Text>
-                                </View>
+
                             </View>
-                        </Card>             
-                    </View>
 
-                </ScrollView >
-            </PaperProvider>
-            </SafeAreaView>
+                        </ScrollView >
+                    </PaperProvider>
+                </SafeAreaView>)}
         </ImageBackground>
     );
 };
@@ -329,7 +391,8 @@ const styles = StyleSheet.create({
 
         paddingVertical: 10,
 
-        flexDirection: 'row', alignItems: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
         justifyContent: 'space-between',
 
 
@@ -355,14 +418,14 @@ const styles = StyleSheet.create({
 
     cardIconImg: {
         width: 25,
-        height:25,
+        height: 25,
         tintColor: 'white'
     },
 
-    tranupIcon:{
-        width:18,
-        height:18,
-        marginRight:3,
+    tranupIcon: {
+        width: 18,
+        height: 18,
+        marginRight: 3,
     },
 
     leftTextCard: {
@@ -373,7 +436,7 @@ const styles = StyleSheet.create({
         paddingRight: 10,
         flexDirection: 'row',
         justifyContent: 'flex-start',
-        alignItems:'center',
+        alignItems: 'center',
         width: '71%',
     },
 
@@ -383,10 +446,10 @@ const styles = StyleSheet.create({
         paddingBottom: 2,
     },
     rightTextCard: {
-        flexDirection:'row',
+        flexDirection: 'row',
         justifyContent: 'flex-end',
         alignItems: 'center',
-        marginRight:6,
+        marginRight: 6,
     },
 
     largeTextRCard: {
@@ -395,13 +458,13 @@ const styles = StyleSheet.create({
 
     },
     statusTextCard: {
-       
+
         paddingHorizontal: 10,
         paddingVertical: 7,
         borderRadius: 30,
         marginTop: 5,
     },
-    statusText: {color: '#06F547',  fontSize: 14,},
+    statusText: { color: '#06F547', fontSize: 14, },
 
     //--
 
@@ -429,7 +492,7 @@ const styles = StyleSheet.create({
 
     formGroupModal: { marginTop: 10, marginBottom: 15, },
     inputModal: {
-        paddingHorizontal:0,
+        paddingHorizontal: 0,
         height: 38,
         borderBottomColor: '#FCFCFC',
         borderBottomWidth: 1,
@@ -441,8 +504,8 @@ const styles = StyleSheet.create({
 
     labelModal: { color: '#fff', fontSize: 13, marginBottom: 10, },
 
-        calendarInputModal:{
-         paddingHorizontal:40,
+    calendarInputModal: {
+        paddingHorizontal: 40,
         height: 38,
         borderBottomColor: '#FCFCFC',
         borderBottomWidth: 1,
@@ -451,20 +514,20 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         backgroundColor: 'transparent',
     },
-    calendarIcon:{position:'absolute', left:5, bottom:11, width:20, height:20,},
+    calendarIcon: { position: 'absolute', left: 5, bottom: 11, width: 20, height: 20, },
 
-    
-     selectDropdown: {
+
+    selectDropdown: {
         width: '100%',
         marginHorizontal: 0,
-        height:40,
+        height: 40,
         backgroundColor: '#000000',
         borderRadius: 0,
         color: '#fff',
-        paddingHorizontal:0,
-        paddingVertical:0,
-        borderWidth:1,
-        borderBottomColor:'#fff',
+        paddingHorizontal: 0,
+        paddingVertical: 0,
+        borderWidth: 1,
+        borderBottomColor: '#fff',
     },
 
     placeholderSelect: {
@@ -477,22 +540,23 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
 
-    dropdownList : {       
-       backgroundColor:'#222',
+    dropdownList: {
+        backgroundColor: '#222',
         borderColor: '#222',
         borderRadius: 4,
-         paddingVertical:6,
+        paddingVertical: 6,
 
-        
-        
+
+
     },
 
-    listSelectGroup:{backgroundColor:'#222', 
-        paddingVertical:10,
-        paddingHorizontal:15,
+    listSelectGroup: {
+        backgroundColor: '#222',
+        paddingVertical: 10,
+        paddingHorizontal: 15,
     },
-    itemTextSelect:{
-        backgroundColor:'transparent',
+    itemTextSelect: {
+        backgroundColor: 'transparent',
         color: '#fff',
     },
 
@@ -527,12 +591,38 @@ const styles = StyleSheet.create({
         fontSize: 13,
         marginHorizontal: 10,
     },
-     modalCloseIcon: {
-  position: 'absolute',
-  top: 8,
-  right: 8,
-  zIndex: 10,
-},
+    modalCloseIcon: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        zIndex: 10,
+    },
+
+    boldText: {
+        fontFamily: 'Poppins-SemiBold',
+    },
+
+    amountText: {
+        color: '#06F547',
+        fontSize: 15,
+        fontFamily: 'Poppins-SemiBold',
+    },
+
+    statusBadge: {
+        alignSelf: 'flex-start',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 20,
+        marginTop: 6,
+    },
+
+    statusBadgeText: {
+        color: '#fff',
+        fontSize: 11,
+        fontFamily: 'Poppins-SemiBold',
+        textTransform: 'uppercase',
+    },
+
 
 
 });
